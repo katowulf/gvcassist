@@ -5,16 +5,16 @@
         <v-card class="elevation-12">
           <v-toolbar color="primary" dark flat>
             <v-toolbar-title>Please sign in!</v-toolbar-title>
-            <v-spacer/>
+            <v-spacer />
           </v-toolbar>
           <v-card-text>
             <p>
-              To create or join rooms, you need to be signed in. We use secure third party
-              authentication and respect your privacy.
+              To create or join rooms, you need to be signed in. We use secure
+              third party authentication and respect your privacy.
             </p>
           </v-card-text>
           <v-card-actions>
-            <v-spacer/>
+            <v-spacer />
             <v-btn color="primary">Sign in with Google</v-btn>
           </v-card-actions>
         </v-card>
@@ -26,7 +26,7 @@
 <script>
 export default {
   props: {
-    source: String,
-  },
-}
+    source: String
+  }
+};
 </script>

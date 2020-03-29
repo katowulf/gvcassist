@@ -22,6 +22,6 @@ export default Vue.extend({
 
   data: () => ({
     sharedScope: sharedScope
-  }),
+  })
 });
 </script>

@@ -1,6 +1,4 @@
 module.exports = {
-  "assetsDir": "lib",
-  "transpileDependencies": [
-    "vuetify"
-  ]
-}
+  assetsDir: "lib",
+  transpileDependencies: ["vuetify"]
+};

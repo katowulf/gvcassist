@@ -1,1 +1,1 @@
-import 'vuetify/types/lib.d';
+import "vuetify/types/lib.d";
