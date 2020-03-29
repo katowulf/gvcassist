@@ -5,9 +5,6 @@ import vuetify from './plugins/vuetify';
 // initialize routing
 import router from "./router";
 
-// initialize third party libs and utils
-import "./libs/font-awesome";
-
 Vue.config.productionTip = false;
 
 // configure and mount Vue
