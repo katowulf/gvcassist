@@ -10,5 +10,5 @@ See [app/README](app/README.md).
 ```
 cd app/
 npm run build
-firebase deploy
+firebase deploy --only hosting
 ```

@@ -1,9 +1,6 @@
 <template>
   <div class="home">
     <SignInForm />
-
-
-    aaaa
   </div>
 </template>
 
