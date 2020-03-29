@@ -3,6 +3,7 @@
     <AppBar />
 
     <v-content>
+      <Toaster />
       <router-view />
     </v-content>
   </v-app>
@@ -10,14 +11,16 @@
 
 <script lang="ts">
 import Vue from "vue";
-import AppBar from "@/components/AppBar.vue";
 import sharedScope from "@/libs/SharedScope";
+import AppBar from "@/components/AppBar.vue";
+import Toaster from "@/components/Toaster.vue";
 
 export default Vue.extend({
   name: "App",
 
   components: {
-    AppBar
+    AppBar,
+    Toaster
   },
 
   data: () => ({
