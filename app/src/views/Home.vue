@@ -4,18 +4,16 @@
 
     <v-container class="fill-height" fluid>
       <v-row justify="center">
-        <v-col />
-        <v-col>
+        <v-col md="4" offset-md="1">
           <h1 align="center">So what is this thing?</h1>
           <p align="center">
             GVC Assistant is a simple companion tool for large distributed teams designed to
             encourage interaction and simplify participation during meetings.
           </p>
         </v-col>
-        <v-col />
       </v-row>
       <v-row justify="center">
-        <v-col class="d-flex align-stretch">
+        <v-col sm="12" md="12" class="d-flex align-stretch">
           <v-card outlined>
             <v-card-title>Interactivity without noise</v-card-title>
             <v-card-text>
@@ -29,6 +27,8 @@
               </p>
             </v-card-text>
           </v-card>
+        <!--</v-col>-->
+        <!--<v-col sm="12" md="4" class="d-flex align-stretch">-->
           <v-card outlined>
             <v-card-title>Productivity widgets</v-card-title>
             <v-card-text>
@@ -46,6 +46,8 @@
               </p>
             </v-card-text>
           </v-card>
+        <!--</v-col>-->
+        <!--<v-col sm="12" md="4" class="d-flex align-stretch">-->
           <v-card outlined>
             <v-card-title>Security and moderation</v-card-title>
             <v-card-text>
@@ -84,8 +86,19 @@ export default {
 
 
 <style scoped>
-  .v-card {
+  .d-flex .v-card {
     margin: 25px;
     padding: 25px;
   }
+
+  @media screen and (max-width:990px) {
+    .d-flex {
+      flex-wrap: wrap;
+    }
+    .d-flex .v-card {
+      margin: 10px;
+      padding: 10px;
+    }
+  }
+
 </style>

@@ -7,7 +7,7 @@
     </v-row>
 
     <v-row>
-      <v-col cols="6" offset="3">
+      <v-col md="6" offset-md="3">
         <h1 class="display-2 mb-3">
           Who made this?
         </h1>
@@ -20,7 +20,7 @@
     </v-row>
 
     <v-row>
-      <v-col cols="6" offset="3">
+      <v-col md="6" offset-md="3">
         <h2 class="headline font-weight-bold mb-3">
           But why?
         </h2>
@@ -35,7 +35,7 @@
     </v-row>
 
     <v-row>
-      <v-col cols="6" offset="3">
+      <v-col md="6" offset-md="3">
         <h2 class="headline font-weight-bold mb-3">
           May I have the code?
         </h2>
@@ -45,7 +45,7 @@
     </v-row>
 
     <v-row>
-      <v-col cols="6" offset="3">
+      <v-col md="6" offset-md="3">
         <h2 class="headline font-weight-bold mb-3">Credits</h2>
         <p>A variety of tools went into creating this. Highlights include
           <a href="https://vuetifyjs.com/">Vuetify</a>,
