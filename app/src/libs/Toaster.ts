@@ -92,6 +92,12 @@ class Toaster {
     }
   }
 
+  public handleError(tag: string, e: Error) {
+    console.error(tag);
+    console.error(e);
+    this.error(`Internal error [${tag}]: ${e.message}`);
+  }
+
   public error(message: string) : ToasterMessage {
     const props = {
       iconText: "fas fa-times-circle", buttonText: null, isText: false, buttonColor: "white"
@@ -136,4 +142,15 @@ class Toaster {
 }
 
 export const toaster = new Toaster();
+
+/**
+ * Okay, you caught me having a little fun. This is just a generic error handler that displays
+ * a Toaster warning and also logs some data in the JS console. Hopefully it will eventually
+ * talk to Analytics as well.
+ * @param tag String in the format Class::method
+ */
+export const burnedTheToast = function(tag: string) {
+  return (e: Error) => toaster.handleError(tag, e);
+};
+
 export default toaster;

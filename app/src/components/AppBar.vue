@@ -15,14 +15,19 @@
 
     <v-btn text to="/">Home</v-btn>
     <v-btn text to="/about">About</v-btn>
+
+    <NavMenuUserIcon />
   </v-app-bar>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import NavMenuUserIcon from "@/components/NavMenuUserIcon.vue";
 
 export default Vue.extend({
   name: "AppBar",
+
+  components: { NavMenuUserIcon },
 
   data: () => ({})
 });

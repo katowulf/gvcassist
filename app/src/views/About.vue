@@ -13,9 +13,9 @@
 
     <v-row>
       <v-col md="6" offset-md="3">
-        <h1 class="display-2 mb-3">
+        <h2 class="headline font-weight-bold mb-3">
           Who made this?
-        </h1>
+        </h2>
 
         <p class="subheading font-weight-regular">
           <a href="https://katowulf.com">Kato Richardson</a> created this using
@@ -73,13 +73,13 @@
         </p>
 
         <p>
-          Rie on StackOverflow for
+          Rie on StackOverflow provided
           <a href="https://stackoverflow.com/questions/60288285"
             >clues about same-height columns in Vuetify grids</a
           >
           that eventually led to using <code>fill-height</code>,
-          <code>d-flex</code> and <code>align-stretch</code>. I later discovered
-          <code>flex-wrap: wrap;</code> from the docs to make it responsive for
+          <code>d-flex</code> and <code>align-stretch</code>. Adding
+          <code>flex-wrap: wrap;</code> from the docs made it responsive for
           mobile.
         </p>
 
@@ -96,7 +96,7 @@
             href="https://github.com/vuetifyjs/vue-cli-plugins/issues/43#issuecomment-578161783"
             >here</a
           >
-          and it fixed my TypeScript woes.
+          and it fixed a lot of TypeScript woes.
         </p>
 
         <p>

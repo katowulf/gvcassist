@@ -5,14 +5,16 @@
 npm install
 ```
 
-### Compiles and hot-reloads for development
+Rename `firebase-config.template.ts` to `firebase-config.ts`. 
+Copy in the *Firebase SDK snippet* from your 
+[web app settings](https://console.firebase.google.com/project/_/settings/general)
+in the Firebase console.
+
+## Development
+
+### Run a local server with hot-reloads
 ```
 npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
 ```
 
 ### Lints and fixes files
@@ -23,7 +25,15 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-### Things to do
+## Deployment
+
+When deploying to staging servers, use `--mode development`; production servers use `--mode production`.
+
+```
+npm run build --mode <development|production>
+```
+
+## Todo list
 ```
 security on rooms
     delete after x hours/days/months
