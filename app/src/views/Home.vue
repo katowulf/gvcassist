@@ -1,9 +1,21 @@
 <template>
-  <div class="home">
-    <SignInForm v-if="!user.isSignedIn" />
+    <v-container class="hero" fluid>
+      <v-row align="center" justify="center">
+        <v-col md="6" offset-md="1">
+          <SignInForm v-if="user.initialized && !user.isSignedIn" />
+          <RoomPicker v-if="user.initialized && user.isSignedIn" />
+          <LoadingCard v-if="!user.initialized" />
+        </v-col>
+      </v-row>
 
-    <HomePageContent />
-  </div>
+      <v-row>
+        <v-col>
+          <HomePageContent />
+        </v-col>
+      </v-row>
+
+      <Footer />
+    </v-container>
 </template>
 
 <script>
@@ -12,11 +24,14 @@
 import SignInForm from "@/components/SignInForm.vue";
 import sharedScope from "@/libs/SharedScope";
 import HomePageContent from "@/components/HomePageContent.vue";
+import RoomPicker from "@/components/RoomPicker.vue";
+import LoadingCard from "@/components/LoadingCard.vue";
+import Footer from "@/components/Footer.vue";
 
 export default {
   name: "Home",
   components: {
-    SignInForm, HomePageContent
+    SignInForm, HomePageContent, RoomPicker, LoadingCard, Footer
   },
   data: () => ({
     user: sharedScope.user
@@ -24,3 +39,14 @@ export default {
 };
 </script>
 
+<!-- CSS not scoped because the v-card components are contained in the embedded components. -->
+<style>
+  .hero .v-card {
+    min-height: 210px;
+  }
+
+  .hero .loading {
+    line-height: 200px;
+    text-align: center;
+  }
+</style>

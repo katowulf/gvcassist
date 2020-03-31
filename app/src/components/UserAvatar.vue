@@ -1,10 +1,10 @@
 <template>
   <v-avatar :color="color" v-on:click="signOut()">
-    <img v-if="user.photoURL"
+    <img v-if="user && user.photoURL"
         :src="user.photoURL"
         :alt="user.displayName"
     />
-    <span v-if="!user.photoURL" class="white--text headline">{{user.initials || "?"}}</span>
+    <span v-if="user && !user.photoURL" class="white--text headline">{{user.initials || "?"}}</span>
   </v-avatar>
 </template>
 
@@ -29,15 +29,23 @@
 
     props: ['uid'],
 
+    // Loading the user object inside of created() ensures that it exists before the
+    // page renders. Using computed and data broke when the user wasn't ready and didn't
+    // correct after it did load. It's probably reasonable to do this with route guards too,
+    // but this isn't a route. It's a drop in component. So this felt more elegant.
+    async created() {
+      this.user = await Profiles.find(this.uid);
+    },
+
     methods: {
-      signOut: function() {
+      signOut() {
         Auth.signOut().then(() => Toaster.info("You have been signed out."));
       }
     },
 
     data: () => ({
       color: getRandomColor(),
-      user: Profiles.find(this.uid)
+      user: null
     })
   });
 

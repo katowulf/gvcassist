@@ -9,8 +9,19 @@ import {toaster} from "@/libs/Toaster";
 interface SharedAuthScope {
   isSignedIn: boolean;
   uid: string | null;
+
+  // This is the raw User object returned by onAuthStateChanged.
   data: firebase.User | null;
+
+  // This is true after a successful login, if
+  // firebase.auth.UserCredential.additionalUserInfo.isNewUser is true.
+  // It indicates that this is the first time this account
+  // has logged into the system.
   isNewUser: boolean;
+
+  // False until onAuthStateChanged() has been invoked at least once
+  // Since this is when we know if user login exists
+  initialized: boolean;
 }
 
 class AuthHelper {
@@ -19,9 +30,10 @@ class AuthHelper {
   private additionalUserInfo?: firebase.auth.AdditionalUserInfo;
   constructor() {
     this.auth = firebase.auth();
-    this.scope = { isSignedIn: false, uid: null, data: null, isNewUser: false };
+    this.scope = { isSignedIn: false, uid: null, data: null, isNewUser: false, initialized: false };
 
     this.auth.onAuthStateChanged(user => {
+      this.scope.initialized = true;
       if (user == null) {
         this.scope.isSignedIn = false;
         this.scope.uid = null;

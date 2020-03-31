@@ -28,6 +28,9 @@ class ProfileCache {
         console.log("user fetched from db", uid, profile); //debug
         return profile;
       }
+      else {
+        console.log(`profile ${uid} did not exist in db`); //debug
+      }
     }
     catch(e) {
       toaster.handleError(`Profiles::find(${uid})`, e);

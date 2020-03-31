@@ -28,3 +28,7 @@ export default Vue.extend({
   })
 });
 </script>
+
+<style>
+  body { padding-bottom: 50px; }
+</style>
