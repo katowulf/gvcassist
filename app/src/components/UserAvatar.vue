@@ -1,52 +1,70 @@
 <template>
   <v-avatar :color="color" v-on:click="signOut()">
-    <img v-if="user && user.photoURL"
-        :src="user.photoURL"
-        :alt="user.displayName"
+    <img
+      v-if="user && user.photoURL"
+      :src="user.photoURL"
+      :alt="user.displayName"
     />
-    <span v-if="user && !user.photoURL" class="white--text headline">{{user.initials || "?"}}</span>
+    <span v-if="user && !user.photoURL" class="white--text headline">{{
+      user.initials || "?"
+    }}</span>
   </v-avatar>
 </template>
 
 <script language="ts">
-  import Vue from "vue";
-  import Toaster from "@/libs/Toaster";
-  import {Auth} from "@/libs/Auth";
-  import Profiles from "@/libs/Profiles";
+import Vue from "vue";
+import Toaster from "@/libs/Toaster";
+import { Auth } from "@/libs/Auth";
+import Profiles from "@/libs/Profiles";
 
-  const colors = [
-    "red", "pink", "purple", "deep-purple", "indigo", /*"blue", */"light-blue", "cyan", "teal",
-    "green", "light-green", "lime", "yellow", "amber", "orange", "deep-orange", "brown",
-    "blue-grey", "grey", "shades"
-  ];
+const colors = [
+  "red",
+  "pink",
+  "purple",
+  "deep-purple",
+  "indigo",
+  /*"blue", */ "light-blue",
+  "cyan",
+  "teal",
+  "green",
+  "light-green",
+  "lime",
+  "yellow",
+  "amber",
+  "orange",
+  "deep-orange",
+  "brown",
+  "blue-grey",
+  "grey",
+  "shades"
+];
 
-  function getRandomColor() {
-    return colors[Math.floor(Math.random()*colors.length)];
-  }
+function getRandomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
 
-  export default Vue.extend({
-    name: "UserAvatar",
+export default Vue.extend({
+  name: "UserAvatar",
 
-    props: ['uid'],
+  props: ["uid"],
 
-    // Loading the user object inside of created() ensures that it exists before the
-    // page renders. Using computed and data broke when the user wasn't ready and didn't
-    // correct after it did load. It's probably reasonable to do this with route guards too,
-    // but this isn't a route. It's a drop in component. So this felt more elegant.
-    async created() {
-      this.user = await Profiles.find(this.uid);
-    },
+  // Loading the user object inside of created() ensures that it exists before the
+  // page renders. Using computed and data broke when the user wasn't ready and didn't
+  // correct after it did load. It's probably reasonable to do this with route guards too,
+  // but this isn't a route. It's a drop in component. So this felt more elegant.
+  async created() {
+    this.user = await Profiles.find(this.uid);
+  },
 
-    methods: {
-      signOut() {
-        Auth.signOut().then(() => Toaster.info("You have been signed out."));
-      }
-    },
+  methods: {
+    signOut() {
+      Auth.signOut().then(() => Toaster.info("You have been signed out."));
+    }
+  },
 
-    data: () => ({
-      color: getRandomColor(),
-      user: null
-    })
-  });
-
+  data: () => ({
+    color: getRandomColor(),
+    user: null
+  })
+});
 </script>

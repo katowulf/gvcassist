@@ -9,25 +9,25 @@
 </template>
 
 <script lang="ts">
-  import Vue from "vue";
-  import sharedScope from "@/libs/SharedScope";
-  import UserAvatar from "@/components/UserAvatar.vue";
+import Vue from "vue";
+import sharedScope from "@/libs/SharedScope";
+import UserAvatar from "@/components/UserAvatar.vue";
 
-  export default Vue.extend({
-    name: "UserIcon",
+export default Vue.extend({
+  name: "UserIcon",
 
-    components: {
-      UserAvatar
-    },
+  components: {
+    UserAvatar
+  },
 
-    methods: {
-      signIn: function() {
-        this.$router.push('/login');
-      }
-    },
+  methods: {
+    signIn: function() {
+      this.$router.push("/login");
+    }
+  },
 
-    data: () => ({
-      user: sharedScope.user
-    })
-  });
+  data: () => ({
+    user: sharedScope.user
+  })
+});
 </script>

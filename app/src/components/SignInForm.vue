@@ -6,15 +6,13 @@
     </v-toolbar>
     <v-card-text>
       <p>
-        To create or join rooms, you need to be signed in. We use secure
-        third party authentication and respect your privacy.
+        To create or join rooms, you need to be signed in. We use secure third
+        party authentication and respect your privacy.
       </p>
     </v-card-text>
     <v-card-actions>
       <v-spacer />
-      <v-btn color="primary" v-on:click="signIn"
-        >Sign in with Google</v-btn
-      >
+      <v-btn color="primary" v-on:click="signIn">Sign in with Google</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -36,17 +34,24 @@ export default Vue.extend({
 
   methods: {
     signIn() {
-      Auth.signIn().then(result => {
-        console.log("authenticated [", result.user.uid, "] ", result.user.displayName);
-        if( SharedScope.redirect ) {
-          const redirect = SharedScope.redirect;
-          SharedScope.redirect = null;
-          this.$router.push(redirect);
-        }
-      }).catch(error => {
-        console.error(error);
-        toaster.error(error.message);
-      })
+      Auth.signIn()
+        .then(result => {
+          console.log(
+            "authenticated [",
+            result.user.uid,
+            "] ",
+            result.user.displayName
+          );
+          if (SharedScope.redirect) {
+            const redirect = SharedScope.redirect;
+            SharedScope.redirect = null;
+            this.$router.push(redirect);
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          toaster.error(error.message);
+        });
     }
   }
 });

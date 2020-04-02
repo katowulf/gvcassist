@@ -1,6 +1,6 @@
 import "@/libs/firebase-init";
 import * as firebase from "firebase/app";
-import {toaster} from "@/libs/Toaster";
+import { toaster } from "@/libs/Toaster";
 
 /**
  * The shared scope intended to be used by SharedScope to provide views with a simple snapshot of
@@ -9,6 +9,8 @@ import {toaster} from "@/libs/Toaster";
 interface SharedAuthScope {
   isSignedIn: boolean;
   uid: string | null;
+  token: string | null;
+  emailDomain: string | null;
 
   // This is the raw User object returned by onAuthStateChanged.
   data: firebase.User | null;
@@ -30,28 +32,42 @@ class AuthHelper {
   private additionalUserInfo?: firebase.auth.AdditionalUserInfo;
   constructor() {
     this.auth = firebase.auth();
-    this.scope = { isSignedIn: false, uid: null, data: null, isNewUser: false, initialized: false };
+    this.scope = {
+      isSignedIn: false,
+      uid: null,
+      data: null,
+      isNewUser: false,
+      initialized: false,
+      emailDomain: null,
+      token: null
+    };
 
     this.auth.onAuthStateChanged(user => {
       this.scope.initialized = true;
       if (user == null) {
-        this.scope.isSignedIn = false;
-        this.scope.uid = null;
-        this.scope.data = null;
-        this.scope.isNewUser = false;
+        Object.assign(this.scope, {
+          isSignedIn: false, uid: null, data: null, isNewUser: false, emailDomain: null, token: null
+        });
         delete this.additionalUserInfo;
       } else {
-        // we can only detect new users by looking at
-        this.scope.isSignedIn = true;
-        this.scope.uid = user.uid;
-        this.scope.data = user;
-        this.scope.isNewUser = this.additionalUserInfo?.isNewUser || false;
+        console.log(JSON.stringify(user, null, 2));
+        Object.assign(this.scope, {
+          isSignedIn: true,
+          uid: user.uid,
+          data: user,
+          token: null,
+          emailDomain: AuthHelper.getEmailDomain(user),
+          // we can only detect new users by looking at the sign in results object
+          // that data isn't available here, so preserve it when updating auth state
+          isNewUser: this.additionalUserInfo?.isNewUser || false
+        });
+        user.getIdToken().then(tok => this.scope.token = tok);
       }
-      console.log('onAuthStateChanged', this.scope); //debug
+      console.log("onAuthStateChanged", this.scope);
     });
   }
 
-  getSharedScope() : SharedAuthScope {
+  getSharedScope(): SharedAuthScope {
     return this.scope;
   }
 
@@ -64,8 +80,7 @@ class AuthHelper {
         this.additionalUserInfo = result.additionalUserInfo;
       }
       return result;
-    }
-    catch(e) {
+    } catch (e) {
       toaster.handleError("AuthHelper::signIn", e);
       throw e;
     }
@@ -73,6 +88,11 @@ class AuthHelper {
 
   signOut(): Promise<void> {
     return this.auth.signOut();
+  }
+
+  private static getEmailDomain(user: firebase.User): string|null {
+    if( !user || !user.email) return null;
+    return user.email.replace(/^.*@/, '');
   }
 }
 

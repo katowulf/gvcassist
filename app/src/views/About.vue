@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-container>
-      <v-row class="text-center">
-        <v-col>
+      <v-row justify="center">
+        <v-col md="6" lg="5">
           <v-img
             :src="require('../assets/logo.svg')"
             class="my-3"
@@ -12,22 +12,22 @@
         </v-col>
       </v-row>
 
-      <v-row>
-        <v-col md="6" offset-md="3">
+      <v-row justify="center">
+        <v-col md="6" lg="5">
           <h2 class="headline font-weight-bold mb-3">
             Who made this?
           </h2>
 
           <p class="subheading font-weight-regular">
-            <a href="https://katowulf.com">Kato Richardson</a> created this using
-            <a href="https://firebase.google.com">Firebase</a> and
+            <a href="https://katowulf.com">Kato Richardson</a> created this
+            using <a href="https://firebase.google.com">Firebase</a> and
             <a href="">Vue.js</a>.
           </p>
         </v-col>
       </v-row>
 
-      <v-row>
-        <v-col md="6" offset-md="3">
+      <v-row justify="center">
+        <v-col md="6" lg="5">
           <h2 class="headline font-weight-bold mb-3">
             But why?
           </h2>
@@ -42,23 +42,23 @@
         </v-col>
       </v-row>
 
-      <v-row>
-        <v-col md="6" offset-md="3">
+      <v-row justify="center">
+        <v-col md="6" lg="5">
           <h2 class="headline font-weight-bold mb-3">
             May I have the code?
           </h2>
 
           <p>
             Yep, it's on GitHub
-            <a href="https://github.com/katowulf/gvcassist">here</a>. If it saves
-            you energy and money, please consider a small donation to Vue or
-            Vuetify.
+            <a href="https://github.com/katowulf/gvcassist">here</a>. If it
+            saves you energy and money, please consider a small donation to Vue
+            or Vuetify.
           </p>
         </v-col>
       </v-row>
 
-      <v-row>
-        <v-col md="6" offset-md="3">
+      <v-row justify="center">
+        <v-col md="6" lg="5">
           <h2 class="headline font-weight-bold mb-3">Credits</h2>
           <p>
             A variety of tools went into creating this. Highlights include
@@ -69,8 +69,8 @@
           </p>
 
           <p>
-            Some really creative people deserve credit for providing ideas and bug
-            workarounds as well:
+            Some really creative people deserve credit for providing ideas and
+            bug workarounds as well:
           </p>
 
           <p>
@@ -101,13 +101,23 @@
           </p>
 
           <p>
-            shefali163 suggested line-height to center my loading spinner in the hero card
-            <a href="https://www.geeksforgeeks.org/how-to-vertically-center-text-with-css/">here</a>
+            shefali163 suggested line-height to center my loading spinner in the
+            hero card
+            <a
+              href="https://www.geeksforgeeks.org/how-to-vertically-center-text-with-css/"
+              >here</a
+            >
           </p>
 
           <p>
-            To Rie, Oskar, Nicolas, shefali163, and many others behind the scenes, thanks for
-            letting me stand on your shoulders! ♥
+            The excellent MDN docs helped me figure out how to
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event">intercept paste events</a>.
+            This allows calendar invite attendees to just be pasted directly into the whitelist.
+          </p>
+
+          <p>
+            To Rie, Oskar, Nicolas, shefali163, and many others behind the
+            scenes, thanks for letting me stand on your shoulders! ♥
           </p>
         </v-col>
       </v-row>

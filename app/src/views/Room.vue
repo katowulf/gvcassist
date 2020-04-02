@@ -20,24 +20,24 @@ export default Vue.extend({
 
   methods: {
     click: (type: string) => {
-      switch(type) {
-        case 'error':
+      switch (type) {
+        case "error":
           toaster.error(type);
           break;
-        case 'warning':
+        case "warning":
           toaster.warning(type);
           break;
-        case 'info':
+        case "info":
           toaster.info(type);
           break;
-        case 'success':
+        case "success":
           toaster.success(type);
           break;
-        case 'note':
+        case "note":
           toaster.note(type);
           break;
         default:
-          console.error('oops');
+          console.error("oops");
       }
     }
   },

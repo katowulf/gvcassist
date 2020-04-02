@@ -17,6 +17,8 @@ in the Firebase console.
 npm run serve
 ```
 
+For debugging, try opening the js console and entering `enableDebugging(true)` for a mini footer bar with UI and auth info, or browse to `/debug` to see a full page output.
+
 ### Lints and fixes files
 ```
 npm run lint

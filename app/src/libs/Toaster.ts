@@ -18,22 +18,35 @@ export class ToasterMessage {
   private toaster?: Toaster;
 
   constructor(type: string, message: string, props?: object) {
-     this.type = type;
-     this.message = message;
-     this.props = {...{
-         buttonColor: type, borderColor: type,
-         elevation: 1, hasColoredBorder: false, isText: true,
-         buttonText: "Okay", iconText: null, icon: null, borderLocation: null
-       } as ToasterMessageProps, ...props};
-     Object.freeze(this.props);
-     console.log(type, message, this.props);
+    this.type = type;
+    this.message = message;
+    this.props = {
+      ...({
+        buttonColor: type,
+        borderColor: type,
+        elevation: 1,
+        hasColoredBorder: false,
+        isText: true,
+        buttonText: "Okay",
+        iconText: null,
+        icon: null,
+        borderLocation: null
+      } as ToasterMessageProps),
+      ...props
+    };
+    Object.freeze(this.props);
+    console.log(type, message, this.props);
   }
 
-  setAction(action: Function) { this.action = action; }
-  setParent(toaster: Toaster) { this.toaster = toaster; }
+  setAction(action: Function) {
+    this.action = action;
+  }
+  setParent(toaster: Toaster) {
+    this.toaster = toaster;
+  }
 
   setDuration(seconds: number) {
-    this.timeoutRef = setTimeout(() => this.dismiss(), seconds*1000);
+    this.timeoutRef = setTimeout(() => this.dismiss(), seconds * 1000);
   }
 
   activate() {
@@ -43,14 +56,14 @@ export class ToasterMessage {
 
   dismiss() {
     this.clearTimeout();
-    if( this.toaster ) {
+    if (this.toaster) {
       this.toaster.removeMessage(this);
       delete this.toaster;
     }
   }
 
   private clearTimeout() {
-    if( typeof this.timeoutRef !== "undefined" ) {
+    if (typeof this.timeoutRef !== "undefined") {
       clearTimeout(this.timeoutRef);
       delete this.timeoutRef;
     }
@@ -67,16 +80,15 @@ export interface ToasterAction {
 export interface ToasterMessageProps {
   elevation: number;
   isText: boolean;
-  icon: string|null;
+  icon: string | null;
   hasColoredBorder: boolean;
-  borderLocation: string|null;
-  borderColor: string|null;
-  color: string|null; // should only be set if not using a default type (error, warning, info, success)
+  borderLocation: string | null;
+  borderColor: string | null;
+  color: string | null; // should only be set if not using a default type (error, warning, info, success)
   buttonColor: string;
-  buttonText: string|null;
-  iconText: string|null;
+  buttonText: string | null;
+  iconText: string | null;
 }
-
 
 class Toaster {
   readonly messages: ToasterMessage[] = [];
@@ -98,44 +110,58 @@ class Toaster {
     this.error(`Internal error [${tag}]: ${e.message}`);
   }
 
-  public error(message: string) : ToasterMessage {
+  public error(message: string): ToasterMessage {
     const props = {
-      iconText: "fas fa-times-circle", buttonText: null, isText: false, buttonColor: "white"
+      iconText: "fas fa-times-circle",
+      buttonText: null,
+      isText: false,
+      buttonColor: "white"
     } as ToasterMessageProps;
-    return this.addMessage(new ToasterMessage('error', message, props));
+    return this.addMessage(new ToasterMessage("error", message, props));
   }
 
-  public warning(message: string) : ToasterMessage {
-    return this.addMessage(new ToasterMessage('warning', message));
+  public warning(message: string): ToasterMessage {
+    return this.addMessage(new ToasterMessage("warning", message));
   }
 
-  public info(message: string) : ToasterMessage {
-    return this.addMessage(new ToasterMessage('info', message));
+  public info(message: string): ToasterMessage {
+    return this.addMessage(new ToasterMessage("info", message));
   }
 
-  public success(message: string) : ToasterMessage {
-    return this.addMessage(new ToasterMessage('success', message));
+  public success(message: string): ToasterMessage {
+    return this.addMessage(new ToasterMessage("success", message));
   }
 
-  public note(message: string) : ToasterMessage {
+  public note(message: string): ToasterMessage {
     const props = {
-      iconText: "fas fa-times-circle", buttonText: null, isText: false,
-      hasColoredBorder: true, borderLocation: "left", color: "blue-grey",
+      iconText: "fas fa-times-circle",
+      buttonText: null,
+      isText: false,
+      hasColoredBorder: true,
+      borderLocation: "left",
+      color: "blue-grey",
       icon: undefined
     };
-    return this.addMessage(new ToasterMessage('info', message, props));
+    return this.addMessage(new ToasterMessage("info", message, props));
   }
 
-  public addMessage(message: ToasterMessage, overrideDurationInSeconds?: number) {
+  public addMessage(
+    message: ToasterMessage,
+    overrideDurationInSeconds?: number
+  ) {
     this.messages.push(message);
     message.setParent(this);
     Toaster.setDuration(message, overrideDurationInSeconds);
     return message;
   }
 
-  private static setDuration(message: ToasterMessage, durationSeconds?: number) {
-    const duration = typeof durationSeconds !== "undefined"? durationSeconds : DURATION;
-    if( duration > 0 ) {
+  private static setDuration(
+    message: ToasterMessage,
+    durationSeconds?: number
+  ) {
+    const duration =
+      typeof durationSeconds !== "undefined" ? durationSeconds : DURATION;
+    if (duration > 0) {
       message.setDuration(duration);
     }
   }
