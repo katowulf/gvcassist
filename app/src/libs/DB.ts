@@ -1,10 +1,10 @@
-
 import firebase from "@/libs/firebase-init";
 import DocumentReference = firebase.firestore.DocumentReference;
 import CollectionReference = firebase.firestore.CollectionReference;
 import DocumentData = firebase.firestore.DocumentData;
+import Query = firebase.firestore.Query;
 
-const BASE = 'apps/gvcassistant';
+const BASE = "apps/gvcassistant";
 
 class Path {
   public readonly isDoc: boolean;
@@ -12,43 +12,54 @@ class Path {
   public readonly pathString: string;
   public readonly name: string;
 
-  constructor(parts: string|string[]) {
-    const bits = [BASE].concat(parts).map(p => p.split('/')).flat();
+  constructor(parts: string | string[]) {
+    const bits = [BASE]
+      .concat(parts)
+      .map(p => p.split("/"))
+      .flat();
     this.isDoc = bits.length % 2 === 0;
-    const path = (this.isDoc? bits : bits.slice(0, -1)).join("/");
+    const path = (this.isDoc ? bits : bits.slice(0, -1)).join("/");
     this.baseDoc = firebase.firestore().doc(path);
     this.pathString = bits.join("/");
-    this.name = bits[bits.length-1];
+    this.name = bits[bits.length - 1];
   }
 
-  doc() : DocumentReference  {
-    if( !this.isDoc ) {
-      throw new Error("Path must have an even number of parts to reference a Document");
+  doc(): DocumentReference {
+    if (!this.isDoc) {
+      throw new Error(
+        "Path must have an even number of parts to reference a Document"
+      );
     }
     return this.baseDoc;
   }
 
-  coll() : CollectionReference {
-    if( this.isDoc ) {
-      throw new Error("Path must have an odd number of parts to reference a Collection");
+  coll(): CollectionReference {
+    if (this.isDoc) {
+      throw new Error(
+        "Path must have an odd number of parts to reference a Collection"
+      );
     }
     return this.baseDoc.collection(this.name);
   }
 
-  toString() { return this.pathString; }
+  toString() {
+    return this.pathString;
+  }
 }
 
 interface TestOutcome {
-  exists: boolean, allowed: boolean, path: string
+  exists: boolean;
+  allowed: boolean;
+  path: string;
 }
 
 class Database {
-  db: any;
+  db: firebase.firestore.Firestore;
   constructor() {
     this.db = firebase.firestore();
   }
 
-  async checkAccess(parts: string|string[]) : Promise<TestOutcome> {
+  async checkAccess(parts: string | string[]): Promise<TestOutcome> {
     const path = new Path(parts);
     // I can read feed if it does not exist (so I can tell the difference between denied and not found)
     // I can read feed if it exists and I meet one of the following:
@@ -57,29 +68,32 @@ class Database {
     //  - My email matches the domain specified
     //  - Room is open to anyone with the link
 
-    const outcome =  {exists: true, allowed: false, path: path.toString() } as TestOutcome;
+    const outcome = {
+      exists: true,
+      allowed: false,
+      path: path.toString()
+    } as TestOutcome;
     try {
-      const snap : DocumentData = path.doc().get();
+      const snap: DocumentData = path.doc().get();
       outcome.exists = snap.exists; // only condition where exists can be false
       outcome.allowed = true; // if I got here without an error, I have access
-    }
-    catch(e) {
+    } catch (e) {
       outcome.exists = true;
       outcome.allowed = false;
-      console.log('access failure', e); //debug
+      console.log("access failure", e); //debug
     }
     return outcome;
   }
 
-  add(path: string|string[], data: object) : Promise<DocumentReference> {
+  add(path: string | string[], data: object): Promise<DocumentReference> {
     return new Path(path).coll().add(data);
   }
 
-  doc(parts: string|string[]) : DocumentReference {
+  doc(parts: string | string[]): DocumentReference {
     return new Path(parts).doc();
   }
 
-  collection(parts: string|string[]) : CollectionReference {
+  collection(parts: string | string[]): CollectionReference {
     return new Path(parts).coll();
   }
 
@@ -88,4 +102,57 @@ class Database {
   }
 }
 
-export default new Database();
+function defaultCompareFunction(a: DocumentData, b: DocumentData) {
+  return a.id.localeCompare(b.id);
+}
+
+export type CompareFunction = (a:object, b:object) => number;
+export type MergeQueryObserver = (docs: DocumentData[]) => void;
+
+export class MergeQuery {
+  private observers: Set<MergeQueryObserver>;
+  private compareFunction = defaultCompareFunction;
+  private docs: DocumentData[][] = [[], []];
+  private queryCancelers: Function[] = [];
+
+  constructor(...queries: Query[]) {
+    this.observers = new Set();
+    queries.forEach((query, position) => {
+      this.queryCancelers.push(
+        query.onSnapshot(snap => this.updateDocs(snap.docs, position))
+      );
+    });
+  }
+
+  setCompareFunction(compareFx: CompareFunction): void {
+    this.compareFunction = compareFx;
+  }
+
+  /**
+   * Listen for updates to the merged data. Receives the entire array after each update.
+   *
+   * @param observer receives an array of data objects sorted using compareFunction.
+   * @return an unsubscribe function
+   */
+  subscribe(observer: MergeQueryObserver) : () => void {
+    this.observers.add(observer);
+    return () => { this.observers.delete(observer); }
+  }
+
+  destroy() {
+    this.queryCancelers.forEach(fn => fn());
+    this.queryCancelers.length = 0;
+    this.docs.length = 0;
+    this.observers.clear();
+  }
+
+  private updateDocs(docs: DocumentData[], position: number) {
+    this.docs[position] = docs.map(dd => ({"$id": dd.id, ...dd.data()}));
+    const sortedData = [...new Set(this.docs.flat())].sort(this.compareFunction);
+    this.observers.forEach(fn => fn(sortedData));
+  }
+}
+
+export const DB = new Database();
+
+export default DB;
