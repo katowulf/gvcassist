@@ -57,12 +57,29 @@
 <script language="ts">
 import Vue from "vue";
 import RoomCreateForm from "@/components/RoomCreateForm.vue";
+import sharedScope from "@/libs/SharedScope";
+// import {burnedTheToast} from "@/libs/Toaster";
+// import DB from "@/libs/DB";
 
 export default Vue.extend({
   name: "RoomPicker",
 
   async created() {
-    console.log("created");
+    // DB.collection('rooms')
+    //   .where("owners", "array-contains", this.shared.user.uid)
+    //   .onSnapshot(snapshot => {
+    //     snapshot.docChanges().forEach(function(change) {
+    //       if (change.type === "added") {
+    //         console.log("Room added: ", change.doc.data());
+    //       }
+    //       if (change.type === "modified") {
+    //         console.log("Room modified: ", change.doc.data());
+    //       }
+    //       if (change.type === "removed") {
+    //         console.log("Room removed: ", change.doc.data());
+    //       }
+    //     });
+    //   }, burnedTheToast("RoomPicker::created"));
   },
 
   components: { RoomCreateForm },
@@ -102,7 +119,9 @@ export default Vue.extend({
     // that monitors changes to the value and updates the visibility (quite convoluted). A boolean
     // won't work here with watch in the client because it never changes after it's set to true
     // since the child component can't set it back to false. So sadface.
-    showCreateForm: { visible: false }
+    showCreateForm: { visible: false },
+
+    shared: sharedScope
   })
 });
 </script>

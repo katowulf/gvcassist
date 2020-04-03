@@ -8,7 +8,7 @@
     </v-content>
 
     <v-footer fixed class="debug" v-if="showDebug">
-      <p class="font-weight-light caption">$vuetify.breakpoint: height={{$vuetify.breakpoint.height}} width={{$vuetify.breakpoint.width}} name={{$vuetify.breakpoint.name}};  uid: {{sharedScope.user.uid}} debug: {{sharedScope.debug}}; </p>
+      <p class="font-weight-light caption">$vuetify.breakpoint: height={{$vuetify.breakpoint.height}} width={{$vuetify.breakpoint.width}} name={{$vuetify.breakpoint.name}};  uid: {{sharedScope.user.uid}}, debug: {{sharedScope.debug}}; </p>
     </v-footer>
   </v-app>
 </template>

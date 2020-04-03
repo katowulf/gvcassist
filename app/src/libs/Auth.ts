@@ -24,14 +24,23 @@ interface SharedAuthScope {
   // False until onAuthStateChanged() has been invoked at least once
   // Since this is when we know if user login exists
   initialized: boolean;
+
+  // Resolves when initialized is updated to true
+  // Returns value of isSignedIn
+  readyState: Promise<boolean>
 }
 
 class AuthHelper {
+  public readonly readyState: Promise<boolean>;
   private readonly auth: firebase.auth.Auth;
   private readonly scope: SharedAuthScope;
   private additionalUserInfo?: firebase.auth.AdditionalUserInfo;
+  private resolver: any;
+
   constructor() {
     this.auth = firebase.auth();
+    this.readyState = new Promise((res, rej) => { this.resolver = res; });
+
     this.scope = {
       isSignedIn: false,
       uid: null,
@@ -39,11 +48,11 @@ class AuthHelper {
       isNewUser: false,
       initialized: false,
       emailDomain: null,
-      token: null
+      token: null,
+      readyState: this.readyState
     };
 
     this.auth.onAuthStateChanged(user => {
-      this.scope.initialized = true;
       if (user == null) {
         Object.assign(this.scope, {
           isSignedIn: false, uid: null, data: null, isNewUser: false, emailDomain: null, token: null
@@ -63,7 +72,11 @@ class AuthHelper {
         });
         user.getIdToken().then(tok => this.scope.token = tok);
       }
-      console.log("onAuthStateChanged", this.scope);
+      if( !this.scope.initialized ) {
+        this.scope.initialized = true;
+        this.resolver(this.scope.isSignedIn);
+      }
+      console.log("onAuthStateChanged", this.scope.uid);
     });
   }
 
@@ -97,4 +110,5 @@ class AuthHelper {
 }
 
 export const Auth = new AuthHelper();
+export const AuthReadyState = Auth.readyState;
 export default Auth;

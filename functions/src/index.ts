@@ -3,7 +3,7 @@ import * as functions from 'firebase-functions';
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-const db = admin.firestore();
+const db = admin.firestore().doc('apps/gvcassistant');
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript

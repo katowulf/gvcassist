@@ -1,5 +1,6 @@
-import * as firebase from "firebase/app";
 import { toaster } from "@/libs/Toaster";
+import { Auth } from "@/libs/Auth";
+import DB from "@/libs/DB";
 
 export interface UserProfile {
   displayName: string;
@@ -21,11 +22,11 @@ class ProfileCache {
     }
 
     try {
-      const snap = await firebase
-        .firestore()
-        .collection("publicProfiles")
-        .doc(uid)
-        .get();
+      if( !Auth.getSharedScope().isSignedIn ) {
+        throw new Error("Must be signed in to fetch user profiles");
+      }
+      console.log('trying', DB.doc(['publicProfiles', uid]).path); //debug
+      const snap = await DB.doc(['publicProfiles', uid]).get();
       if (snap.exists) {
         const profile = snap.data() as UserProfile;
         this.users.set(uid, profile);

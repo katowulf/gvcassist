@@ -66,6 +66,8 @@
 <script language="ts">
   import Vue from "vue";
   import sharedScope from "@/libs/SharedScope";
+  import {burnedTheToast, toaster} from "@/libs/Toaster";
+  import DB from "@/libs/DB";
 
   const EMAIL_REGEX = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}/gi;
 
@@ -93,7 +95,19 @@
     methods: {
       createRoom() {
         this.showForm.visible = false;
-        console.log("createRoom", this.createForm);
+        const data = {
+          owners: [this.shared.user.uid],
+          access: this.createForm.access,
+          description: this.createForm.description || null,
+          domain: this.createForm.domain || null,
+          whitelist: [...this.createForm.whitelist],
+          retentionLength: 90,
+          created: DB.timestamp()
+        };
+        console.log("createRoom", data);
+        DB.add(['rooms'], data)
+          .then(() => toaster.success("Room created"))
+          .catch(burnedTheToast("RoomCreateForm::createRoom"));
       },
 
       inputChangedRetention(v) {

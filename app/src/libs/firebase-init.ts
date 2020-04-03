@@ -15,3 +15,7 @@ import "firebase/firestore";
 
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
+
+window.firebase = firebase; //debug make it available on window for tinkering
+
+export default firebase;
