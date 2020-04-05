@@ -2,8 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /apps/gvcassistant {
-        function docIsEmpty(doc) {
-           return doc.data == null || doc.data.size() == 0;
+        function makePath(child) {
+            return /databases/$(database)/documents/apps/gvcassistant/$(child);
         }
 
         function isDocOwner(doc) {
@@ -11,16 +11,20 @@ service cloud.firestore {
         }
 
         function inWhitelist(doc) {
-           return request.auth.email in doc.data.whitelist;
+           return request.auth.token.email in doc.data.whitelist;
         }
 
         function inDomain(doc) {
-           return "domain" in doc.data && request.auth.email.replace("^.*@", '') == doc.data.domain;
+           return doc.data.access == 'domain' && request.auth.token.email.replace("^.*@", '') == doc.data.domain;
         }
 
         function canAccessFeed(roomId) {
-            let room = get(/databases/$(database)/documents/rooms/$(roomId));
-            return room.data.access == 'link' || inWhitelist(room) || inDomain(room) || isDocOwner(room);
+            let room = get(makePath(/rooms/$(roomId)));
+            return room.data.closed != true && room.data.access == 'link' || inWhitelist(room) || inDomain(room) || isDocOwner(room);
+        }
+
+        function canSeeRoom(room) {
+            return isDocOwner(room) || inDomain(room) || inWhitelist(room);
         }
 
         match /publicProfiles/{uid} {
@@ -32,13 +36,16 @@ service cloud.firestore {
         }
 
         match /rooms/{roomId} {
-            allow get: if isDocOwner(resource) || !exists(/databases/$(database)/documents/rooms/$(roomId));
-            allow list: if request.query.limit <= 50 && isDocOwner(resource);
-            allow create: if isDocOwner(request.resource);
-        }
+            allow get: if canSeeRoom(resource) || !exists(makePath(/rooms/$(roomId)));
+            allow list: if request.query.limit < 200 && resource.data.closed == false && (isDocOwner(resource) || inWhitelist(resource));
 
-        match /feeds/{roomId} {
-            allow read: if canAccessFeed(roomId);
+            allow create: if isDocOwner(request.resource);
+            allow delete: if isDocOwner(resource);
+
+            match /feed/{eventId} {
+                allow get, write: if canAccessFeed(roomId);
+                allow list: if request.query.limit <= 200 && canAccessFeed(roomId);
+            }
         }
     }
   }

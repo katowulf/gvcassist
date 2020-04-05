@@ -108,9 +108,10 @@ function defaultCompareFunction(a: DocumentData, b: DocumentData) {
 
 export type CompareFunction = (a:object, b:object) => number;
 export type MergeQueryObserver = (docs: DocumentData[]) => void;
+export type MergeErrorObserver = (e: Error|string|object, queryPosition: number) => void;
 
 export class MergeQuery {
-  private observers: Set<MergeQueryObserver>;
+  private observers: Set<{fn: MergeQueryObserver, err: MergeErrorObserver}>;
   private compareFunction = defaultCompareFunction;
   private docs: DocumentData[][] = [[], []];
   private queryCancelers: Function[] = [];
@@ -119,7 +120,9 @@ export class MergeQuery {
     this.observers = new Set();
     queries.forEach((query, position) => {
       this.queryCancelers.push(
-        query.onSnapshot(snap => this.updateDocs(snap.docs, position))
+        query.onSnapshot(snap => {
+          this.updateDocs(snap.docs, position)
+        }, e => this.err(e, position))
       );
     });
   }
@@ -134,9 +137,10 @@ export class MergeQuery {
    * @param observer receives an array of data objects sorted using compareFunction.
    * @return an unsubscribe function
    */
-  subscribe(observer: MergeQueryObserver) : () => void {
-    this.observers.add(observer);
-    return () => { this.observers.delete(observer); }
+  subscribe(observer: MergeQueryObserver, errorObserver?: MergeErrorObserver) : () => void {
+    const obs = {fn: observer, err: errorObserver||(() => { /* do nothing */ })};
+    this.observers.add(obs);
+    return () => { this.observers.delete(obs); }
   }
 
   destroy() {
@@ -146,10 +150,16 @@ export class MergeQuery {
     this.observers.clear();
   }
 
+  private err(e: Error|object, pos: number) {
+    this.observers.forEach(obs => {
+      if( obs.err ) obs.err(e, pos);
+    });
+  }
+
   private updateDocs(docs: DocumentData[], position: number) {
     this.docs[position] = docs.map(dd => ({"$id": dd.id, ...dd.data()}));
     const sortedData = [...new Set(this.docs.flat())].sort(this.compareFunction);
-    this.observers.forEach(fn => fn(sortedData));
+    this.observers.forEach(obs => obs.fn(sortedData));
   }
 }
 

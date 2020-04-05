@@ -110,9 +110,21 @@
           </p>
 
           <p>
+            Bijou Trouvaille helped resolve UnsupportedClassVersionError on Mac when installing the
+            Firebase Emulator
+            <a
+              href="https://github.com/firebase/quickstart-nodejs/issues/68"
+              >here</a
+            >
+          </p>
+
+          <p>
             The excellent MDN docs helped me figure out how to
-            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event">intercept paste events</a>.
-            This allows calendar invite attendees to just be pasted directly into the whitelist.
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event"
+              >intercept paste events</a
+            >. This allows calendar invite attendees to just be pasted directly
+            into the whitelist.
           </p>
 
           <p>

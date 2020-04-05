@@ -22,11 +22,11 @@ class ProfileCache {
     }
 
     try {
-      if( !Auth.getSharedScope().isSignedIn ) {
+      if (!Auth.getSharedScope().isSignedIn) {
         throw new Error("Must be signed in to fetch user profiles");
       }
-      console.log('trying', DB.doc(['publicProfiles', uid]).path); //debug
-      const snap = await DB.doc(['publicProfiles', uid]).get();
+      console.log("trying", DB.doc(["publicProfiles", uid]).path); //debug
+      const snap = await DB.doc(["publicProfiles", uid]).get();
       if (snap.exists) {
         const profile = snap.data() as UserProfile;
         this.users.set(uid, profile);

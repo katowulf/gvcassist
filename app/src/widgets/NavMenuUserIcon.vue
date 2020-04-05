@@ -11,7 +11,7 @@
 <script lang="ts">
 import Vue from "vue";
 import sharedScope from "@/libs/SharedScope";
-import UserAvatar from "@/components/UserAvatar.vue";
+import UserAvatar from "@/widgets/UserAvatar.vue";
 
 export default Vue.extend({
   name: "UserIcon",

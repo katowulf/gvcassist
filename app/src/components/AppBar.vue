@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import NavMenuUserIcon from "@/components/NavMenuUserIcon.vue";
+import NavMenuUserIcon from "@/widgets/NavMenuUserIcon.vue";
 
 export default Vue.extend({
   name: "AppBar",

@@ -27,7 +27,7 @@ interface SharedAuthScope {
 
   // Resolves when initialized is updated to true
   // Returns value of isSignedIn
-  readyState: Promise<boolean>
+  readyState: Promise<boolean>;
 }
 
 class AuthHelper {
@@ -39,7 +39,9 @@ class AuthHelper {
 
   constructor() {
     this.auth = firebase.auth();
-    this.readyState = new Promise((res, rej) => { this.resolver = res; });
+    this.readyState = new Promise((res, rej) => {
+      this.resolver = res;
+    });
 
     this.scope = {
       isSignedIn: false,
@@ -55,11 +57,15 @@ class AuthHelper {
     this.auth.onAuthStateChanged(user => {
       if (user == null) {
         Object.assign(this.scope, {
-          isSignedIn: false, uid: null, data: null, isNewUser: false, emailDomain: null, token: null
+          isSignedIn: false,
+          uid: null,
+          data: null,
+          isNewUser: false,
+          emailDomain: null,
+          token: null
         });
         delete this.additionalUserInfo;
       } else {
-        console.log(JSON.stringify(user, null, 2));
         Object.assign(this.scope, {
           isSignedIn: true,
           uid: user.uid,
@@ -70,13 +76,13 @@ class AuthHelper {
           // that data isn't available here, so preserve it when updating auth state
           isNewUser: this.additionalUserInfo?.isNewUser || false
         });
-        user.getIdToken().then(tok => this.scope.token = tok);
+        user.getIdToken().then(tok => (this.scope.token = tok));
       }
-      if( !this.scope.initialized ) {
+      if (!this.scope.initialized) {
         this.scope.initialized = true;
         this.resolver(this.scope.isSignedIn);
       }
-      console.log("onAuthStateChanged", this.scope.uid);
+      console.log("onAuthStateChanged", this.scope);
     });
   }
 
@@ -103,9 +109,9 @@ class AuthHelper {
     return this.auth.signOut();
   }
 
-  private static getEmailDomain(user: firebase.User): string|null {
-    if( !user || !user.email) return null;
-    return user.email.replace(/^.*@/, '');
+  private static getEmailDomain(user: firebase.User): string | null {
+    if (!user || !user.email) return null;
+    return user.email.replace(/^.*@/, "");
   }
 }
 

@@ -8,7 +8,10 @@
 
     <h2>misc</h2>
     <p>process.env.NODE_ENV: {{ devMode }}</p>
-    <p>$vuetify.breakpoint: height: {{$vuetify.breakpoint.height}} width: {{$vuetify.breakpoint.width}} name: {{this.$vuetify.breakpoint.name}}</p>
+    <p>
+      $vuetify.breakpoint: height: {{ $vuetify.breakpoint.height }} width:
+      {{ $vuetify.breakpoint.width }} name: {{ this.$vuetify.breakpoint.name }}
+    </p>
     <p>User auth token: {{ sharedScope.user.token }}</p>
   </div>
 </template>

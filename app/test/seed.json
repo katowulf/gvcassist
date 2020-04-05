@@ -1,0 +1,76 @@
+{
+  "apps/gvcassistant/publicProfiles/katowulf": {
+    "displayName": "Kato Richardson", "active": true, "initials": "KA",
+    "photoURL": "https://lh3.googleusercontent.com/-7s66UywuS_A/AAAAAAAAAAI/AAAAAAAAAAA/AAKWJJMwYp_D_NfqsMPGO2N4V8iquFJglQ/photo.jpg"
+  },
+  "apps/gvcassistant/publicProfiles/katoclone": {
+    "displayName": "Kato's Clone", "active": true, "initials": "KC", "photoURL": null
+  },
+  "apps/gvcassistant/publicProfiles/notkato": {
+    "displayName": "Not Kato", "active": false, "initials": "NK", "photoURL": null
+  },
+  "apps/gvcassistant/privateProfiles/katowulf": {
+    "created": [-7, "days"], "email": "kato@foo.com", "domain": "foo.com", "providerId": "google.com", "updated": [-5, "days"]
+  },
+  "apps/gvcassistant/privateProfiles/katoclone": {
+    "created": [-7, "days"], "email": "katoclone@foo.com", "domain": "foo.com", "providerId": "google.com", "updated": [-5, "days"]
+  },
+  "apps/gvcassistant/privateProfiles/notkato": {
+    "created": [-20, "days"], "email": "notkato@bar.com", "domain": "bar.com", "providerId": "facebook.com", "updated": [-20, "days"]
+  },
+  "apps/gvcassistant/rooms/link1": {
+    "access": "link", "closed": false, "created": [-2, "days"],
+    "description": "link 1", "domain": "foo.com", "owners": ["katowulf"], "retentionLength": 90,
+    "whitelist": []
+  },
+  "apps/gvcassistant/rooms/link2": {
+    "access": "link", "closed": false, "created": [-2, "days"],
+    "description": "link 2", "domain": "bar.com", "owners": ["notkato"], "retentionLength": 90,
+    "whitelist": ["katoclone@foo.com"]
+  },
+  "apps/gvcassistant/rooms/domain1": {
+    "access": "domain", "closed": false, "created": [-2, "days"],
+    "description": "domain foo.com, owner kato", "domain": "foo.com", "owners": ["katowulf"], "retentionLength": 90,
+    "whitelist": []
+  },
+  "apps/gvcassistant/rooms/domain2": {
+    "access": "domain", "closed": false, "created": [-2, "days"],
+    "description": "domain foo.com, owner clone", "domain": "foo.com", "owners": ["katoclone"], "retentionLength": 90,
+    "whitelist": []
+  },
+  "apps/gvcassistant/rooms/domain3": {
+    "access": "domain", "closed": false, "created": [-2, "days"],
+    "description": "domain bar.com", "domain": "bar.com", "owners": ["notkato"], "retentionLength": 90,
+    "whitelist": []
+  },
+  "apps/gvcassistant/rooms/whitelist1": {
+    "access": "whitelist", "closed": false, "created": [-2, "days"],
+    "description": "whitelist 1", "domain": null, "owners": ["katowulf"], "retentionLength": 90,
+    "whitelist": ["notkato@bar.com", "katoclone@foo.com"]
+  },
+  "apps/gvcassistant/rooms/whitelist2": {
+    "access": "whitelist", "closed": false, "created": [-2, "days"],
+    "description": "whitelist 2", "domain": null, "owners": ["notkato"], "retentionLength": 90,
+    "whitelist": ["kato@foo.com"]
+  },
+  "apps/gvcassistant/rooms/closed1": {
+    "access": "link", "closed": true, "created": [-2, "days"],
+    "description": "closed link", "domain": null, "owners": ["katowulf"], "retentionLength": 90,
+    "whitelist": ["kato@foo.com", "notkato@bar.com", "katoclone@foo.com"]
+  },
+  "apps/gvcassistant/rooms/whitelist2": {
+    "access": "domain", "closed": true, "created": [-2, "days"],
+    "description": "closed domain", "domain": "foo.com", "owners": ["katoclone"], "retentionLength": 90,
+    "whitelist": []
+  },
+  "apps/gvcassistant/rooms/whitelist2": {
+    "access": "whitelist", "closed": true, "created": [-2, "days"],
+    "description": "closed whitelist", "domain": null, "owners": ["notkato"], "retentionLength": 90,
+    "whitelist": ["kato@foo.com"]
+  },
+  "apps/gvcassistant/rooms/private": {
+    "access": "whitelist", "closed": false, "created": [-2, "days"],
+    "description": "private room with no access", "domain": null, "owners": ["nobody"], "retentionLength": 90,
+    "whitelist": []
+  }
+}

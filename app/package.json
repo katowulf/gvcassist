@@ -5,11 +5,22 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint --fix"
+    "lint": "vue-cli-service lint --fix",
+    "/* ------": " you need to `npm run emulator` in a separate terminal before `npm test` ----- */",
+    "format": "prettier --write **/*.ts",
+    "pretest": "tsc",
+    "test": "mocha --timeout 10000",
+    "emulator": "firebase emulators:exec --only firestore 'npm test'"
+  },
+  "mocha": {
+    "ui": "mocha-typescript",
+    "recursive": "test",
+    "require": "source-map-support/register"
   },
   "dependencies": {
     "core-js": "^3.6.4",
     "firebase": "^7.13.1",
+    "moment": "^2.24.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.2",
     "vue-property-decorator": "^8.3.0",
@@ -17,7 +28,9 @@
     "vuetify": "^2.2.11"
   },
   "devDependencies": {
+    "@firebase/testing": "^0.18.2",
     "@fortawesome/fontawesome-free": "^5.13.0",
+    "@types/mocha": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
     "@vue/cli-plugin-babel": "~4.2.0",
@@ -30,9 +43,13 @@
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^6.1.2",
+    "mocha": "^7.1.1",
+    "mocha-typescript": "^1.1.17",
     "prettier": "^1.19.1",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
+    "source-map-support": "^0.5.16",
+    "ts-node": "^8.8.1",
     "typescript": "~3.7.5",
     "vue-cli-plugin-vuetify": "~2.0.5",
     "vue-template-compiler": "^2.6.11",
