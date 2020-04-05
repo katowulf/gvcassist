@@ -9,8 +9,9 @@
     "/* ------": " you need to `npm run emulator` in a separate terminal before `npm test` ----- */",
     "format": "prettier --write **/*.ts",
     "pretest": "tsc",
-    "test": "mocha --timeout 10000",
-    "emulator": "firebase emulators:exec --only firestore 'npm test'"
+    "test": "firebase emulators:exec --only firestore 'mocha --timeout 10000'",
+    "test:emu": "firebase emulators:start --only firestore",
+    "test:mocha": "mocha --timeout 10000"
   },
   "mocha": {
     "ui": "mocha-typescript",

@@ -38,12 +38,11 @@ npm run build --mode <development|production>
 ## Todo list
 ```
 security on rooms
-    delete after x hours/days/months
-    restrict to domain
-    restrict to email list
-    (can always whitelist/blacklist)
-manage members
-    whitelist or blacklist
+    ✓ data retention policy
+    ✓ restrict to domain
+    ✓ restrict to email list
+    ✓ add to whitelist
+    add to blacklist
 global reactions
     just like reacting on a card; makes a new card
     all entries within 15s delay are put on same card

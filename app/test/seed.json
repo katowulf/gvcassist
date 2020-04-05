@@ -58,12 +58,12 @@
     "description": "closed link", "domain": null, "owners": ["katowulf"], "retentionLength": 90,
     "whitelist": ["kato@foo.com", "notkato@bar.com", "katoclone@foo.com"]
   },
-  "apps/gvcassistant/rooms/whitelist2": {
+  "apps/gvcassistant/rooms/closed2": {
     "access": "domain", "closed": true, "created": [-2, "days"],
     "description": "closed domain", "domain": "foo.com", "owners": ["katoclone"], "retentionLength": 90,
     "whitelist": []
   },
-  "apps/gvcassistant/rooms/whitelist2": {
+  "apps/gvcassistant/rooms/closed3": {
     "access": "whitelist", "closed": true, "created": [-2, "days"],
     "description": "closed whitelist", "domain": null, "owners": ["notkato"], "retentionLength": 90,
     "whitelist": ["kato@foo.com"]

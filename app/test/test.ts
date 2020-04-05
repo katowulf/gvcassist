@@ -71,33 +71,46 @@ after(async () => {
 class MyApp {
   @test
   async "can get rooms I own"() {
-    const db = authedApp({uid: "katowulf", token: {email: "kato@foo.com"}});
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
     const doc = db.doc("apps/gvcassistant/rooms/room1");
     await firebase.assertSucceeds(doc.get());
   }
 
   @test
   async "can read rooms that do not exist"() {
-    const db = authedApp({uid: "katowulf", token: {email: "kato@foo.com"}});
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
     const doc = db.doc("apps/gvcassistant/rooms/DOES_NOT_EXIST");
     await firebase.assertSucceeds(doc.get());
   }
 
   @test
   async "can't get rooms I don't have access to"() {
-    const db = authedApp({uid: "katowulf", token: {email: "kato@foo.com"}});
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
     const doc = db.doc("apps/gvcassistant/rooms/private");
     await firebase.assertFails(doc.get().then(s => console.log(s.exists, s.data())));
   }
 
-  // Couldn't make this one work :(
-  // @test
-  // async "can get rooms that match my email domain"() {
-  //   const db = authedApp({uid: "katowulf", token: {email: "kato@foo.com"}});
-  //   const query = db.collection("apps/gvcassistant/rooms")
-  //       .where("domain", "==", "foo.com")
-  //       .limit(10);
-  //   await firebase.assertSucceeds(query.get());
-  // }
+  @test
+  async "can queryrooms which have me in the whitelist"() {
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
+    const query = db.collection("apps/gvcassistant/rooms")
+        .where("whitelist", "array-contains", "kato@foo.com")
+        .where("closed", "==", false)
+        .orderBy("created")
+        .limitToLast(2);
+    await firebase.assertSucceeds(query.get());
+  }
+
+  @test
+  async "can query rooms matching my domain"() {
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
+    const query = db.collection("apps/gvcassistant/rooms")
+    .where("access", "==", "domain")
+    .where("domain", "==", "foo.com")
+    .where("closed", "==", false)
+    .orderBy("created")
+    .limitToLast(2);
+    await firebase.assertSucceeds(query.get());
+  }
 
 }

@@ -39,15 +39,19 @@
         <v-row>
           <v-col>
             <h3>Room invites</h3>
-            <p>
-              <RoomLink v-for="room in recentRooms" :key="room.id" :room="room" />
-            </p>
+            <p v-if="recentRooms.length == 0">I have no friend yet :(</p>
+            <RoomLink v-for="room in recentRooms" :key="room.id" :room="room" />
           </v-col>
           <v-col>
             <h3>Rooms I own</h3>
-            <p>
-              <RoomLink v-for="room in myRooms" :key="room.id" :room="room" />
-            </p>
+            <p v-if="myRooms.length === 0">I haven't created any rooms. I should be more social.</p>
+            <RoomLink v-for="room in myRooms" :key="room.id" :room="room" />
+          </v-col>
+        </v-row>
+        <v-row v-if="orgRooms.length > 0">
+          <v-col>
+            <h3>Org meetings</h3>
+            <RoomLink v-for="room in orgRooms" :key="room.id" :room="room" />
           </v-col>
         </v-row>
         </v-form>
@@ -69,36 +73,37 @@ export default Vue.extend({
   name: "RoomPicker",
 
   created() {
-    const myRoomsQuery = DB.collection("rooms")
+    this.syncList(
+      "myRooms",
+      DB.collection("rooms")
         .where("owners", "array-contains", this.shared.user.uid)
         .where("closed", "==", false)
         .orderBy("created")
-        .limitToLast(20);
+        .limitToLast(20)
+    );
 
-    myRoomsQuery.onSnapshot(snap => {
-      console.log('my rooms snapshot', snap.docs.length); //debug
-      this.myRooms = snap.docs.map(ds => ({"$id": ds.id, ...ds.data()}));
-    }, burnedTheToast("RoomPicker::created(ownership query)"));
+    this.syncList(
+      'recentRooms',
+      DB.collection("rooms")
+        .where("whitelist", "array-contains", this.shared.user.data.email)
+        .where("closed", "==", false)
+        .orderBy("created")
+        .limitToLast(20)
+    );
 
-    const myWhitelistQuery = DB.collection("rooms")
-      .where("whitelist", "array-contains", this.shared.user.data.email)
+    this.syncList(
+      "orgRooms",
+      DB.collection("rooms")
+      .where("access", "==", "domain")
+      .where("domain", "==", this.shared.user.emailDomain)
       .where("closed", "==", false)
       .orderBy("created")
-      .limitToLast(20);
-
-    myWhitelistQuery.onSnapshot(snap => {
-      console.log("my whitelist snapshot", snap.docs.length); //debug
-      this.recentRooms = snap.docs.map(ds => ({"$id": ds.id, ...ds.data()}));
-    }, burnedTheToast("RoomPicker.created(whitelist query)"));
-
-    // this.merger = new MergeQuery(myWhitelistQuery);
-    // // descending order by creation date
-    // this.merger.setCompareFunction((a, b) => b.created - a.created);
-    // this.merger.subscribe(docs => this.recentRooms = docs, burnedTheToast("RoomPicker::created(mergequery)"));
+      .limitToLast(20)
+    )
   },
 
   beforeDestroy() {
-    // this.merger.destroy();
+    this.subs.forEach(fn => fn());
   },
 
   components: { RoomCreateForm, RoomLink },
@@ -117,6 +122,15 @@ export default Vue.extend({
         this.$router.push({ name: 'Room', params: { roomId: this.roomId } });
       }
       return false;
+    },
+
+    syncList(listName, query) {
+      this.subs.push(
+        query.onSnapshot(snap => {
+          console.log('syncList', listName, snap.docs.length); //debug
+          this[listName] = snap.docs.map(ds => ({"$id": ds.id, ...ds.data()}));
+        }, burnedTheToast(`RoomPicker::syncList(${listName})`))
+      );
     }
   },
 
@@ -132,6 +146,7 @@ export default Vue.extend({
 
     myRooms: [],
     recentRooms: [],
+    orgRooms: [],
 
     // We use an object here instead of a simple boolean because Vue throws a warning if you
     // modify a prop provided by a parent inside a component. So we have to add some convolution
@@ -145,7 +160,7 @@ export default Vue.extend({
 
     shared: sharedScope,
 
-    merger: null
+    subs: []
   })
 });
 </script>

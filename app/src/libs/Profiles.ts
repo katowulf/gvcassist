@@ -6,6 +6,7 @@ export interface UserProfile {
   displayName: string;
   photoURL?: string;
   initials: string;
+  "$id": string;
 }
 
 class ProfileCache {
@@ -28,7 +29,7 @@ class ProfileCache {
       console.log("trying", DB.doc(["publicProfiles", uid]).path); //debug
       const snap = await DB.doc(["publicProfiles", uid]).get();
       if (snap.exists) {
-        const profile = snap.data() as UserProfile;
+        const profile = {"$id": uid, ...snap.data()} as UserProfile;
         this.users.set(uid, profile);
         console.log("user fetched from db", uid, profile); //debug
         return profile;

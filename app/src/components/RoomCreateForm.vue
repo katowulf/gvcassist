@@ -1,5 +1,5 @@
 <template>
-  <form v-on:submit.prevent="submit" name="createForm" method="POST" ref="form">
+  <form v-on:submit.prevent="createRoom" name="createForm" method="POST" value="createForm.isValid" ref="createForm">
     <v-dialog
       v-model="showForm.visible"
       scrollable
@@ -124,19 +124,31 @@ export default Vue.extend({
   },
 
   methods: {
-    createRoom() {
-      this.showForm.visible = false;
+    createRoom(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.showFrom.visible = false;
+
+      this.createForm.isValid = this.$refs.createForm.validate();
+      if( !this.createForm.isValid ) { return false; }
+
+      const form = this.createForm;
+
+      const domain = form.access === 'domain' && form.domain? form.domain : null;
+      const whitelist = form.access === 'whitelist'? [...form.whitelist] : [];
+
       const data = {
         owners: [this.shared.user.uid],
         access: this.createForm.access,
         description: this.createForm.description || null,
-        domain: this.createForm.domain || null,
-        whitelist: [...this.createForm.whitelist],
+        domain: domain,
+        whitelist: whitelist,
         retentionLength: 90,
         closed: false,
         created: DB.timestamp()
       };
       console.log("createRoom", data);
+
       DB.add(["rooms"], data)
         .then(() => toaster.success("Room created"))
         .catch(burnedTheToast("RoomCreateForm::createRoom"));
@@ -178,8 +190,8 @@ export default Vue.extend({
   },
 
   data: () => ({
-    valid: true,
     createForm: {
+      isValid: true,
       access: "domain",
       description: null,
       domain: null,

@@ -18,13 +18,16 @@ service cloud.firestore {
            return doc.data.access == 'domain' && request.auth.token.email.replace("^.*@", '') == doc.data.domain;
         }
 
-        function canAccessFeed(roomId) {
-            let room = get(makePath(/rooms/$(roomId)));
-            return room.data.closed != true && room.data.access == 'link' || inWhitelist(room) || inDomain(room) || isDocOwner(room);
+        function canListRoom(room) {
+            return room.data.closed == false && (inWhitelist(room) || inDomain(room));
+        }
+
+        function isDocReader(room) {
+            return room.data.closed == false && (room.data.access == 'link' || inWhitelist(room) || inDomain(room));
         }
 
         function canSeeRoom(room) {
-            return isDocOwner(room) || inDomain(room) || inWhitelist(room);
+            return isDocOwner(room) || isDocReader(room);
         }
 
         match /publicProfiles/{uid} {
@@ -37,14 +40,14 @@ service cloud.firestore {
 
         match /rooms/{roomId} {
             allow get: if canSeeRoom(resource) || !exists(makePath(/rooms/$(roomId)));
-            allow list: if request.query.limit < 200 && resource.data.closed == false && (isDocOwner(resource) || inWhitelist(resource));
+            allow list: if request.query.limit < 200 && isDocOwner(resource) || canListRoom(resource);
 
             allow create: if isDocOwner(request.resource);
             allow delete: if isDocOwner(resource);
 
             match /feed/{eventId} {
-                allow get, write: if canAccessFeed(roomId);
-                allow list: if request.query.limit <= 200 && canAccessFeed(roomId);
+                allow write: if canSeeRoom(get(makePath(/rooms/$(roomId))));
+                allow list: if request.query.limit <= 200 && canSeeRoom(get(makePath(/rooms/$(roomId))));
             }
         }
     }
