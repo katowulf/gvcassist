@@ -8,16 +8,9 @@ import {EventContext} from "firebase-functions";
 admin.initializeApp();
 const db = admin.firestore().doc('apps/gvcassistant');
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
-
-function makeInitials(displayName?: string) : string|null {
-  if( !displayName ) return null;
-  const parts = displayName.split(/\s/);
+function makeInitials(displayName?: string, email?: string) : string|null {
+  if( !displayName && !email ) { return null; }
+  const parts = (displayName||email||"").split(/\s/);
   return parts.reduce((p, c) => p += c.substr(0,1), "");
 }
 
@@ -28,11 +21,11 @@ function buildDomain(email: string|undefined) : string|null {
 
 exports.storeUserProfile = functions.auth.user().onCreate(async (user) => {
   const domain = buildDomain(user.email);
-  await admin.auth().setCustomUserClaims(user.uid, {domain: domain});
+  const a1 = admin.auth().setCustomUserClaims(user.uid, {domain: domain});
 
   const p1 = db.collection('publicProfiles').doc(user.uid).set({
     displayName: user.displayName, photoURL: user.photoURL, active: true,
-    initials: makeInitials(user.displayName)
+    initials: makeInitials(user.displayName, user.email)
   });
 
   const p2 = db.collection('privateProfiles').doc(user.uid).set({
@@ -41,7 +34,7 @@ exports.storeUserProfile = functions.auth.user().onCreate(async (user) => {
     updated: admin.firestore.FieldValue.serverTimestamp()
   });
 
-  await Promise.all([p1, p2]);
+  await Promise.all([a1, p1, p2]);
 });
 
 exports.markProfileDeleted = functions.auth.user().onDelete((user) => {

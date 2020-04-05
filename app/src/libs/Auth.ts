@@ -116,5 +116,4 @@ class AuthHelper {
 }
 
 export const Auth = new AuthHelper();
-export const AuthReadyState = Auth.readyState;
 export default Auth;
