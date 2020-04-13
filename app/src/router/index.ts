@@ -35,11 +35,10 @@ const routes = [
     component: () => import("@/views/Room.vue"),
     beforeEnter: async (to: any, from: any, next: Function) => {
       const isSignedIn = await sharedScope.user.readyState;
-      if( !isSignedIn ) {
-        sharedScope.ui.redirect = {name: "Room", params: to.params};
-        next({name: "Login"});
-      }
-      else {
+      if (!isSignedIn) {
+        sharedScope.ui.redirect = { name: "Room", params: to.params };
+        next({ name: "Login" });
+      } else {
         next();
       }
     }

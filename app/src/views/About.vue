@@ -110,10 +110,9 @@
           </p>
 
           <p>
-            Bijou Trouvaille helped resolve UnsupportedClassVersionError on Mac when installing the
-            Firebase Emulator
-            <a
-              href="https://github.com/firebase/quickstart-nodejs/issues/68"
+            Bijou Trouvaille helped resolve UnsupportedClassVersionError on Mac
+            when installing the Firebase Emulator
+            <a href="https://github.com/firebase/quickstart-nodejs/issues/68"
               >here</a
             >
           </p>

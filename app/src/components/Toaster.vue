@@ -69,7 +69,7 @@ div#global-toaster .v-alert {
     padding: 5px 10px;
   }
 
-  div#global-toaster  .v-alert {
+  div#global-toaster .v-alert {
     padding: 1px 8px;
     margin-bottom: 4px;
     font-size: 12px;
@@ -78,7 +78,6 @@ div#global-toaster .v-alert {
   div#global-toaster .v-alert .v-icon {
     font-size: 12px;
     margin-right: 5px;
-
   }
 
   div#global-toaster .v-alert .v-btn {

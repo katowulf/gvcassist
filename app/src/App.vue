@@ -37,7 +37,8 @@ export default Vue.extend({
   },
 
   created() {
-    this.sharedScope.debugger.enableDebugging = (b: boolean) => this.showDebug = b;
+    this.sharedScope.debugger.enableDebugging = (b: boolean) =>
+      (this.showDebug = b);
   },
 
   data: () => ({

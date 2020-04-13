@@ -39,7 +39,7 @@ class AuthHelper {
 
   constructor() {
     this.auth = firebase.auth();
-    this.readyState = new Promise((res, rej) => {
+    this.readyState = new Promise((res /*, rej*/) => {
       this.resolver = res;
     });
 

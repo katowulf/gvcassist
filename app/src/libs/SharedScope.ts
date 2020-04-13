@@ -1,4 +1,4 @@
-import {Auth, SharedAuthScope} from "@/libs/Auth";
+import { Auth, SharedAuthScope } from "@/libs/Auth";
 import fbconf from "@/firebase-config.ts";
 import toaster from "@/libs/Toaster";
 
@@ -6,11 +6,11 @@ type GvcAssistantDebugger = any;
 
 interface SharedScope {
   user: SharedAuthScope;
-  debug: {project: string};
+  debug: { project: string };
   debugger: GvcAssistantDebugger;
   ui: {
     redirect: any;
-    title: null;
+    title: any;
   };
 }
 
@@ -27,7 +27,9 @@ window.GvcAssistantDebugger = {
     toaster.error("It's likely an error that you can see this message.");
     toaster.warning("Warning: You've been warned!");
     toaster.info("I thought you might want to know this info.");
-    toaster.success("This was a triumph! I'm making a note here, HUGE SUCCESS.");
+    toaster.success(
+      "This was a triumph! I'm making a note here, HUGE SUCCESS."
+    );
     toaster.note("One final note: this is the last piece of toast.");
   }
 };

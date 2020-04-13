@@ -2,58 +2,70 @@
   <v-card color="blue lighten-5">
     <v-card-text>
       <v-container>
-        <v-form v-on:submit.prevent="joinRoom" :value="formIsValid" ref="roomForm" name="roomForm" method="POST">
-        <v-row no-gutters>
-          <v-col class="grow">
-            <!--<v-text-field solo flat style="border-radius: 0" />-->
-            <v-text-field
-              solo
-              label="Enter a room id"
-              name="roomId"
-              style="border-radius: 0"
-              required
-              :rules="roomIdRules"
-              v-model.trim="roomId"
-            />
-          </v-col>
-          <v-col class="shrink">
-            <v-btn @click="joinRoom" tile large color="primary" height="48px">
-              Join Room
-              <v-icon>mdi-arrow-right-bold</v-icon>
-            </v-btn>
-          </v-col>
-          <v-spacer class="shrink"></v-spacer>
-          <v-col class="shrink">
-            <v-btn
-              @click="showCreateForm.visible = true"
-              tile
-              small
-              color="success"
-              height="48px"
-            >
-              Create Room
-              <v-icon>mdi-plus-circle</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <h3>Room invites</h3>
-            <p v-if="recentRooms.length == 0">I have no friend yet :(</p>
-            <RoomLink v-for="room in recentRooms" :key="room.id" :room="room" />
-          </v-col>
-          <v-col>
-            <h3>Rooms I own</h3>
-            <p v-if="myRooms.length === 0">I haven't created any rooms. I should be more social.</p>
-            <RoomLink v-for="room in myRooms" :key="room.id" :room="room" />
-          </v-col>
-        </v-row>
-        <v-row v-if="orgRooms.length > 0">
-          <v-col>
-            <h3>Org meetings</h3>
-            <RoomLink v-for="room in orgRooms" :key="room.id" :room="room" />
-          </v-col>
-        </v-row>
+        <v-form
+          v-on:submit.prevent="joinRoom"
+          :value="formIsValid"
+          ref="roomForm"
+          name="roomForm"
+          method="POST"
+        >
+          <v-row no-gutters>
+            <v-col class="grow">
+              <!--<v-text-field solo flat style="border-radius: 0" />-->
+              <v-text-field
+                solo
+                label="Enter a room id"
+                name="roomId"
+                style="border-radius: 0"
+                required
+                :rules="roomIdRules"
+                v-model.trim="roomId"
+              />
+            </v-col>
+            <v-col class="shrink">
+              <v-btn @click="joinRoom" tile large color="primary" height="48px">
+                Join Room
+                <v-icon>mdi-arrow-right-bold</v-icon>
+              </v-btn>
+            </v-col>
+            <v-spacer class="shrink"></v-spacer>
+            <v-col class="shrink">
+              <v-btn
+                @click="showCreateForm.visible = true"
+                tile
+                small
+                color="success"
+                height="48px"
+              >
+                Create Room
+                <v-icon>mdi-plus-circle</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <h3>Room invites</h3>
+              <p v-if="recentRooms.length == 0">I have no friend yet :(</p>
+              <RoomLink
+                v-for="room in recentRooms"
+                :key="room.id"
+                :room="room"
+              />
+            </v-col>
+            <v-col>
+              <h3>Rooms I own</h3>
+              <p v-if="myRooms.length === 0">
+                I haven't created any rooms. I should be more social.
+              </p>
+              <RoomLink v-for="room in myRooms" :key="room.id" :room="room" />
+            </v-col>
+          </v-row>
+          <v-row v-if="orgRooms.length > 0">
+            <v-col>
+              <h3>Org meetings</h3>
+              <RoomLink v-for="room in orgRooms" :key="room.id" :room="room" />
+            </v-col>
+          </v-row>
         </v-form>
         <RoomCreateForm :showForm="showCreateForm" />
       </v-container>
@@ -66,7 +78,7 @@ import Vue from "vue";
 import RoomCreateForm from "@/components/RoomCreateForm.vue";
 import sharedScope from "@/libs/SharedScope";
 import { burnedTheToast } from "@/libs/Toaster";
-import { MergeQuery, DB } from "@/libs/DB";
+import { DB } from "@/libs/DB";
 import RoomLink from "@/widgets/RoomLink.vue";
 
 export default Vue.extend({
@@ -83,7 +95,7 @@ export default Vue.extend({
     );
 
     this.syncList(
-      'recentRooms',
+      "recentRooms",
       DB.collection("rooms")
         .where("whitelist", "array-contains", this.shared.user.data.email)
         .where("closed", "==", false)
@@ -94,12 +106,12 @@ export default Vue.extend({
     this.syncList(
       "orgRooms",
       DB.collection("rooms")
-      .where("access", "==", "domain")
-      .where("domain", "==", this.shared.user.emailDomain)
-      .where("closed", "==", false)
-      .orderBy("created")
-      .limitToLast(20)
-    )
+        .where("access", "==", "domain")
+        .where("domain", "==", this.shared.user.emailDomain)
+        .where("closed", "==", false)
+        .orderBy("created")
+        .limitToLast(20)
+    );
   },
 
   beforeDestroy() {
@@ -118,8 +130,8 @@ export default Vue.extend({
       event.preventDefault();
       event.stopPropagation();
       this.formIsValid = this.$refs.roomForm.validate();
-      if( this.formIsValid ) {
-        this.$router.push({ name: 'Room', params: { roomId: this.roomId } });
+      if (this.formIsValid) {
+        this.$router.push({ name: "Room", params: { roomId: this.roomId } });
       }
       return false;
     },
@@ -127,8 +139,8 @@ export default Vue.extend({
     syncList(listName, query) {
       this.subs.push(
         query.onSnapshot(snap => {
-          console.log('syncList', listName, snap.docs.length); //debug
-          this[listName] = snap.docs.map(ds => ({"$id": ds.id, ...ds.data()}));
+          console.log("syncList", listName, snap.docs.length); //debug
+          this[listName] = snap.docs.map(ds => ({ $id: ds.id, ...ds.data() }));
         }, burnedTheToast(`RoomPicker::syncList(${listName})`))
       );
     }

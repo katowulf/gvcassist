@@ -1,5 +1,11 @@
 <template>
-  <form v-on:submit.prevent="createRoom" name="createForm" method="POST" value="createForm.isValid" ref="createForm">
+  <form
+    v-on:submit.prevent="createRoom"
+    name="createForm"
+    method="POST"
+    value="createForm.isValid"
+    ref="createForm"
+  >
     <v-dialog
       v-model="showForm.visible"
       scrollable
@@ -130,12 +136,15 @@ export default Vue.extend({
       this.showFrom.visible = false;
 
       this.createForm.isValid = this.$refs.createForm.validate();
-      if( !this.createForm.isValid ) { return false; }
+      if (!this.createForm.isValid) {
+        return false;
+      }
 
       const form = this.createForm;
 
-      const domain = form.access === 'domain' && form.domain? form.domain : null;
-      const whitelist = form.access === 'whitelist'? [...form.whitelist] : [];
+      const domain =
+        form.access === "domain" && form.domain ? form.domain : null;
+      const whitelist = form.access === "whitelist" ? [...form.whitelist] : [];
 
       const data = {
         owners: [this.shared.user.uid],
@@ -179,10 +188,8 @@ export default Vue.extend({
      * UI. But calling a different method in setTimeout() seems to work okay? So be it. Perhaps
      * calling any function in the methods map triggers the change detection, too. Would
      * be interesting to learn more about that some day and update this.
-     *
-     * @param event
      */
-    pastedEmails(event) {
+    pastedEmails(/*event*/) {
       console.log("pastedEmails", this.createForm.whitelistUnformatted); //debug
       setTimeout(() => this.parseEmails());
       return true;
@@ -207,7 +214,6 @@ export default Vue.extend({
             ) ||
             "Please enter a valid domain name"
         ],
-        emails: [v => true],
         retentionLength: [
           v => /$[0-9]+$/.test(v) || "Please enter a valid integer"
         ]

@@ -3,10 +3,7 @@
  * https://github.com/eolant/vuetify-toast-snackbar
  * https://www.npmjs.com/package/snackbarstack
  */
-import sharedScope from "@/libs/SharedScope";
-
 const DefaultToastAction = (message: ToasterMessage) => message.dismiss();
-
 const DURATION = 10;
 
 export class ToasterMessage {
@@ -33,9 +30,10 @@ export class ToasterMessage {
         color: null,
         borderLocation: null
       },
-      props);
+      props
+    );
     Object.freeze(this.props);
-    console.log('ToasterMessage', this.type, this.message, this.props);
+    console.log("ToasterMessage", this.type, this.message, this.props);
   }
 
   setAction(action: Function) {

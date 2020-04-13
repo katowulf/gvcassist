@@ -6,7 +6,6 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint --fix",
-    "/* ------": " you need to `npm run emulator` in a separate terminal before `npm test` ----- */",
     "format": "prettier --write **/*.ts",
     "pretest": "tsc",
     "test": "firebase emulators:exec --only firestore 'mocha --timeout 10000'",
@@ -72,7 +71,8 @@
       "ecmaVersion": 2020
     },
     "rules": {
-      "vue/no-unused-components": "off"
+      "vue/no-unused-components": "off",
+      "@typescript-eslint/no-explicit-any": "off"
     }
   },
   "browserslist": [
