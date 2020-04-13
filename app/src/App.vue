@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <AppBar />
+    <AppBar v-if="!$vuetify.breakpoint.xsOnly" />
+    <SystemBar v-if="$vuetify.breakpoint.xsOnly" />
 
     <v-content>
       <Toaster />
@@ -24,25 +25,19 @@ import Vue from "vue";
 import sharedScope from "@/libs/SharedScope";
 import AppBar from "@/components/AppBar.vue";
 import Toaster from "@/components/Toaster.vue";
-
-declare global {
-  interface Window {
-    enableDebugging: (b: boolean) => void;
-  }
-}
+import SystemBar from "@/components/SystemBar.vue";
 
 export default Vue.extend({
   name: "App",
 
   components: {
     AppBar,
-    Toaster
+    Toaster,
+    SystemBar
   },
 
   created() {
-    window.enableDebugging = (b: boolean) => {
-      this.showDebug = b;
-    };
+    this.sharedScope.debugger.enableDebugging = (b: boolean) => this.showDebug = b;
   },
 
   data: () => ({

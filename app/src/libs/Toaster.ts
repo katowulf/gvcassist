@@ -1,11 +1,11 @@
 /**
- * Alternatives:
+ * Alternatives considered; discarded because they can only show one message:
  * https://github.com/eolant/vuetify-toast-snackbar
  * https://www.npmjs.com/package/snackbarstack
  */
+import sharedScope from "@/libs/SharedScope";
 
 const DefaultToastAction = (message: ToasterMessage) => message.dismiss();
-Object.freeze(DefaultToastAction);
 
 const DURATION = 10;
 
@@ -20,8 +20,8 @@ export class ToasterMessage {
   constructor(type: string, message: string, props?: object) {
     this.type = type;
     this.message = message;
-    this.props = {
-      ...({
+    this.props = Object.assign(
+      {
         buttonColor: type,
         borderColor: type,
         elevation: 1,
@@ -30,12 +30,12 @@ export class ToasterMessage {
         buttonText: "Okay",
         iconText: null,
         icon: null,
+        color: null,
         borderLocation: null
-      } as ToasterMessageProps),
-      ...props
-    };
+      },
+      props);
     Object.freeze(this.props);
-    console.log(type, message, this.props);
+    console.log('ToasterMessage', this.type, this.message, this.props);
   }
 
   setAction(action: Function) {

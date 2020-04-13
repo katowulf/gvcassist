@@ -21,6 +21,7 @@ import Vue from "vue";
 import toaster, {burnedTheToast} from "@/libs/Toaster";
 import DB from "@/libs/DB";
 import {UserProfile} from "@/libs/Profiles";
+import sharedScope from "@/libs/SharedScope";
 
 enum EventType { emote="emote", poll="poll", link="link" }
 
@@ -28,6 +29,12 @@ interface Event {
   timestamp: Date;
   type: EventType;
   users: UserProfile[];
+}
+
+interface RoomData {
+  id: string|null;
+  room: any;
+  unsubscribe: () => void;
 }
 
 export default Vue.extend({
@@ -41,21 +48,24 @@ export default Vue.extend({
   },
 
   methods: {
-    serverUpdated(snap) {
+    serverUpdated(snap: any) {
       console.log('serverUpdated', this.id); //debug
-      this.room = snap.data();
-      this.room.name = this.room.description || "Room " + this.id;
+      const roomData = snap.data();
+      roomData.name = roomData.description || "Room " + this.id;
+      sharedScope.ui.title = roomData.name;
+      this.room = roomData; //this.$set('room', roomData);
     }
   },
 
   beforeDestroy() {
-    if( this.unsubscribe ) this.unsubscribe();
+    this.unsubscribe();
   },
 
   data: () => ({
     id: null,
-    room: {}
-  })
+    room: null,
+    unsubscribe: () => { /* do nothing */ }
+  } as RoomData)
 });
 </script>
 

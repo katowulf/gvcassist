@@ -6,7 +6,7 @@ import { toaster } from "@/libs/Toaster";
  * The shared scope intended to be used by SharedScope to provide views with a simple snapshot of
  * auth state, without a lot of boilerplate.
  */
-interface SharedAuthScope {
+export interface SharedAuthScope {
   isSignedIn: boolean;
   uid: string | null;
   token: string | null;

@@ -1,5 +1,7 @@
 .idea
 dist/
+app/src/**/*.js*
+app/test/**/*.js*
 
 # Logs
 logs

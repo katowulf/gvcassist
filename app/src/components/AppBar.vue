@@ -13,8 +13,8 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn text to="/">Home</v-btn>
-    <v-btn text to="/about">About</v-btn>
+    <v-btn text to="/"><v-icon left>mdi-home</v-icon> Home</v-btn>
+    <v-btn text to="/about"><v-icon left>mdi-information-outline</v-icon> About</v-btn>
 
     <NavMenuUserIcon />
   </v-app-bar>

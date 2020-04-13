@@ -42,9 +42,9 @@ export default Vue.extend({
             "] ",
             result.user.displayName
           );
-          if (SharedScope.redirect) {
-            const redirect = SharedScope.redirect;
-            SharedScope.redirect = null;
+          if (SharedScope.ui.redirect) {
+            const redirect = SharedScope.ui.redirect;
+            SharedScope.ui.redirect = null;
             this.$router.push(redirect);
           }
         })

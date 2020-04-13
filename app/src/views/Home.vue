@@ -37,6 +37,11 @@ export default {
     LoadingCard,
     Footer
   },
+
+  created() {
+    sharedScope.ui.title = "GVC Assistant: Pick a room";
+  },
+
   data: () => ({
     user: sharedScope.user
   })

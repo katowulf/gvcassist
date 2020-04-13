@@ -25,13 +25,23 @@ const routes = [
     component: () => import("@/views/Debug.vue")
   },
   {
+    path: "/login",
+    name: "Login",
+    component: () => import("@/views/Login.vue")
+  },
+  {
     path: "/room/:roomId",
     name: "Room",
     component: () => import("@/views/Room.vue"),
-    beforeEnter: (to: object, from: object, next: Function) => {
-      sharedScope.redirect = null;
-      console.log(from, to);
-      next();
+    beforeEnter: async (to: any, from: any, next: Function) => {
+      const isSignedIn = await sharedScope.user.readyState;
+      if( !isSignedIn ) {
+        sharedScope.ui.redirect = {name: "Room", params: to.params};
+        next({name: "Login"});
+      }
+      else {
+        next();
+      }
     }
   },
   { path: "*", component: () => import("@/views/NotFound.vue") }
