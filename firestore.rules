@@ -22,12 +22,16 @@ service cloud.firestore {
             return room.data.closed == false && (inWhitelist(room) || inDomain(room));
         }
 
+        function isBlacklisted(room) {
+	        return !request.auth.token.email || request.auth.token.email in room.data.blacklist;
+        }
+
         function isDocReader(room) {
             return room.data.closed == false && (room.data.access == 'link' || inWhitelist(room) || inDomain(room));
         }
 
         function canSeeRoom(room) {
-            return isDocOwner(room) || isDocReader(room);
+            return isDocOwner(room) || (!isBlacklisted(room) && isDocReader(room));
         }
 
         match /publicProfiles/{uid} {
@@ -43,11 +47,12 @@ service cloud.firestore {
             allow list: if request.query.limit < 200 && isDocOwner(resource) || canListRoom(resource);
 
             allow create: if isDocOwner(request.resource);
+            allow update: if isDocOwner(resource);
             allow delete: if isDocOwner(resource);
 
             match /feed/{eventId} {
                 allow write: if canSeeRoom(get(makePath(/rooms/$(roomId))));
-                allow list: if request.query.limit <= 200 && canSeeRoom(get(makePath(/rooms/$(roomId))));
+                allow list: if request.query.limit <= 1000 && canSeeRoom(get(makePath(/rooms/$(roomId))));
             }
         }
     }

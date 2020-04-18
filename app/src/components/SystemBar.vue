@@ -1,11 +1,11 @@
 <template>
-  <v-system-bar window dark>
+  <v-system-bar window dark color="primary">
     <v-icon>mdi-account-multiple</v-icon>
     <span>{{ sharedScope.ui.title }}</span>
     <v-spacer></v-spacer>
-    <v-btn text to="/"><v-icon left>mdi-home</v-icon></v-btn>
-    <v-btn v-if="isHomePage" text to="/about"
-      ><v-icon left>mdi-information-outline</v-icon></v-btn
+    <v-btn icon to="/"><v-icon>mdi-home</v-icon></v-btn>
+    <v-btn v-if="!isRoomView" icon to="/about"
+      ><v-icon>mdi-information-outline</v-icon></v-btn
     >
   </v-system-bar>
 </template>
@@ -19,7 +19,7 @@ export default Vue.extend({
   created() {
     this.$router.afterEach(to => {
       console.log("afterEach", to);
-      this.isHomePage = to.name === "Home";
+      this.isRoomView = to.name === "Room";
     });
   },
   methods: {
@@ -28,7 +28,7 @@ export default Vue.extend({
     }
   },
   data: () => ({
-    isHomePage: false,
+    isRoomView: false,
     sharedScope: sharedScope
   })
 });

@@ -54,14 +54,11 @@
                   v-model.trim="createForm.domain"
                   :rules="createForm.rules.domain"
                 ></v-text-field>
-                <v-textarea
+                <EmailList
                   v-if="createForm.access === 'whitelist'"
+                  v-model="createForm.whitelist"
                   label="Emails to invite"
-                  v-model.trim="createForm.whitelistUnformatted"
-                  rows="3"
-                  @change="parseEmails"
-                  @paste="pastedEmails"
-                ></v-textarea>
+                />
                 <small v-if="createForm.access === 'whitelist'">
                   {{
                     this.createForm.whitelist.length
@@ -105,25 +102,14 @@ import Vue from "vue";
 import sharedScope from "@/libs/SharedScope";
 import { burnedTheToast, toaster } from "@/libs/Toaster";
 import DB from "@/libs/DB";
-
-const EMAIL_REGEX = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}/gi;
-
-function parseEmails(s) {
-  // clean up the email addresses
-  const emailList = [...(s || "").matchAll(EMAIL_REGEX)].map(a => a[0]);
-  // make the list unique by converting to a set temporarily
-  return [...new Set([...emailList])];
-}
-
-function joinEmails(list) {
-  const spacer = ", ";
-  return list.join(spacer) + spacer;
-}
+import EmailList from "@/components/EmailList.vue";
 
 export default Vue.extend({
   name: "RoomCreateForm",
 
   props: ["showForm"],
+
+  components: {EmailList},
 
   created() {
     this.createForm.domain = this.shared.user.emailDomain;
@@ -133,7 +119,7 @@ export default Vue.extend({
     createRoom(event) {
       event.preventDefault();
       event.stopPropagation();
-      this.showFrom.visible = false;
+      this.showForm.visible = false;
 
       this.createForm.isValid = this.$refs.createForm.validate();
       if (!this.createForm.isValid) {
@@ -152,6 +138,7 @@ export default Vue.extend({
         description: this.createForm.description || null,
         domain: domain,
         whitelist: whitelist,
+        blacklist: [],
         retentionLength: 90,
         closed: false,
         created: DB.timestamp()
@@ -165,34 +152,6 @@ export default Vue.extend({
 
     inputChangedRetention(v) {
       this.createForm.retentionLength = parseInt(v);
-    },
-
-    parseEmails() {
-      const emails = parseEmails(this.createForm.whitelistUnformatted || "");
-      console.log("parseEmails", emails, this.createForm.whitelistUnformatted); //debug
-      this.createForm.whitelist = emails;
-      this.createForm.whitelistUnformatted = joinEmails(emails);
-    },
-
-    /**
-     * When pasting emails, we want to quickly remove dups and clean up the formatting.
-     * Trying to use window.getSelection() and to insert the reformatted text back into
-     * the correct point in the UI didn't work with Vuetify (breaks the UI). So I settled
-     * for this compromise; let the browser do the paste logic, wait one tick,
-     * then immediately reformat the text field. It creates a flash of the unformatted text,
-     * but it's usually too short to see.
-     *
-     * I'm not sure exactly why this works as is, since it _should_ need to trigger
-     * change detection with something like `this.set(this.createForm, "whitelist", emails)`;
-     * indeed, when I set the values directly in the setTimeout() it failed to update the
-     * UI. But calling a different method in setTimeout() seems to work okay? So be it. Perhaps
-     * calling any function in the methods map triggers the change detection, too. Would
-     * be interesting to learn more about that some day and update this.
-     */
-    pastedEmails(/*event*/) {
-      console.log("pastedEmails", this.createForm.whitelistUnformatted); //debug
-      setTimeout(() => this.parseEmails());
-      return true;
     }
   },
 
@@ -203,7 +162,6 @@ export default Vue.extend({
       description: null,
       domain: null,
       whitelist: [],
-      whitelistUnformatted: null,
       retentionLength: 90,
       rules: {
         domain: [
