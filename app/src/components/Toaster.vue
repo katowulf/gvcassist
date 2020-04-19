@@ -1,39 +1,41 @@
 <template>
-  <div id="global-toaster">
-    <!-- meh, the number of properties here is a bit clunky, maybe revise ToasterMessage.action and learn more
-           about programmatic creation of components in Vue -->
-    <v-alert
-      v-for="(alert, index) in alerts"
-      :key="index"
-      :type="alert.type"
-      :text="alert.props.isText"
-      :border="alert.props.borderLocation"
-      :elevation="alert.props.elevation"
-      :colored-border="alert.props.hasColoredBorder"
-      :color="alert.props.color"
-      transition="expand-transition"
-      dense
-    >
-      <v-row no-gutters align="center">
-        <v-col class="grow">
-          {{ alert.message }}
-        </v-col>
-        <v-col class="shrink">
-          <v-btn
-            v-if="alert.props.buttonText"
-            small
-            :color="alert.props.buttonColor"
-            v-on:click="alert.activate()"
-            outlined
-          >
-            {{ alert.props.buttonText }}
-          </v-btn>
-          <v-icon v-if="alert.props.iconText" v-on:click="alert.activate()">
-            {{ alert.props.iconText }}
-          </v-icon>
-        </v-col>
-      </v-row>
-    </v-alert>
+  <div class="nospace">
+    <div id="global-toaster" v-if="alerts.length > 0">
+      <!-- meh, the number of properties here is a bit clunky, maybe revise ToasterMessage.action and learn more
+             about programmatic creation of components in Vue -->
+      <v-alert
+        v-for="(alert, index) in alerts"
+        :key="index"
+        :type="alert.type"
+        :text="alert.props.isText"
+        :border="alert.props.borderLocation"
+        :elevation="alert.props.elevation"
+        :colored-border="alert.props.hasColoredBorder"
+        :color="alert.props.color"
+        transition="expand-transition"
+        dense
+      >
+        <v-row no-gutters align="center">
+          <v-col class="grow">
+            {{ alert.message }}
+          </v-col>
+          <v-col class="shrink">
+            <v-btn
+              v-if="alert.props.buttonText"
+              small
+              :color="alert.props.buttonColor"
+              v-on:click="alert.activate()"
+              outlined
+            >
+              {{ alert.props.buttonText }}
+            </v-btn>
+            <v-icon v-if="alert.props.iconText" v-on:click="alert.activate()">
+              {{ alert.props.iconText }}
+            </v-icon>
+          </v-col>
+        </v-row>
+      </v-alert>
+    </div>
   </div>
 </template>
 
@@ -57,8 +59,13 @@ export default Vue.extend({
   ☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼☼
 -->
 <style>
+div.nospace {
+  margin: 0;
+  padding: 0;
+}
+
 div#global-toaster {
-  padding: 10px 25px;
+  padding: 5px 10px;
 }
 
 div#global-toaster .v-alert {
@@ -66,10 +73,6 @@ div#global-toaster .v-alert {
 }
 
 @media screen and (max-width: 599px) {
-  div#global-toaster {
-    padding: 5px 10px;
-  }
-
   div#global-toaster .v-alert {
     padding: 1px 8px;
     margin-bottom: 4px;

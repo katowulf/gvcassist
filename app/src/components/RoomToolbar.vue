@@ -1,5 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-toolbar elevation="2">
+
+    <!-- ☃☃☃☃☃☃☃ Ask a question ☃☃☃☃☃☃☃ -->
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" :disabled="room.data.closed" color="primary" icon>
@@ -8,6 +10,8 @@
       </template>
       <span>Ask a question</span>
     </v-tooltip>
+
+    <!-- ☃☃☃☃☃☃☃ Share a link ☃☃☃☃☃☃☃ -->
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" :disabled="room.data.closed" color="accent" icon>
@@ -16,6 +20,8 @@
       </template>
       <span>Share a link</span>
     </v-tooltip>
+
+    <!-- ☃☃☃☃☃☃☃ Create a poll (admin only) ☃☃☃☃☃☃☃ -->
     <v-tooltip v-if="isAdmin" bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" :disabled="room.data.closed" color="cyan" icon>
@@ -24,6 +30,8 @@
       </template>
       <span>Create a poll</span>
     </v-tooltip>
+
+    <!-- ☃☃☃☃☃☃☃ Wait for everyone (admin only) ☃☃☃☃☃☃☃ -->
     <v-tooltip v-if="isAdmin" bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" :disabled="room.data.closed" color="purple" icon>
@@ -33,6 +41,7 @@
       <span>Wait for everyone to ack</span>
     </v-tooltip>
 
+    <!-- ☃☃☃☃☃☃☃ Thumbsup ☃☃☃☃☃☃☃ -->
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" :disabled="room.data.closed" color="success" icon>
@@ -42,6 +51,7 @@
       <span>Agree and +1</span>
     </v-tooltip>
 
+    <!-- ☃☃☃☃☃☃☃ AFK ☃☃☃☃☃☃☃ -->
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" :disabled="room.data.closed" icon>
@@ -53,6 +63,7 @@
 
     <v-spacer></v-spacer>
 
+    <!-- ☃☃☃☃☃☃☃ Pick an emoji ☃☃☃☃☃☃☃ -->
     <v-menu v-model="ui.showPicker" :close-on-content-click="false">
       <template v-slot:activator="{ on }">
         <v-btn icon v-on="on" :disabled="room.data.closed">
@@ -62,43 +73,67 @@
       <VEmojiPicker @select="selectEmoji" />
     </v-menu>
 
+    <!-- ☃☃☃☃☃☃☃ ADMIN ONLY MENU ☃☃☃☃☃☃☃ -->
     <v-menu v-if="isAdmin" offset-y>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" icon><v-icon>mdi-dots-vertical</v-icon></v-btn>
       </template>
       <v-list>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon color="pink">mdi-star</v-icon>
-          </v-list-item-icon>
 
+        <!-- ☃☃☃☃☃☃☃ Manage whitelist/blacklist ☃☃☃☃☃☃☃ -->
+        <v-list-item @click="ui.showMemberManager = true">
+          <v-list-item-icon>
+            <v-icon>mdi-account-multiple</v-icon>
+          </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>some text</v-list-item-title>
+            <v-list-item-title>Manage members</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item @click="ui.showMemberManager = true">
-          <v-list-item-title>Manage Members</v-list-item-title>
-        </v-list-item>
+
+        <!-- ☃☃☃☃☃☃☃ Export meeting notes ☃☃☃☃☃☃☃ -->
         <v-list-item @click="exportNotes()">
-          <v-list-item-title>Export notes</v-list-item-title>
+          <v-list-item-icon>
+            <v-icon>mdi-file-export</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Export notes</v-list-item-title>
+          </v-list-item-content>
         </v-list-item>
+
+        <!-- ☃☃☃☃☃☃☃ Close/open/delete room ☃☃☃☃☃☃☃ -->
         <v-list-item v-if="!room.data.closed" @click="setClosed(true)">
-          <v-list-item-title>Close Room</v-list-item-title>
+          <v-list-item-icon>
+            <v-icon>mdi-lock</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Close room</v-list-item-title>
+          </v-list-item-content>
         </v-list-item>
+
         <v-list-item v-if="room.data.closed" @click="setClosed(false)">
-          <v-list-item-title>Open Room</v-list-item-title>
+          <v-list-item-icon>
+            <v-icon>mdi-lock-open-variant</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Reopen room</v-list-item-title>
+          </v-list-item-content>
         </v-list-item>
+
         <v-list-item
           @click="ui.showDelete = true"
           :disabled="!room.data.closed"
           :class="room.data.closed ? 'error--text' : ''"
         >
+          <v-list-item-icon>
+            <v-icon :color="room.data.closed? 'error' : 'grey'">mdi-delete</v-icon>
+          </v-list-item-icon>
+
           <v-list-item-content>
             <v-list-item-title>Delete Room</v-list-item-title>
             <v-list-item-subtitle v-if="!room.data.closed" class="grey--text">
               Room must be closed before it can be deleted. This is permanent.
             </v-list-item-subtitle>
-            <v-list-item-subtitle v-if="room.data.closed">
+            <v-list-item-subtitle v-if="room.data.closed" :class="room.data.closed? 'error--text' : ''">
               This is permanent.
             </v-list-item-subtitle>
             <v-list-item-subtitle
