@@ -25,8 +25,9 @@
             :color="alert.props.buttonColor"
             v-on:click="alert.activate()"
             outlined
-            >{{ alert.props.buttonText }}</v-btn
           >
+            {{ alert.props.buttonText }}
+          </v-btn>
           <v-icon v-if="alert.props.iconText" v-on:click="alert.activate()">
             {{ alert.props.iconText }}
           </v-icon>

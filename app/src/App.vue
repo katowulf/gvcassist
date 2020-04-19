@@ -8,13 +8,13 @@
       <router-view />
     </v-content>
 
-    <v-footer fixed class="debug" v-if="showDebug">
+    <v-footer fixed class="debug" v-if="sharedScope.debug.isEnabled">
       <p class="font-weight-light caption">
         $vuetify.breakpoint: height={{ $vuetify.breakpoint.height }} width={{
           $vuetify.breakpoint.width
         }}
         name={{ $vuetify.breakpoint.name }}; uid: {{ sharedScope.user.uid }},
-        debug: {{ sharedScope.debug }};
+        projectId: {{ sharedScope.projectId }}, debug: {{ sharedScope.debug }};
       </p>
     </v-footer>
   </v-app>
@@ -36,14 +36,8 @@ export default Vue.extend({
     SystemBar
   },
 
-  created() {
-    this.sharedScope.debugger.enableDebugging = (b: boolean) =>
-      (this.showDebug = b);
-  },
-
   data: () => ({
-    sharedScope: sharedScope,
-    showDebug: false
+    sharedScope: sharedScope
   })
 });
 </script>

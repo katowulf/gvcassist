@@ -13,9 +13,10 @@ export interface RoomProps {
   owners: string[];
   name: string;
   access: AccessType;
-  domain: string|null;
+  domain: string | null;
   whitelist: string[];
   blacklist: string[];
+  retentionLength: number;
 }
 
 const defaultData = () => ({
@@ -26,20 +27,33 @@ const defaultData = () => ({
   access: AccessType.whitelist,
   domain: null,
   whitelist: [],
-  blacklist: []
+  blacklist: [],
+  retentionLength: 90
 });
+
+type ChangeHandler = (type: string) => void;
+
 export class Room {
+  private readonly listeners: ChangeHandler[] = [];
   private readonly sub: () => void;
   public data: RoomProps;
-  constructor(
-    private id: string,
-    private changeNotifier: (source: string) => void
-  ) {
+  public readonly loaded: Promise<boolean>;
+  constructor(public readonly id: string) {
     this.data = defaultData();
     this.sub = DB.doc(["rooms", this.id]).onSnapshot(
       snap => this.serverUpdated(snap),
       burnedTheToast("Room::constructor")
     );
+    this.loaded = DB.doc(["rooms", this.id])
+      .get()
+      .then(ss => ss.exists);
+  }
+
+  subscribe(handler: ChangeHandler) {
+    this.listeners.push(handler);
+    return () => {
+      this.listeners.splice(this.listeners.indexOf(handler), 1);
+    };
   }
 
   private serverUpdated(snap: any) {
@@ -47,11 +61,11 @@ export class Room {
     console.log("Room updated", this.id); //debug
     this.data = Object.assign(defaultData(), snap.data()) as RoomProps;
     this.data.name = this.data.description || "Room " + this.id;
-    this.changeNotifier("Room");
+    this.notify();
   }
 
   displayMembershipType(): string {
-    switch(this.data.access) {
+    switch (this.data.access) {
       case AccessType.link:
         return "This room can be accessed by anybody with the link, unless their email is in the blacklist.";
       case AccessType.domain:
@@ -67,7 +81,12 @@ export class Room {
     return this.id;
   }
 
-  unsubscribe(): void {
+  private notify() {
+    this.listeners.forEach(fn => fn("Room"));
+  }
+
+  destroy(): void {
     this.sub();
+    this.listeners.length = 0;
   }
 }

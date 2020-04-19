@@ -1,7 +1,7 @@
 <template>
   <router-link class="roomLink" :to="`/room/${room.$id}`">
-    <v-icon small color="primary">mdi-account-multiple</v-icon
-    >{{ room.description || room.$id }}
+    <v-icon small color="primary">mdi-account-multiple</v-icon>
+    {{ room.description || room.$id }}
   </router-link>
 </template>
 

@@ -1,9 +1,9 @@
 <template>
-  <form
-    v-on:submit.prevent="createRoom"
+  <v-form
+    @submit="createRoom"
     name="createForm"
     method="POST"
-    value="createForm.isValid"
+    :value="createForm.isValid"
     ref="createForm"
   >
     <v-dialog
@@ -86,15 +86,15 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
+          <v-btn color="accent" text @click="showForm.visible = false">
+            Cancel
+          </v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="showForm.visible = false"
-            >Cancel</v-btn
-          >
-          <v-btn color="blue darken-1" text @click="createRoom">Save</v-btn>
+          <v-btn color="primary" type="submit" @click="createRoom">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </form>
+  </v-form>
 </template>
 
 <script language="ts">
@@ -109,7 +109,7 @@ export default Vue.extend({
 
   props: ["showForm"],
 
-  components: {EmailList},
+  components: { EmailList },
 
   created() {
     this.createForm.domain = this.shared.user.emailDomain;

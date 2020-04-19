@@ -1,6 +1,6 @@
 <template>
   <v-container class="fill-height" fluid>
-    <v-row align justify="center">
+    <v-row justify="center">
       <v-col md="5" lg="4" xl="3">
         <h1 align="center">So what is this thing?</h1>
         <p align="center">
@@ -16,17 +16,17 @@
           <v-card-title>Interactivity without noise</v-card-title>
           <v-card-text>
             <p>
-              <strong>React, give high fives, and plus-one ideas</strong> in
-              large group meetings without disruption.
+              <strong>React, give high fives, and plus-one ideas</strong>
+              in large group meetings without disruption.
             </p>
             <p>
-              <strong>Ask questions and share links</strong> without
-              interrupting presentations. Questions and links can be pinned,
-              upvoted, and even discussed asynchronously.
+              <strong>Ask questions and share links</strong>
+              without interrupting presentations. Questions and links can be
+              pinned, upvoted, and even discussed asynchronously.
             </p>
             <p>
-              <strong>Designed for mobile</strong> or to be placed in a slim
-              side window on your desktop.
+              <strong>Designed for mobile</strong>
+              or to be placed in a slim side window on your desktop.
             </p>
           </v-card-text>
         </v-card>
@@ -40,13 +40,14 @@
               Upvote, react, and see responses in realtime.
             </p>
             <p>
-              <strong>Track action items and shared links.</strong>. They are
-              automatically collected and emailed to task owners and moderators.
+              <strong>Track action items and shared links.</strong>
+              . They are automatically collected and emailed to task owners and
+              moderators.
             </p>
             <p>
-              <strong
-                >Pause the meeting while participants complete a task.</strong
-              >
+              <strong>
+                Pause the meeting while participants complete a task.
+              </strong>
               Continue when everyone marks themselves ready or the time limit is
               reached.
             </p>
@@ -58,17 +59,17 @@
           <v-card-title>Security and moderation</v-card-title>
           <v-card-text>
             <p>
-              <strong>Secure access to rooms </strong>by email domain or
-              specific emails. Whitelist or ban any participant quickly. Set
-              data retention policies.
+              <strong>Secure access to rooms</strong>
+              by email domain or specific emails. Whitelist or ban any
+              participant quickly. Set data retention policies.
             </p>
             <p>
-              <strong>Aggregate unanswered questions</strong> for Q&A sessions
-              or follow-up discussions.
+              <strong>Aggregate unanswered questions</strong>
+              for Q&A sessions or follow-up discussions.
             </p>
             <p>
-              <strong>Quick post-meeting feedback</strong> provides reports on
-              presentation quality and meeting productivity.
+              <strong>Quick post-meeting feedback</strong>
+              provides reports on presentation quality and meeting productivity.
             </p>
           </v-card-text>
         </v-card>

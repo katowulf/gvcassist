@@ -88,7 +88,7 @@ export interface ToasterMessageProps {
   iconText: string | null;
 }
 
-class Toaster {
+export class Toaster {
   readonly messages: ToasterMessage[] = [];
 
   public getMessages() {

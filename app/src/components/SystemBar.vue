@@ -4,9 +4,9 @@
     <span>{{ sharedScope.ui.title }}</span>
     <v-spacer></v-spacer>
     <v-btn icon to="/"><v-icon>mdi-home</v-icon></v-btn>
-    <v-btn v-if="!isRoomView" icon to="/about"
-      ><v-icon>mdi-information-outline</v-icon></v-btn
-    >
+    <v-btn v-if="!isRoomView" icon to="/about">
+      <v-icon>mdi-information-outline</v-icon>
+    </v-btn>
   </v-system-bar>
 </template>
 

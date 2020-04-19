@@ -19,7 +19,7 @@ service cloud.firestore {
         }
 
         function canListRoom(room) {
-            return room.data.closed == false && (inWhitelist(room) || inDomain(room));
+            return roomIsOpen(room) && (inWhitelist(room) || inDomain(room));
         }
 
         function isBlacklisted(room) {
@@ -27,11 +27,24 @@ service cloud.firestore {
         }
 
         function isDocReader(room) {
-            return room.data.closed == false && (room.data.access == 'link' || inWhitelist(room) || inDomain(room));
+            return room.data.access == 'link' || inWhitelist(room) || inDomain(room);
         }
 
         function canSeeRoom(room) {
             return isDocOwner(room) || (!isBlacklisted(room) && isDocReader(room));
+        }
+
+        function roomIsOpen(room) {
+            return room.data.closed == false;
+        }
+
+        function getRoom(roomId) {
+           return get(makePath(/rooms/$(roomId)));
+        }
+
+        function feedIsWritable(roomId) {
+           let room = getRoom(roomId);
+           return roomIsOpen(room) && canSeeRoom(room);
         }
 
         match /publicProfiles/{uid} {
@@ -51,8 +64,8 @@ service cloud.firestore {
             allow delete: if isDocOwner(resource);
 
             match /feed/{eventId} {
-                allow write: if canSeeRoom(get(makePath(/rooms/$(roomId))));
-                allow list: if request.query.limit <= 1000 && canSeeRoom(get(makePath(/rooms/$(roomId))));
+                allow write: if feedIsWritable(roomId);
+                allow list: if request.query.limit <= 1000 && canSeeRoom(getRoom(roomId));
             }
         }
     }

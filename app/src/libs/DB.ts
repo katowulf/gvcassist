@@ -4,6 +4,10 @@ import CollectionReference = firebase.firestore.CollectionReference;
 import DocumentData = firebase.firestore.DocumentData;
 import Query = firebase.firestore.Query;
 
+// todo: This should be a Vue mixin and possibly integrate with Vuex
+// todo: and/or use VueFire :D; didn't want to use the lib
+// todo: for my first project since it bypasses learning the nuances.
+
 const BASE = "apps/gvcassistant";
 
 class Path {

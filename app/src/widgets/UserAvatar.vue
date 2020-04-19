@@ -5,9 +5,9 @@
       :src="user.photoURL"
       :alt="user.displayName"
     />
-    <span v-if="user && !user.photoURL" class="white--text headline">{{
-      user.initials || "?"
-    }}</span>
+    <span v-if="user && !user.photoURL" class="white--text headline">
+      {{ user.initials || "?" }}
+    </span>
   </v-avatar>
 </template>
 
