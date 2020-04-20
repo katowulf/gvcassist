@@ -50,10 +50,14 @@ window.GvcAssistantDebugger = new GvcAssistantDebugger(toaster);
 // This is a hack and likely better to use Vuex for this kind of stuff.
 // In fact, this whole sharedScope should likely be a Vuex instance.
 const ui = new Vue({
+  methods: {
+    setTitle(title: string) {
+      this.title = title;
+    }
+  },
   data: {
     redirect: null,
-    title: "",
-    setTitle: (title: string) => Vue.set(ui, "title", title)
+    title: ""
   }
 });
 

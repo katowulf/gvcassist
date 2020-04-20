@@ -133,21 +133,20 @@ export class Feed {
   constructor(private id: string) {
     const conv = new EventConverter(id);
 
-    const query = DB.collection(["rooms", this.id, "feed"])
-      .orderBy("created")
+    const query = DB.collection(`rooms/${this.id}/feed`)
+      .orderBy("timestamp")
       .limitToLast(250)
       .withConverter(conv);
-
-    this.loaded = new Promise((resolve, reject) => {
-      query
-        .get()
-        .then(ss => resolve(ss.docs.length > 0))
-        .catch(reject);
-    });
 
     this.sub = query.onSnapshot(snap => {
       this.serverUpdated(snap);
     }, burnedTheToast("Feed::constructor"));
+
+    this.loaded = new Promise((resolve, reject) => {
+      query.get()
+          .then(ss => resolve(ss.docs.length > 0))
+          .catch(reject);
+    });
   }
 
   getEvents() {
@@ -164,7 +163,7 @@ export class Feed {
     }
     const event = FeedEvent.create(this.id, type, sharedScope.user.uid as string);
     if( text ) event.setText(text);
-    this.events.unshift(event);
+    DB.collection(`rooms/${this.id}/feed`).add(event.toFirestore());
   }
 
   subscribe(handler: ChangeHandler) {
@@ -175,9 +174,9 @@ export class Feed {
   }
 
   private serverUpdated(snap: QuerySnapshot<FeedEvent>) {
-    console.log("Feed updated", this.id);
+    console.log("Feed updated", this.id, snap.docs.length);
     snap.docChanges().forEach((change: DocumentChange<FeedEvent>) => {
-      console.log("change", change.type);
+      console.log("change", change.type, change.doc.id);
       if (change.type === "added") {
         this.events.unshift(change.doc.data());
         console.log("added: ", change.doc.id, change.doc.data());

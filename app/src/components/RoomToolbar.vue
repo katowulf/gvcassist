@@ -89,15 +89,25 @@ const MenuItems = [
 ];
 
 function isValidUrl(string) {
-  let url;
-
   try {
-    url = new URL(string);
+    const url = new URL(string);
+    return url.protocol === "http:" || url.protocol === "https:";
   } catch (_) {
     return false;
   }
+}
 
-  return url.protocol === "http:" || url.protocol === "https:";
+type Button = {type: EventType, icon: string, tip: string, admin: boolean, color: string};
+
+interface VueData {
+  ui: {
+    input: { show: boolean, actionLabel: string, inputLabel: string, confirm: () => void }
+    showDelete: boolean;
+    isLoading: boolean;
+    showPicker: boolean;
+    showMemberManager: boolean;
+  },
+  buttons: Button[]
 }
 
 export default Vue.extend({
@@ -125,27 +135,25 @@ export default Vue.extend({
     clicked(type: EventType, event: any) {
       switch(type) {
         case EventType.question:
-          this.$set(this.ui.input, 'actionLabel', "Post question");
-          this.$set(this.ui.input, 'inputLabel', "What's your question?");
-          this.$set(this.ui.input, 'confirm', q => this.createQuestion(q));
-          this.$set(this.ui.input, 'show', true);
-          break;
+          return this.showInput("Post question", "What's your question?", q => this.createQuestion(q));
         case EventType.link:
-          this.$set(this.ui.input, 'actionLabel', "Share link");
-          this.$set(this.ui.input, 'inputLabel', "Enter a valid URL");
-          this.$set(this.ui.input, 'confirm', u => this.createLink(u));
-          this.$set(this.ui.input, 'show', true);
-          break;
-        case EventType.emote: return this.createEmote(event);
+          return this.showInput("Share link", "Enter a valid URL", u => this.createLink(u));
+        case EventType.emote:
+          return this.createEmote(event);
+        // todo
+        // todo
+        // todo
+        // todo
+        // case EventType.poll:
+        // case EventType.wait:
+        // case EventType.afk:
         default:
           console.log("I don't know how to process this yet", type, event);
       }
     },
 
     createQuestion(q) {
-      if( q ) {
-        this.feed.add(EventType.question, q);
-      }
+      if( q ) this.feed.add(EventType.question, q);
     },
 
     createLink(url) {
@@ -162,24 +170,25 @@ export default Vue.extend({
       this.ui.showPicker = false;
     },
 
+    showInput(actionLabel: string, inputLabel: string, handler: (event: any) => void) {
+      this.$set(this.ui.input, 'actionLabel', actionLabel);
+      this.$set(this.ui.input, 'inputLabel', inputLabel);
+      this.$set(this.ui.input, 'confirm', handler);
+      this.$set(this.ui.input, 'show', true);
+    },
+
     adminAction(event) {
       console.log('adminaction', event);
       switch(event) {
-        case 'members':
-          this.ui.showMemberManager = true;
-          break;
-        case 'notes':
-          this.exportNotes();
-          break;
-        case 'close':
-          this.setClosed(true);
-          break;
-        case 'open':
-          this.setClosed(false);
-          break;
+        case 'close': return this.setClosed(true);
+        case 'notes': return this.exportNotes();
+        case 'open': return this.setClosed(false);
         case 'delete':
           this.ui.showDelete = true;
-          break;
+          return;
+        case 'members':
+          this.ui.showMemberManager = true;
+          return;
         default:
           throw new Error("Unknown admin action: " + event);
       }
@@ -214,10 +223,10 @@ export default Vue.extend({
       showDelete: false,
       isLoading: true,
       showPicker: false,
-      showMemberManager: false,
-      buttons: []
-    }
-  })
+      showMemberManager: false
+    },
+    buttons: []
+  } as VueData)
 });
 </script>
 

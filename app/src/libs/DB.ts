@@ -21,6 +21,7 @@ class Path {
       .concat(parts)
       .map(p => p.split("/"))
       .flat();
+    console.log('Path', bits.join('/')); //debug
     this.isDoc = bits.length % 2 === 0;
     const path = (this.isDoc ? bits : bits.slice(0, -1)).join("/");
     this.baseDoc = firebase.firestore().doc(path);

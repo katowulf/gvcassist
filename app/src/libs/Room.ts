@@ -31,7 +31,7 @@ const defaultData = () => ({
   retentionLength: 90
 });
 
-type ChangeHandler = (type: string) => void;
+type ChangeHandler = (Room) => void;
 
 export class Room {
   private readonly listeners: ChangeHandler[] = [];
@@ -40,13 +40,12 @@ export class Room {
   public readonly loaded: Promise<boolean>;
   constructor(public readonly id: string) {
     this.data = defaultData();
-    this.sub = DB.doc(["rooms", this.id]).onSnapshot(
+    const doc = DB.doc(["rooms", this.id]);
+    this.sub = doc.onSnapshot(
       snap => this.serverUpdated(snap),
       burnedTheToast("Room::constructor")
     );
-    this.loaded = DB.doc(["rooms", this.id])
-      .get()
-      .then(ss => ss.exists);
+    this.loaded = doc.get().then(ss => ss.exists);
   }
 
   subscribe(handler: ChangeHandler) {
@@ -82,7 +81,7 @@ export class Room {
   }
 
   private notify() {
-    this.listeners.forEach(fn => fn("Room"));
+    this.listeners.forEach(fn => fn(this));
   }
 
   destroy(): void {

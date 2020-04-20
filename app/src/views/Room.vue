@@ -11,6 +11,8 @@
         </v-card>
 
         <RoomToolbar :room="room" :feed="feed" :isAdmin="true" />
+
+        <!-- debug: we don't need two toolbars of course; just here to see the admin vs user views at once -->
         <RoomToolbar :room="room" :feed="feed" />
 
         <FeedView :feed="feed" />
@@ -53,6 +55,8 @@ export default Vue.extend({
     this.id = this.$route.params.roomId;
     this.room = new Room(this.id);
     this.feed = new Feed(this.id);
+    this.room.subscribe(() => this.serverUpdate('Room'));
+    // this.feed.subscribe(() => this.serverUpdate('Feed'));
     Promise.all([this.room.loaded, this.feed.loaded]).then(
       () => (this.ui.isLoading = false)
     );

@@ -18,14 +18,8 @@ export default Vue.extend({
   name: "AppBar",
   created() {
     this.$router.afterEach(to => {
-      console.log("afterEach", to);
       this.isRoomView = to.name === "Room";
     });
-  },
-  methods: {
-    goToHome() {
-      this.$router.push({ path: "/" });
-    }
   },
   data: () => ({
     isRoomView: false,
