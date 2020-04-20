@@ -101,7 +101,14 @@ class Database {
     return new Path(parts).coll();
   }
 
-  timestamp() {
+  id(): string {
+    return this.db.collection("foo").doc().id;
+  }
+
+  timestamp(timestamp?: Date) {
+    if( timestamp ) {
+      return firebase.firestore.Timestamp.fromDate(timestamp);
+    }
     return firebase.firestore.FieldValue.serverTimestamp();
   }
 }

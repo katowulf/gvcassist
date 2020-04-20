@@ -3,6 +3,9 @@ import { burnedTheToast } from "@/libs/Toaster";
 
 import firebase from "@/libs/firebase-init";
 import QuerySnapshot = firebase.firestore.QuerySnapshot;
+import QueryDocumentSnapshot = firebase.firestore.QueryDocumentSnapshot;
+import DocumentData = firebase.firestore.DocumentData;
+import DocumentChange = firebase.firestore.DocumentChange;
 
 export enum EventType {
   emote = "emote",
@@ -14,18 +17,35 @@ export enum EventType {
   thumbsup = "thumbsup"
 }
 
-export interface EventCard {
-  color: string;
-  class: string | null;
-  text: string;
-  hasIcon: boolean;
-  icon: string | null;
-  action: () => void;
+const ColorMap = new Map([
+  [EventType.emote, "normal"],
+  [EventType.poll, "purple"],
+  [EventType.link, "accent"],
+  [EventType.question, "primary"],
+  [EventType.wait, "grey"],
+  [EventType.admin, "error"],
+  [EventType.thumbsup, "success"]
+]);
+
+class EventCard {
+  public readonly color: string;
+  public readonly cssClass: string | null;
+  public readonly text: string | null;
+  public readonly emoji: string | null;
+  public readonly action: () => void;
+
+  constructor(private readonly event: Event, action?: () => void) {
+    this.color = ColorMap.get(event.type) || "normal";
+    this.cssClass = null;
+    this.text = event.text || null;
+    this.emoji = event.type === EventType.emote? event.text || null : null;
+    this.action = action || function() { /* do nothing */ };
+  }
 }
 
 export interface EventReaction {
-  icon: string;
-  uid: string;
+  emoji: string;
+  uids: string[];
 }
 
 export interface Event {
@@ -33,21 +53,88 @@ export interface Event {
   timestamp: Date;
   type: EventType;
   creator: string;
-  reactions: EventReaction[];
+  text?: string;
+  reactions: EventReaction[]
+}
+
+export class FeedEvent {
+  public readonly id: string;
+  public readonly card: EventCard;
+  private isNew = false;
+  private isDirty = false;
+  constructor(public readonly roomId: string, public readonly event: Event) {
+    this.id = event.id;
+    this.card = new EventCard(event);
+  }
+
+  hasChanges() { return this.isDirty || this.isNew; }
+  setNew() { this.isNew = true; }
+  setChanged() { this.isDirty = true; }
+  setText(text: string) { this.event.text = text; }
+
+  saved() {
+    this.isDirty = false;
+    this.isNew = false;
+  }
+
+  getReactions(): EventReaction[] {
+    return [];
+  }
+
+  addReaction(reaction: EventReaction) {
+    this.event.reactions.push(reaction);
+  }
+
+  toFirestore() {
+    return {
+      timestamp: this.isNew? DB.timestamp() : DB.timestamp(this.event.timestamp),
+      type: this.event.type,
+      creator: this.event.creator,
+      text: this.event.text,
+      reactions: this.event.reactions
+    };
+  }
+
+  static create(roomId: string, type: EventType, creator: string) {
+    const event = new FeedEvent(roomId, {
+      type: type, creator: creator, timestamp: new Date(), id: DB.id(), reactions: []
+    });
+    event.setNew();
+    return event;
+  }
+
+  static fromSnapshot(roomId: string, snap: QueryDocumentSnapshot): FeedEvent {
+    const event = {id: snap.id, ...snap.data()} as Event;
+    return new FeedEvent(roomId, event);
+  }
+}
+
+class EventConverter {
+  constructor(private readonly roomId: string) {}
+
+  toFirestore(event: FeedEvent): DocumentData {
+    return event.toFirestore();
+  }
+
+  fromFirestore(snapshot: QueryDocumentSnapshot): FeedEvent {
+    return FeedEvent.fromSnapshot(this.roomId, snapshot);
+  }
 }
 
 type ChangeHandler = (type: string) => void;
 
 export class Feed {
   private readonly listeners: ChangeHandler[] = [];
-  private readonly events: Event[] = [];
-  private readonly reactions: Event[] = [];
+  private readonly events: FeedEvent[] = [];
   private readonly sub: () => void;
   public readonly loaded: Promise<boolean>;
   constructor(private id: string) {
+    const conv = new EventConverter(id);
+
     const query = DB.collection(["rooms", this.id, "feed"])
       .orderBy("created")
-      .limitToLast(250);
+      .limitToLast(250)
+      .withConverter(conv);
 
     this.loaded = new Promise((resolve, reject) => {
       query
@@ -65,16 +152,19 @@ export class Feed {
     return this.events;
   }
 
-  getReactions() {
-    return this.reactions;
+  getReactions(): EventReaction[] {
+    return [];
   }
 
-  add(event: Event) {
-    //todo
-    //todo
-    //todo
-    //todo
+  add(event: FeedEvent) {
     this.events.push(event);
+  }
+
+  createEvent(type: EventType, text?: string) {
+    //todo
+    //todo
+    //todo
+    //todo
   }
 
   subscribe(handler: ChangeHandler) {
@@ -84,12 +174,12 @@ export class Feed {
     };
   }
 
-  private serverUpdated(snap: QuerySnapshot) {
+  private serverUpdated(snap: QuerySnapshot<FeedEvent>) {
     console.log("Feed updated", this.id);
-    snap.docChanges().forEach(change => {
+    snap.docChanges().forEach((change: DocumentChange<FeedEvent>) => {
       console.log("change", change.type);
       if (change.type === "added") {
-        this.add({ id: change.doc.id, ...change.doc.data() } as Event);
+        this.add(change.doc.data());
         console.log("added: ", change.doc.id, change.doc.data());
       }
       if (change.type === "modified") {
@@ -109,7 +199,6 @@ export class Feed {
   destroy() {
     this.sub();
     this.events.length = 0;
-    this.reactions.length = 0;
     this.listeners.length = 0;
   }
 }

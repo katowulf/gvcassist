@@ -244,6 +244,10 @@ export default Vue.extend({
       });
     },
 
+    exportNotes() {
+      console.log("I don't know how to export notes yet :(");
+    },
+
     selectEmoji(emoji: any) {
       console.log("selectEmoji", emoji.data);
       this.ui.showPicker = false;
@@ -252,6 +256,12 @@ export default Vue.extend({
     deleteRoom() {
       DB.doc(["rooms", this.room.id]).delete();
       this.$router.push({ path: "/" });
+    },
+
+    addEvent(type) {
+      this.feed.add({
+
+      });
     }
   },
 

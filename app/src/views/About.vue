@@ -154,6 +154,11 @@
           </p>
 
           <p>
+            Cliply provided us <a href="https://cliply.co/clip/rocket-icon/">some excellent
+            royalty free gifs</a> to fill our empty spaces.
+          </p>
+
+          <p>
             To Rie, Oskar, Nicolas, shefali163, and many others behind the
             scenes, thanks for letting me stand on your shoulders! ♥
           </p>

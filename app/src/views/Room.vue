@@ -13,7 +13,7 @@
         <RoomToolbar :room="room" :feed="feed" :isAdmin="true" />
         <RoomToolbar :room="room" :feed="feed" />
 
-        <FeedVue :feed="feed" />
+        <FeedView :feed="feed" />
       </v-col>
     </v-row>
   </v-container>
@@ -26,7 +26,7 @@ import sharedScope from "@/libs/SharedScope";
 import { Feed } from "@/libs/Feed";
 import { Room } from "@/libs/Room";
 import RoomToolbar from "@/components/RoomToolbar.vue";
-import FeedVue from "@/components/Feed.vue";
+import FeedView from "@/components/FeedView.vue";
 
 interface VueData {
   id: string;
@@ -45,7 +45,7 @@ export default Vue.extend({
 
   components: {
     RoomToolbar,
-    FeedVue
+    FeedView
   },
 
   created() {
