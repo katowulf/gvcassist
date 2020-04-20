@@ -44,6 +44,14 @@
       action="Yes, Delete forever"
       @confirm="deleteRoom()"
       />
+
+    <InputDialogWidget
+      v-model="ui.input.show"
+      :actionLabel="ui.input.actionLabel"
+      :inputLabel="ui.input.inputLabel"
+      @input="ui.input.show = $event"
+      @confirm="ui.input.confirm($event)"
+      />
   </v-toolbar>
 </template>
 
@@ -57,6 +65,8 @@ import DB from "@/libs/DB";
 import AdminDropdown from "@/widgets/AdminDropdown.vue";
 import MemberWidget from "@/widgets/MemberWidget.vue";
 import DeleteConfirmWidget from "@/widgets/DeleteConfirmWidget.vue";
+import InputDialogWidget from "@/widgets/InputDialogWidget.vue";
+import toaster from "@/libs/Toaster";
 
 const MenuItems = [
   // Ask a question
@@ -78,7 +88,17 @@ const MenuItems = [
   {type: EventType.afk, icon: "mdi-timer-sand-full", tip: "Agree and +1 the discussion", admin: false, color: ColorMap.get(EventType.afk)}
 ];
 
-console.log('Menuitems', MenuItems);
+function isValidUrl(string) {
+  let url;
+
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
+}
 
 export default Vue.extend({
   name: "Room",
@@ -93,7 +113,8 @@ export default Vue.extend({
     VEmojiPicker,
     AdminDropdown,
     MemberWidget,
-    DeleteConfirmWidget
+    DeleteConfirmWidget,
+    InputDialogWidget
   },
 
   created() {
@@ -103,24 +124,35 @@ export default Vue.extend({
   methods: {
     clicked(type: EventType, event: any) {
       switch(type) {
-        case EventType.question: return this.createQuestion();
-        case EventType.link: return this.createLink();
+        case EventType.question:
+          this.$set(this.ui.input, 'actionLabel', "Post question");
+          this.$set(this.ui.input, 'inputLabel', "What's your question?");
+          this.$set(this.ui.input, 'confirm', q => this.createQuestion(q));
+          this.$set(this.ui.input, 'show', true);
+          break;
+        case EventType.link:
+          this.$set(this.ui.input, 'actionLabel', "Share link");
+          this.$set(this.ui.input, 'inputLabel', "Enter a valid URL");
+          this.$set(this.ui.input, 'confirm', u => this.createLink(u));
+          this.$set(this.ui.input, 'show', true);
+          break;
         case EventType.emote: return this.createEmote(event);
         default:
           console.log("I don't know how to process this yet", type, event);
       }
     },
 
-    createQuestion() {
-      const q = window.prompt("What's the question?");
+    createQuestion(q) {
       if( q ) {
         this.feed.add(EventType.question, q);
       }
     },
 
-    createLink() {
-      const url = window.prompt("Enter the URL");
-      if( url ) {
+    createLink(url) {
+      if( !isValidUrl(url) ) {
+        toaster.error("Invalid URL: " + url);
+      }
+      else {
         this.feed.add(EventType.link, url);
       }
     },
@@ -178,6 +210,7 @@ export default Vue.extend({
 
   data: () => ({
     ui: {
+      input: { show: false, actionLabel: "-not set-", inputLabel: "-not set-", confirm: () => { /* */ } },
       showDelete: false,
       isLoading: true,
       showPicker: false,
