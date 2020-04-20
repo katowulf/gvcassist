@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Chip } from "@/libs/Chip";
+import { Chip } from "../libs/Chip";
 
 interface VueData {
   selectedChips: string[];

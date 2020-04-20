@@ -102,7 +102,7 @@ import Vue from "vue";
 import sharedScope from "@/libs/SharedScope";
 import { burnedTheToast, toaster } from "@/libs/Toaster";
 import DB from "@/libs/DB";
-import EmailList from "@/components/EmailList.vue";
+import EmailList from "@/widgets/EmailList.vue";
 
 export default Vue.extend({
   name: "RoomCreateForm",

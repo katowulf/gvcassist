@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import ChipList from "@/components/ChipList.vue";
+import ChipList from "@/widgets/ChipList.vue";
 import { Chip } from "@/libs/Chip";
 
 const EMAIL_REGEX = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}/gi;

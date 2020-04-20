@@ -1,6 +1,6 @@
 import DB from "@/libs/DB";
 import { burnedTheToast } from "@/libs/Toaster";
-
+import sharedScope from "@/libs/SharedScope";
 import firebase from "@/libs/firebase-init";
 import QuerySnapshot = firebase.firestore.QuerySnapshot;
 import QueryDocumentSnapshot = firebase.firestore.QueryDocumentSnapshot;
@@ -14,17 +14,19 @@ export enum EventType {
   question = "question",
   wait = "wait",
   admin = "admin",
-  thumbsup = "thumbsup"
+  thumbsup = "thumbsup",
+  afk = "afk"
 }
 
-const ColorMap = new Map([
+export const ColorMap = new Map([
   [EventType.emote, "normal"],
-  [EventType.poll, "purple"],
+  [EventType.poll, "cyan"],
   [EventType.link, "accent"],
   [EventType.question, "primary"],
-  [EventType.wait, "grey"],
+  [EventType.wait, "purple"],
   [EventType.admin, "error"],
-  [EventType.thumbsup, "success"]
+  [EventType.thumbsup, "success"],
+  [EventType.afk, "grey"]
 ]);
 
 class EventCard {
@@ -156,15 +158,13 @@ export class Feed {
     return [];
   }
 
-  add(event: FeedEvent) {
-    this.events.push(event);
-  }
-
-  createEvent(type: EventType, text?: string) {
-    //todo
-    //todo
-    //todo
-    //todo
+  add(type: EventType, text?: string) {
+    if( !sharedScope.user.isSignedIn ) {
+      throw new Error("Must be authenticated");
+    }
+    const event = FeedEvent.create(this.id, type, sharedScope.user.uid as string);
+    if( text ) event.setText(text);
+    this.events.unshift(event);
   }
 
   subscribe(handler: ChangeHandler) {
@@ -179,13 +179,19 @@ export class Feed {
     snap.docChanges().forEach((change: DocumentChange<FeedEvent>) => {
       console.log("change", change.type);
       if (change.type === "added") {
-        this.add(change.doc.data());
+        this.events.unshift(change.doc.data());
         console.log("added: ", change.doc.id, change.doc.data());
       }
-      if (change.type === "modified") {
+      else if (change.type === "modified") {
+        const feedEvent = this.events.find(e => e.id === change.doc.id);
+        if( feedEvent ) {
+          Object.assign(feedEvent.event, change.doc.data().event);
+        }
         console.log("modified: ", change.doc.id, change.doc.data());
       }
-      if (change.type === "removed") {
+      else if (change.type === "removed") {
+        const pos = this.events.findIndex(e => e.id === change.doc.id);
+        this.events.splice(pos, 1);
         console.log("removed: ", change.doc.id, change.doc.data());
       }
     });

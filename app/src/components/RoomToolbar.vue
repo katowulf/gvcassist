@@ -1,64 +1,14 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-toolbar elevation="2">
 
-    <!-- ☃☃☃☃☃☃☃ Ask a question ☃☃☃☃☃☃☃ -->
-    <v-tooltip bottom>
+    <!-- ☃☃☃☃☃☃☃ Menu buttons ☃☃☃☃☃☃☃ -->
+    <v-tooltip bottom v-for="(btn,index) in buttons" :key="index">
       <template v-slot:activator="{ on }">
-        <v-btn v-on="on" :disabled="room.data.closed" color="primary" icon>
-          <v-icon>mdi-help</v-icon>
+        <v-btn v-on="on" :disabled="room.data.closed" :color="btn.color" @click="clicked(btn.type, $event)" icon>
+          <v-icon>{{btn.icon}}</v-icon>
         </v-btn>
       </template>
-      <span>Ask a question</span>
-    </v-tooltip>
-
-    <!-- ☃☃☃☃☃☃☃ Share a link ☃☃☃☃☃☃☃ -->
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn v-on="on" :disabled="room.data.closed" color="accent" icon>
-          <v-icon>mdi-link</v-icon>
-        </v-btn>
-      </template>
-      <span>Share a link</span>
-    </v-tooltip>
-
-    <!-- ☃☃☃☃☃☃☃ Create a poll (admin only) ☃☃☃☃☃☃☃ -->
-    <v-tooltip v-if="isAdmin" bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn v-on="on" :disabled="room.data.closed" color="cyan" icon>
-          <v-icon>mdi-poll-box</v-icon>
-        </v-btn>
-      </template>
-      <span>Create a poll</span>
-    </v-tooltip>
-
-    <!-- ☃☃☃☃☃☃☃ Wait for everyone (admin only) ☃☃☃☃☃☃☃ -->
-    <v-tooltip v-if="isAdmin" bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn v-on="on" :disabled="room.data.closed" color="purple" icon>
-          <v-icon>mdi-timer-outline</v-icon>
-        </v-btn>
-      </template>
-      <span>Wait for everyone to ack</span>
-    </v-tooltip>
-
-    <!-- ☃☃☃☃☃☃☃ Thumbsup ☃☃☃☃☃☃☃ -->
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn v-on="on" :disabled="room.data.closed" color="success" icon>
-          <v-icon>mdi-thumb-up</v-icon>
-        </v-btn>
-      </template>
-      <span>Agree and +1</span>
-    </v-tooltip>
-
-    <!-- ☃☃☃☃☃☃☃ AFK ☃☃☃☃☃☃☃ -->
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn v-on="on" :disabled="room.data.closed" icon>
-          <v-icon>mdi-timer-sand-full</v-icon>
-        </v-btn>
-      </template>
-      <span>Away from keyboard</span>
+      <span>{{btn.tip}}</span>
     </v-tooltip>
 
     <v-spacer></v-spacer>
@@ -70,151 +20,65 @@
           <v-icon>mdi-emoticon-outline</v-icon>
         </v-btn>
       </template>
-      <VEmojiPicker @select="selectEmoji" />
+      <VEmojiPicker @select="createEmote" />
     </v-menu>
 
-    <!-- ☃☃☃☃☃☃☃ ADMIN ONLY MENU ☃☃☃☃☃☃☃ -->
-    <v-menu v-if="isAdmin" offset-y>
-      <template v-slot:activator="{ on }">
-        <v-btn v-on="on" icon><v-icon>mdi-dots-vertical</v-icon></v-btn>
-      </template>
-      <v-list>
+    <!-- ☃☃☃☃☃☃☃ ADMIN DROPDOWN LIST ☃☃☃☃☃☃☃ -->
+    <AdminDropdown
+        v-if="isAdmin"
+        :room="room"
+        @action="adminAction"
+    />
 
-        <!-- ☃☃☃☃☃☃☃ Manage whitelist/blacklist ☃☃☃☃☃☃☃ -->
-        <v-list-item @click="ui.showMemberManager = true">
-          <v-list-item-icon>
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Manage members</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+    <MemberWidget
+      v-model="ui.showMemberManager"
+      :room="room"
+      @input="ui.showMemberManager = $event"
+      @update="saveMemberChanges()"
+      />
 
-        <!-- ☃☃☃☃☃☃☃ Export meeting notes ☃☃☃☃☃☃☃ -->
-        <v-list-item @click="exportNotes()">
-          <v-list-item-icon>
-            <v-icon>mdi-file-export</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Export notes</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <!-- ☃☃☃☃☃☃☃ Close/open/delete room ☃☃☃☃☃☃☃ -->
-        <v-list-item v-if="!room.data.closed" @click="setClosed(true)">
-          <v-list-item-icon>
-            <v-icon>mdi-lock</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Close room</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item v-if="room.data.closed" @click="setClosed(false)">
-          <v-list-item-icon>
-            <v-icon>mdi-lock-open-variant</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Reopen room</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item
-          @click="ui.showDelete = true"
-          :disabled="!room.data.closed"
-          :class="room.data.closed ? 'error--text' : ''"
-        >
-          <v-list-item-icon>
-            <v-icon :color="room.data.closed? 'error' : 'grey'">mdi-delete</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>Delete Room</v-list-item-title>
-            <v-list-item-subtitle v-if="!room.data.closed" class="grey--text">
-              Room must be closed before it can be deleted. This is permanent.
-            </v-list-item-subtitle>
-            <v-list-item-subtitle v-if="room.data.closed" :class="room.data.closed? 'error--text' : ''">
-              This is permanent.
-            </v-list-item-subtitle>
-            <v-list-item-subtitle
-              v-if="room.data.retentionLength > 0"
-              class="primary--text"
-            >
-              This room automatically deletes after
-              {{ room.data.retentionLength }} days.
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-menu>
-
-    <v-dialog v-model="ui.showMemberManager">
-      <v-card>
-        <v-card-title>
-          Manage members
-        </v-card-title>
-
-        <v-card-text>
-          <p>{{ this.room.displayMembershipType() }}</p>
-
-          <EmailList
-            v-model="room.data.whitelist"
-            @input="saveMemberChanges()"
-            label="Whitelisted members"
-          />
-
-          <EmailList
-            v-model="room.data.blacklist"
-            @input="saveMemberChanges()"
-            label="Blacklisted members"
-          />
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" @click="ui.showMemberManager = false">
-            Done
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="ui.showDelete">
-      <v-card>
-        <v-card-title>
-          Really delete this room?
-        </v-card-title>
-
-        <v-card-text>
-          <p>Did you remember to export all your notes first?</p>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-btn outlined @click="ui.showDelete = false">
-            Cancel
-          </v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="error" @click="deleteRoom()">
-            Yes, Delete forever
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <DeleteConfirmWidget
+      v-model="ui.showDelete"
+      title="Really delete this room?"
+      message="Did you remember to export all your notes first?"
+      action="Yes, Delete forever"
+      @confirm="deleteRoom()"
+      />
   </v-toolbar>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 
-import { Feed } from "@/libs/Feed";
+import {EventType, Feed, ColorMap} from "@/libs/Feed";
 import { Room } from "@/libs/Room";
 import VEmojiPicker from "v-emoji-picker";
-import EmailList from "@/components/EmailList.vue";
 import DB from "@/libs/DB";
+import AdminDropdown from "@/widgets/AdminDropdown.vue";
+import MemberWidget from "@/widgets/MemberWidget.vue";
+import DeleteConfirmWidget from "@/widgets/DeleteConfirmWidget.vue";
+
+const MenuItems = [
+  // Ask a question
+  {type: EventType.question, icon: "mdi-help", tip: "Ask a question", admin: false, color: ColorMap.get(EventType.question)},
+
+  // Share a link
+  {type: EventType.link, icon: "mdi-link", tip: "Add a link", admin: false, color: ColorMap.get(EventType.link)},
+
+  // Create a poll (admin only)
+  {type: EventType.poll, icon: "mdi-poll-box", tip: "Create a poll", admin: true, color: ColorMap.get(EventType.poll)},
+
+  // Wait for everyone (admin only)
+  {type: EventType.wait, icon: "mdi-timer-outline", tip: "Wait for ack from everyone", admin: true, color: ColorMap.get(EventType.wait)},
+
+  // Thumbsup
+  {type: EventType.thumbsup, icon: "mdi-thumb-up", tip: "Agree and +1 the discussion", admin: false, color: ColorMap.get(EventType.thumbsup)},
+
+  // AFK
+  {type: EventType.afk, icon: "mdi-timer-sand-full", tip: "Agree and +1 the discussion", admin: false, color: ColorMap.get(EventType.afk)}
+];
+
+console.log('Menuitems', MenuItems);
 
 export default Vue.extend({
   name: "Room",
@@ -227,10 +91,68 @@ export default Vue.extend({
 
   components: {
     VEmojiPicker,
-    EmailList
+    AdminDropdown,
+    MemberWidget,
+    DeleteConfirmWidget
+  },
+
+  created() {
+    this.buttons = this.isAdmin? MenuItems : MenuItems.filter(m => !m.admin);
   },
 
   methods: {
+    clicked(type: EventType, event: any) {
+      switch(type) {
+        case EventType.question: return this.createQuestion();
+        case EventType.link: return this.createLink();
+        case EventType.emote: return this.createEmote(event);
+        default:
+          console.log("I don't know how to process this yet", type, event);
+      }
+    },
+
+    createQuestion() {
+      const q = window.prompt("What's the question?");
+      if( q ) {
+        this.feed.add(EventType.question, q);
+      }
+    },
+
+    createLink() {
+      const url = window.prompt("Enter the URL");
+      if( url ) {
+        this.feed.add(EventType.link, url);
+      }
+    },
+
+    createEmote(emoji) {
+      this.feed.add(EventType.emote, emoji.data);
+      this.ui.showPicker = false;
+    },
+
+    adminAction(event) {
+      console.log('adminaction', event);
+      switch(event) {
+        case 'members':
+          this.ui.showMemberManager = true;
+          break;
+        case 'notes':
+          this.exportNotes();
+          break;
+        case 'close':
+          this.setClosed(true);
+          break;
+        case 'open':
+          this.setClosed(false);
+          break;
+        case 'delete':
+          this.ui.showDelete = true;
+          break;
+        default:
+          throw new Error("Unknown admin action: " + event);
+      }
+    },
+
     setClosed(b: boolean) {
       console.log("setClosed", b);
       DB.doc(["rooms", this.room.id]).update({ closed: b });
@@ -248,20 +170,9 @@ export default Vue.extend({
       console.log("I don't know how to export notes yet :(");
     },
 
-    selectEmoji(emoji: any) {
-      console.log("selectEmoji", emoji.data);
-      this.ui.showPicker = false;
-    },
-
     deleteRoom() {
       DB.doc(["rooms", this.room.id]).delete();
       this.$router.push({ path: "/" });
-    },
-
-    addEvent(type) {
-      this.feed.add({
-
-      });
     }
   },
 
@@ -270,7 +181,8 @@ export default Vue.extend({
       showDelete: false,
       isLoading: true,
       showPicker: false,
-      showMemberManager: false
+      showMemberManager: false,
+      buttons: []
     }
   })
 });

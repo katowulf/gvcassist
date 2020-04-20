@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <!-- ☃☃☃☃☃☃☃ Some fun idle content for empty rooms ☃☃☃☃☃☃☃ -->
     <v-card width="100%" flat v-if="feed.getEvents().length === 0">
       <v-card-text>
         <h2 class="text-center font-weight-light">{{idleText}}</h2>
@@ -7,6 +8,8 @@
         <p class="text-center"><small class="grey--text">Image provided royalty free by <a href="https://cliply.co/tag/gray-roundness-collection/" target="_blank">Cliply.co</a></small></p>
       </v-card-text>
     </v-card>
+
+    <!-- ☃☃☃☃☃☃☃ The feed! ☃☃☃☃☃☃☃ -->
     <v-card shaped dense v-for="event in feed.getEvents()" :key="event.id">
       <v-card-text>{{ event }}</v-card-text>
     </v-card>
@@ -33,8 +36,7 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-  .reallybig {
-    width: 80%;
-    height: 80%;
+  .v-card {
+    margin-bottom: 5px;
   }
 </style>
