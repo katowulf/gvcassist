@@ -1,7 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <v-container id="room-container">
+  <v-container fluid id="room-container">
     <v-row justify="center">
-      <v-col cols="12" sm="8" md="6">
         <v-alert v-if="room.data.closed" color="warning">
           <h3>This room is closed.</h3>
         </v-alert>
@@ -16,7 +15,6 @@
         <RoomToolbar :room="room" :feed="feed" />
 
         <FeedView :feed="feed" :isAdmin="true" :isClosed="room.data.closed" />
-      </v-col>
     </v-row>
   </v-container>
 </template>

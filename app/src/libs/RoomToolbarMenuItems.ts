@@ -4,14 +4,28 @@ function getColor(type: EventType): string {
   return ColorMap.get(type) || "";
 }
 
+export interface ButtonProps {
+  type: EventType;
+  icon: string;
+  tip: string;
+  emote: string|null;
+  admin: boolean;
+  collapse: boolean;
+  color: string;
+  menuOnly: boolean;
+}
+
 export const MenuItems = [
   // Ask a question
   {
     type: EventType.question,
     icon: "mdi-help",
     tip: "Ask a question",
+    emote: null,
     admin: false,
-    color: getColor(EventType.question)
+    collapse: false,
+    color: getColor(EventType.question),
+    menuOnly: false
   },
 
   // Share a link
@@ -19,8 +33,11 @@ export const MenuItems = [
     type: EventType.link,
     icon: "mdi-link",
     tip: "Add a link",
+    emote: null,
     admin: false,
-    color: getColor(EventType.link)
+    collapse: false,
+    color: getColor(EventType.link),
+    menuOnly: false
   },
 
   // Create an AI
@@ -28,8 +45,11 @@ export const MenuItems = [
     type: EventType.todo,
     icon: "mdi-clipboard-check",
     tip: "Create a todo",
+    emote: null,
     admin: false,
-    color: getColor(EventType.todo)
+    collapse: false,
+    color: getColor(EventType.todo),
+    menuOnly: false
   },
 
   // Create a poll (admin only)
@@ -37,8 +57,11 @@ export const MenuItems = [
     type: EventType.poll,
     icon: "mdi-poll-box",
     tip: "Create a poll",
+    emote: null,
     admin: true,
-    color: getColor(EventType.poll)
+    collapse: false,
+    color: getColor(EventType.poll),
+    menuOnly: false
   },
 
   // Wait for everyone (admin only)
@@ -46,31 +69,75 @@ export const MenuItems = [
     type: EventType.wait,
     icon: "mdi-timer-outline",
     tip: "Wait for ack from everyone",
+    emote: null,
     admin: true,
-    color: getColor(EventType.wait)
+    collapse: false,
+    color: getColor(EventType.wait),
+    menuOnly: false
   },
 
   // AFK
   {
     type: EventType.afk,
     icon: "mdi-timer-sand-full",
-    tip: "Agree and +1 the discussion",
+    tip: "Mark me away",
+    emote: null,
     admin: false,
-    color: getColor(EventType.afk)
-  }
-];
+    collapse: false,
+    color: getColor(EventType.afk),
+    menuOnly: true
+  },
+] as ButtonProps[];
 
 export const EmoteItems = [
   // Thumbsup
-  { type: EventType.emote, icon: "mdi-thumb-up", emote: "👍", color: "brown" },
+  {
+    type: EventType.emote,
+    icon: "",
+    tip: "thumbs up",
+    emote: "👍",
+    color: "brown",
+    admin: false,
+    collapse: false,
+    menuOnly: false
+  },
+
+  // Happy
+  {
+    type: EventType.emote,
+    icon: "",
+    tip: "happy face",
+    emote: "😀",
+    color: "orange",
+    admin: false,
+    collapse: false,
+    menuOnly: false
+  },
 
   // Heart
   {
     type: EventType.emote,
-    icon: "mdi-heart",
+    icon: "",
+    tip: "heart",
     emote: "❤️",
-    color: "red accent-3"
+    color: "red accent-3",
+    admin: false,
+    collapse: true,
+    menuOnly: false
+  },
+
+  // +100
+  {
+    type: EventType.emote,
+    icon: "",
+    tip: "+100",
+    emote: "💯️",
+    color: "red accent-3",
+    admin: false,
+    collapse: true,
+    menuOnly: false
   }
-];
+
+] as ButtonProps[];
 
 export default MenuItems;

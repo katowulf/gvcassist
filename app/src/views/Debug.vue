@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>sharedScope</h2>
-    <pre>{{ sharedScope }}</pre>
+    <pre>{{ sharedScope.debug }}</pre>
 
     <h2>firebaseConfig</h2>
     <pre>{{ firebaseConfig }}</pre>

@@ -4,11 +4,12 @@
     <v-tooltip bottom v-for="(btn, index) in buttons" :key="index">
       <template v-slot:activator="{ on }">
         <v-btn
-          v-on="on"
-          :disabled="room.data.closed"
-          :color="btn.color"
-          @click="clicked(btn.type, $event)"
-          icon
+            v-on="on"
+            :disabled="room.data.closed"
+            :color="btn.color"
+            @click="clicked(btn.type, $event)"
+            :class="buildCollapseCss(btn.collapse)"
+            icon
         >
           <v-icon>{{ btn.icon }}</v-icon>
         </v-btn>
@@ -16,16 +17,21 @@
       <span>{{ btn.tip }}</span>
     </v-tooltip>
 
-    <!-- ☃☃☃☃☃☃☃ Quick emojis ☃☃☃☃☃☃☃ -->
+    <!--
+      ☃☃☃☃☃☃☃ Quick emojis ☃☃☃☃☃☃☃
+      Quick emojis also appear in the emoji menu, so they do not get
+      shown in the dropdown when collapsed (they are already in a dropdown)
+      todo: make this show the most frequently used list instead
+    -->
     <v-btn
       v-for="btn in emoteButtons"
-      :key="btn.icon"
+      :key="btn.emote"
       :disabled="room.data.closed"
-      :color="btn.color"
+      :class="buildCollapseCss(btn.collapse, false, 'emoji')"
       @click="clicked(btn.type, btn.emote)"
       icon
     >
-      <v-icon>{{ btn.icon }}</v-icon>
+      {{btn.emote}}
     </v-btn>
 
     <v-spacer></v-spacer>
@@ -40,8 +46,13 @@
       <VEmojiPicker @select="createEmote($event.data)" />
     </v-menu>
 
-    <!-- ☃☃☃☃☃☃☃ ADMIN DROPDOWN LIST ☃☃☃☃☃☃☃ -->
-    <AdminDropdown v-if="isAdmin" :room="room" @action="adminAction" />
+    <!-- ☃☃☃☃☃☃☃ DROPDOWN LIST ☃☃☃☃☃☃☃ -->
+    <RoomToolbarDropdown
+
+         :isAdmin="isAdmin"
+         :room="room"
+         :collapsibleButtons="collapsibleButtons"
+         @action="toolbarAction" />
 
     <MemberWidget
       v-model="ui.showMemberManager"
@@ -75,27 +86,13 @@ import { EventType, Feed } from "@/libs/Feed";
 import { Room } from "@/libs/Room";
 import VEmojiPicker from "v-emoji-picker";
 import DB from "@/libs/DB";
-import AdminDropdown from "@/components/room/AdminDropdown.vue";
 import MemberWidget from "@/components/room/MemberWidget.vue";
 import DeleteConfirmWidget from "@/components/uiwidget/DeleteConfirmWidget.vue";
 import InputDialogWidget from "@/components/uiwidget/InputDialogWidget.vue";
 import toaster from "@/libs/Toaster";
 import Util from "@/libs/Util";
-import { MenuItems, EmoteItems } from "@/libs/RoomToolbarMenuItems";
-
-type Button = {
-  type: EventType;
-  icon: string;
-  tip: string;
-  admin: boolean;
-  color: string;
-};
-type EmoteButton = {
-  type: EventType;
-  icon: string;
-  emote: string;
-  color: string;
-};
+import { MenuItems, EmoteItems, ButtonProps } from "@/libs/RoomToolbarMenuItems";
+import RoomToolbarDropdown from "@/components/room/RoomToolbarDropdown.vue";
 
 interface VueData {
   ui: {
@@ -110,8 +107,9 @@ interface VueData {
     showPicker: boolean;
     showMemberManager: boolean;
   };
-  buttons: Button[];
-  emoteButtons: EmoteButton[];
+  buttons: ButtonProps[];
+  emoteButtons: ButtonProps[];
+  collapsibleButtons: ButtonProps[];
 }
 
 export default Vue.extend({
@@ -125,18 +123,10 @@ export default Vue.extend({
 
   components: {
     VEmojiPicker,
-    AdminDropdown,
     MemberWidget,
     DeleteConfirmWidget,
-    InputDialogWidget
-  },
-
-  created() {
-    if (this.isAdmin) {
-      // show admin buttons too
-      this.buttons = MenuItems.slice(0);
-      this.emoteButtons = [];
-    }
+    InputDialogWidget,
+    RoomToolbarDropdown
   },
 
   methods: {
@@ -193,9 +183,9 @@ export default Vue.extend({
       this.$set(this.ui.input, "show", true);
     },
 
-    adminAction(event) {
-      console.log("adminaction", event);
-      switch (event) {
+    toolbarAction(event) {
+      console.log("adminaction", event); //debug
+      switch (event.type) {
         case "close":
           return this.setClosed(true);
         case "notes":
@@ -209,8 +199,16 @@ export default Vue.extend({
           this.ui.showMemberManager = true;
           return;
         default:
-          throw new Error("Unknown admin action: " + event);
+          this.clicked(event.type, event.data);
       }
+    },
+
+    buildCollapseCss(collapsible: boolean, isDropdown = false, additionalCss = "") {
+      let s = "";
+      if( collapsible ) {
+        s = isDropdown ? "hidden-sm-and-up" : "hidden-xs-only";
+      }
+      return s && additionalCss? s + " " + additionalCss : s || additionalCss;
     },
 
     setClosed(b: boolean) {
@@ -236,30 +234,41 @@ export default Vue.extend({
     }
   },
 
-  data: () =>
-    ({
+  data() {
+    const allButtons = this.isAdmin? MenuItems : MenuItems.filter(b => !b.admin);
+    const buttons = allButtons.filter(b => !b.menuOnly);
+    const emoteButtons = this.isAdmin? [] : EmoteItems;
+    const collapsibleButtons = allButtons.filter(b => b.collapse || b.menuOnly);
+    return {
       ui: {
         input: {
           show: false,
-          actionLabel: "-not set-",
-          inputLabel: "-not set-",
-          confirm: () => {
+            actionLabel: "-not set-",
+            inputLabel: "-not set-",
+            confirm: () => {
             /* */
           }
         },
         showDelete: false,
-        isLoading: true,
-        showPicker: false,
-        showMemberManager: false
+          isLoading: true,
+          showPicker: false,
+          showMemberManager: false
       },
-      buttons: MenuItems.filter(m => !m.admin), // exclude admin by default
-      emoteButtons: EmoteItems
-    } as VueData)
+      buttons: buttons, // exclude admin by default
+      emoteButtons: emoteButtons,
+      collapsibleButtons: collapsibleButtons
+    } as VueData;
+  }
 });
 </script>
 
 <style scoped>
 .roomToolbar .theme--light.v-card {
   color: rgb(0, 0, 0);
+}
+
+.roomToolbar button.emoji {
+  font-size: 18px;
+  color: rgb(0,0,0);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-container :class="isClosed ? 'FeedView closed' : 'FeedView'">
+  <v-container fluid :class="isClosed ? 'FeedView closed' : 'FeedView'">
     <!-- ☃☃☃☃☃☃☃ Some fun idle content for empty rooms ☃☃☃☃☃☃☃ -->
     <IdleWidget v-if="events.length === 0" />
 
@@ -9,7 +9,7 @@
     <!-- TODO -->
 
     <!-- ☃☃☃☃☃☃☃ The feed! ☃☃☃☃☃☃☃ -->
-    <div v-for="event in events" :key="event.id">
+    <div v-for="event in events" :key="event.id" :class="event.ui.cssClass">
       <EventWidgetAdmin
         v-if="event.type === 'admin'"
         :card="event"

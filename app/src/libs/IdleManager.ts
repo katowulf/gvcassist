@@ -10,11 +10,14 @@ const idleImages = [
 
 const idleText = [
   "Click things! Do stuff!",
-  "Nothing to see here. Yet...",
+  "Nothing to see here... Yet.",
   "I'm speechless, for now.",
   "Please don't stare so much.",
-  "Got icons? We need some here.",
-  "It's not 'empty'; it's... Spartan."
+  "Got emojis? Put some here!",
+  "It's not empty, it's... Spartan.",
+  "If this is a party, you're unfashionably early.",
+  "If you join an empty meeting, is it still a meeting?",
+  "Quick! Practice twiddling your thumbs."
 ];
 
 function rand(list) {
