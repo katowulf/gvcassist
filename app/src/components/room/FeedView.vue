@@ -65,15 +65,15 @@
 <script lang="ts">
 import Vue from "vue";
 import { Feed } from "@/libs/Feed";
-import IdleWidget from "@/widgets/IdleWidget.vue";
-import EventWidgetLink from "@/widgets/EventWidgetLink.vue";
-import EventWidgetQuestion from "@/widgets/EventWidgetQuestion.vue";
-import EventWidgetAdmin from "@/widgets/EventWidgetAdmin.vue";
-import EventWidgetAfk from "@/widgets/EventWidgetAfk.vue";
-import EventWidgetEmote from "@/widgets/EventWidgetEmote.vue";
-import EventWidgetPoll from "@/widgets/EventWidgetPoll.vue";
-import EventWidgetTodo from "@/widgets/EventWidgetTodo.vue";
-import EventWidgetWait from "@/widgets/EventWidgetWait.vue";
+import IdleWidget from "@/components/uiwidget/IdleWidget.vue";
+import EventWidgetLink from "@/components/room/eventcard/EventWidgetLink.vue";
+import EventWidgetQuestion from "@/components/room/eventcard/EventWidgetQuestion.vue";
+import EventWidgetAdmin from "@/components/room/eventcard/EventWidgetAdmin.vue";
+import EventWidgetAfk from "@/components/room/eventcard/EventWidgetAfk.vue";
+import EventWidgetEmote from "@/components/room/eventcard/EventWidgetEmote.vue";
+import EventWidgetPoll from "@/components/room/eventcard/EventWidgetPoll.vue";
+import EventWidgetTodo from "@/components/room/eventcard/EventWidgetTodo.vue";
+import EventWidgetWait from "@/components/room/eventcard/EventWidgetWait.vue";
 
 export default Vue.extend({
   name: "FeedView",

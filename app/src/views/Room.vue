@@ -29,8 +29,8 @@ import Vue from "vue";
 import sharedScope from "@/libs/SharedScope";
 import { Feed } from "@/libs/Feed";
 import { Room } from "@/libs/Room";
-import RoomToolbar from "@/components/RoomToolbar.vue";
-import FeedView from "@/components/FeedView.vue";
+import RoomToolbar from "@/components/room/RoomToolbar.vue";
+import FeedView from "@/components/room/FeedView.vue";
 
 interface VueData {
   id: string;

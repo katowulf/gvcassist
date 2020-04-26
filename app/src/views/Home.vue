@@ -24,7 +24,7 @@
 import SignInForm from "@/components/SignInForm.vue";
 import sharedScope from "@/libs/SharedScope";
 import HomePageContent from "@/components/HomePageContent.vue";
-import RoomPicker from "@/components/RoomPicker.vue";
+import RoomPicker from "@/components/room/RoomPicker.vue";
 import LoadingCard from "@/components/LoadingCard.vue";
 import Footer from "@/components/Footer.vue";
 

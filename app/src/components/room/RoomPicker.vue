@@ -75,11 +75,11 @@
 
 <script language="ts">
 import Vue from "vue";
-import RoomCreateForm from "@/components/RoomCreateForm.vue";
+import RoomCreateForm from "@/components/room/RoomCreateForm.vue";
 import sharedScope from "@/libs/SharedScope";
 import { burnedTheToast } from "@/libs/Toaster";
 import { DB } from "@/libs/DB";
-import RoomLink from "@/widgets/RoomLink.vue";
+import RoomLink from "@/components/room/RoomLink.vue";
 
 export default Vue.extend({
   name: "RoomPicker",

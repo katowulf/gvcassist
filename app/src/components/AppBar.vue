@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import NavMenuUserIcon from "@/widgets/NavMenuUserIcon.vue";
+import NavMenuUserIcon from "@/components/NavMenuUserIcon.vue";
 import sharedScope from "@/libs/SharedScope";
 
 export default Vue.extend({

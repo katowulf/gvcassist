@@ -1,5 +1,6 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
-  <v-card outline elevation="1" class="FeedEvent">
+  <v-card shaped dense :color="card.ui.color" dark>
+    <v-card-text>Poll: {{ card.text }}</v-card-text>
     <EventWidgetActions
       :card="card"
       :isAdmin="isAdmin"
@@ -12,10 +13,10 @@
 <script lang="ts">
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
-import EventWidgetActions from "@/widgets/EventWidgetActions.vue";
+import EventWidgetActions from "@/components/room/EventWidgetActions.vue";
 
 export default Vue.extend({
-  name: "EventWidgetEmote",
+  name: "EventWidgetPoll",
   props: {
     card: { type: FeedEvent, required: true },
     isAdmin: { type: Boolean, required: true },

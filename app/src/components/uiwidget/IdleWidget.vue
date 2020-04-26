@@ -8,7 +8,7 @@
         of the directory here is absolutely necessary, as is the require.
         Read more here:
       -->
-      <v-img width="100%" :src="require('../assets/' + idleImg)" />
+      <v-img width="100%" :src="require('../../assets/' + idleImg)" />
       <p class="text-center">
         <small class="grey--text">
           Image provided royalty free by
@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import IdleManager from "../libs/IdleManager";
+import IdleManager from "@/libs/IdleManager";
 
 export default Vue.extend({
   name: "IdleWidget",

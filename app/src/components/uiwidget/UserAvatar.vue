@@ -13,9 +13,9 @@
 
 <script language="ts">
 import Vue from "vue";
-import Toaster from "../libs/Toaster";
-import { Auth } from "../libs/Auth";
-import Profiles from "../libs/Profiles";
+import Toaster from "@/libs/Toaster";
+import { Auth } from "@/libs/Auth";
+import Profiles from "@/libs/Profiles";
 
 export default Vue.extend({
   name: "UserAvatar",

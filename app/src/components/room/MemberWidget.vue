@@ -35,8 +35,8 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Room } from "../libs/Room";
-import EmailList from "./EmailList.vue";
+import { Room } from "@/libs/Room";
+import EmailList from "@/components/uiwidget/EmailList.vue";
 
 export default Vue.extend({
   name: "MemberWidget",

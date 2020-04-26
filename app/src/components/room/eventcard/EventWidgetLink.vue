@@ -29,8 +29,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
-import EventWidgetActions from "@/widgets/EventWidgetActions.vue";
-import CopyWidget from "@/widgets/CopyWidget.vue";
+import EventWidgetActions from "@/components/room/EventWidgetActions.vue";
+import CopyWidget from "@/components/uiwidget/CopyWidget.vue";
 
 export default Vue.extend({
   name: "EventWidgetLink",

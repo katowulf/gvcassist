@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import ChipList from "@/widgets/ChipList.vue";
+import ChipList from "@/components/uiwidget/ChipList.vue";
 import { Chip } from "@/libs/Chip";
 import Util from "@/libs/Util";
 

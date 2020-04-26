@@ -7,18 +7,6 @@ const idleImages = [
   "superhero.gif",
   "wave.gif"
 ];
-// const idleImages = [
-//   '../assets/bulb.gif', '../assets/hourglass.gif', '../assets/mountain.gif', '../assets/notepad.gif', '../assets/rocket.gif', '../assets/superhero.gif', '../assets/wave.gif'
-// ];
-// const idleImages = [
-//   './assets/bulb.gif', './assets/hourglass.gif', './assets/mountain.gif', './assets/notepad.gif', './assets/rocket.gif', './assets/superhero.gif', './assets/wave.gif'
-// ];
-// const idleImages = [
-//   '/assets/bulb.gif', '/assets/hourglass.gif', '/assets/mountain.gif', '/assets/notepad.gif', '/assets/rocket.gif', '/assets/superhero.gif', '/assets/wave.gif'
-// ];
-// const idleImages = [
-//   '@/assets/bulb.gif', '@/assets/hourglass.gif', '@/assets/mountain.gif', '@/assets/notepad.gif', '@/assets/rocket.gif', '@/assets/superhero.gif', '@/assets/wave.gif'
-// ];
 
 const idleText = [
   "Click things! Do stuff!",

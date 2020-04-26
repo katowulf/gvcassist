@@ -32,8 +32,8 @@
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
 import sharedScope from "@/libs/SharedScope";
-import UserAvatar from "@/widgets/UserAvatar.vue";
-import Datestamp from "@/widgets/Datestamp.vue";
+import UserAvatar from "@/components/uiwidget/UserAvatar.vue";
+import Datestamp from "@/components/uiwidget/Datestamp.vue";
 
 interface VueData {
   sharedScope: any;
