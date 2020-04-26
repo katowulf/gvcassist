@@ -1,6 +1,6 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
   <v-card shaped dense :color="card.ui.color" dark>
-    <v-card-text>Admin: {{ card.text }}</v-card-text>
+    <v-card-text>Wait: {{ card.text }}</v-card-text>
     <EventWidgetActions
       :card="card"
       :isAdmin="isAdmin"
@@ -13,10 +13,10 @@
 <script lang="ts">
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
-import EventWidgetActions from "@/components/room/EventWidgetActions.vue";
+import EventWidgetActions from "@/components/room/eventcard/CardActions.vue";
 
 export default Vue.extend({
-  name: "EventWidgetAdmin",
+  name: "EventWidgetWait",
   props: {
     card: { type: FeedEvent, required: true },
     isAdmin: { type: Boolean, required: true },

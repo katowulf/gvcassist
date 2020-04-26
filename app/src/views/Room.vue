@@ -16,8 +16,6 @@
         <RoomToolbar :room="room" :feed="feed" />
 
         <FeedView :feed="feed" :isAdmin="true" :isClosed="room.data.closed" />
-
-        {{ updates.lastUpdate }}
       </v-col>
     </v-row>
   </v-container>
