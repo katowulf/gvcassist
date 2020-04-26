@@ -23,36 +23,7 @@
 import Vue from "vue";
 import ChipList from "@/widgets/ChipList.vue";
 import { Chip } from "@/libs/Chip";
-
-const EMAIL_REGEX = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}/gi;
-
-function parseEmails(s) {
-  // clean up the email addresses
-  const emailList = [...(s || "").matchAll(EMAIL_REGEX)].map(a => a[0]);
-  // make the list unique by converting to a set temporarily
-  return [...new Set([...emailList])];
-}
-
-function joinEmails(list) {
-  const spacer = ", ";
-  return list.join(spacer);
-}
-
-const arrayRemove = function(list, val) {
-  const pos = list.indexOf(val);
-  if (pos > -1) list.splice(pos, 1);
-  return pos > -1;
-};
-
-const diffList = function(newList, oldList) {
-  // we could reduce this by one iteration by only iterating
-  // newList once and storing added and dups at the same time
-  return {
-    dups: newList.filter(e => oldList.includes(e)),
-    added: newList.filter(e => !oldList.includes(e)),
-    removed: oldList.filter(e => !newList.includes(e))
-  };
-};
+import Util from "@/libs/Util";
 
 class MessageBuilder {
   private timeout = 0;
@@ -68,7 +39,7 @@ class MessageBuilder {
       this.error.push("No valid email addresses.");
     }
     if (added.length) this.success.push(`Added ${added.length} emails.`);
-    if (dups.length) this.normal.push("Duplicates: " + joinEmails(dups));
+    if (dups.length) this.normal.push("Duplicates: " + dups.join(", "));
   }
 
   enqueue(vue) {
@@ -88,6 +59,8 @@ interface VueData {
   messages: MessageBuilder;
 }
 
+type Values = string[];
+
 export default Vue.extend({
   name: "EmailList",
 
@@ -95,7 +68,9 @@ export default Vue.extend({
 
   props: {
     label: { type: String, required: true },
-    value: { type: Array, required: true },
+    // Type casting props is tricky. See this blog post
+    // https://frontendsociety.com/using-a-typescript-interfaces-and-types-as-a-prop-type-in-vuejs-508ab3f83480
+    value: { type: Array as () => string[], required: true },
     color: { type: String, default: "indigo" }
   },
 
@@ -111,29 +86,24 @@ export default Vue.extend({
 
   methods: {
     removeEmail(emails) {
-      emails.forEach(e => arrayRemove(this.value, e));
+      Util.arrayRemove(this.value, ...emails);
       this.$emit("input", this.value);
     },
 
     updateChips() {
-      const { added, removed } = diffList(
+      const { added, removed } = Util.diffLists<string>(
         this.value,
         this.chips.map(c => c.label)
       );
-      console.log("updateChips", this.value, added, removed); //debug
       added.forEach(label => this.chips.push(new Chip(label)));
-      removed.forEach(label =>
-        arrayRemove(
-          this.chips,
-          this.chips.find((c: Chip) => c.label === label)
-        )
-      );
+      const removedChips = this.chips.filter((c: Chip) => removed.includes(c.label));
+      Util.arrayRemove(this.chips, ...removedChips);
     },
 
     parseEmails() {
       if (!this.unformatted) return;
-      const { dups, added } = diffList(
-        parseEmails(this.unformatted),
+      const { dups, added } = Util.diffLists<string>(
+        Util.parseEmails(this.unformatted),
         this.value
       );
       if (added.length > 0) {

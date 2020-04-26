@@ -1,5 +1,5 @@
 <template>
-  <v-avatar :color="color" v-on:click="signOut()">
+  <v-avatar :color="user? user.color : ''" :size="size" v-on:click="signOut()">
     <img
       v-if="user && user.photoURL"
       :src="user.photoURL"
@@ -17,36 +17,10 @@ import Toaster from "../libs/Toaster";
 import { Auth } from "../libs/Auth";
 import Profiles from "../libs/Profiles";
 
-const colors = [
-  "red",
-  "pink",
-  "purple",
-  "deep-purple",
-  "indigo",
-  /*"blue", */ "light-blue",
-  "cyan",
-  "teal",
-  "green",
-  "light-green",
-  "lime",
-  "yellow",
-  "amber",
-  "orange",
-  "deep-orange",
-  "brown",
-  "blue-grey",
-  "grey",
-  "shades"
-];
-
-function getRandomColor() {
-  return colors[Math.floor(Math.random() * colors.length)];
-}
-
 export default Vue.extend({
   name: "UserAvatar",
 
-  props: ["uid"],
+  props: { uid: {type: String, required: true}, size: {type: Number, default: 32} },
 
   // Loading the user object inside of created() ensures that it exists before the
   // page renders. Using computed and data broke when the user wasn't ready and didn't
@@ -63,7 +37,6 @@ export default Vue.extend({
   },
 
   data: () => ({
-    color: getRandomColor(),
     user: null
   })
 });

@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <v-toolbar elevation="2">
+  <v-toolbar elevation="2" class="roomToolbar">
 
     <!-- ☃☃☃☃☃☃☃ Menu buttons ☃☃☃☃☃☃☃ -->
     <v-tooltip bottom v-for="(btn,index) in buttons" :key="index">
@@ -11,6 +11,12 @@
       <span>{{btn.tip}}</span>
     </v-tooltip>
 
+    <!-- ☃☃☃☃☃☃☃ Quick emojis ☃☃☃☃☃☃☃ -->
+    <v-btn v-for="btn in emoteButtons" :key="btn.icon"
+           :disabled="room.data.closed" :color="btn.color" @click="clicked(btn.type, btn.emote)" icon>
+      <v-icon>{{btn.icon}}</v-icon>
+    </v-btn>
+
     <v-spacer></v-spacer>
 
     <!-- ☃☃☃☃☃☃☃ Pick an emoji ☃☃☃☃☃☃☃ -->
@@ -20,7 +26,7 @@
           <v-icon>mdi-emoticon-outline</v-icon>
         </v-btn>
       </template>
-      <VEmojiPicker @select="createEmote" />
+      <VEmojiPicker @select="createEmote($event.data)" />
     </v-menu>
 
     <!-- ☃☃☃☃☃☃☃ ADMIN DROPDOWN LIST ☃☃☃☃☃☃☃ -->
@@ -58,7 +64,7 @@
 <script lang="ts">
 import Vue from "vue";
 
-import {EventType, Feed, ColorMap} from "@/libs/Feed";
+import {EventType, Feed} from "@/libs/Feed";
 import { Room } from "@/libs/Room";
 import VEmojiPicker from "v-emoji-picker";
 import DB from "@/libs/DB";
@@ -67,37 +73,11 @@ import MemberWidget from "@/widgets/MemberWidget.vue";
 import DeleteConfirmWidget from "@/widgets/DeleteConfirmWidget.vue";
 import InputDialogWidget from "@/widgets/InputDialogWidget.vue";
 import toaster from "@/libs/Toaster";
-
-const MenuItems = [
-  // Ask a question
-  {type: EventType.question, icon: "mdi-help", tip: "Ask a question", admin: false, color: ColorMap.get(EventType.question)},
-
-  // Share a link
-  {type: EventType.link, icon: "mdi-link", tip: "Add a link", admin: false, color: ColorMap.get(EventType.link)},
-
-  // Create a poll (admin only)
-  {type: EventType.poll, icon: "mdi-poll-box", tip: "Create a poll", admin: true, color: ColorMap.get(EventType.poll)},
-
-  // Wait for everyone (admin only)
-  {type: EventType.wait, icon: "mdi-timer-outline", tip: "Wait for ack from everyone", admin: true, color: ColorMap.get(EventType.wait)},
-
-  // Thumbsup
-  {type: EventType.thumbsup, icon: "mdi-thumb-up", tip: "Agree and +1 the discussion", admin: false, color: ColorMap.get(EventType.thumbsup)},
-
-  // AFK
-  {type: EventType.afk, icon: "mdi-timer-sand-full", tip: "Agree and +1 the discussion", admin: false, color: ColorMap.get(EventType.afk)}
-];
-
-function isValidUrl(string) {
-  try {
-    const url = new URL(string);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch (_) {
-    return false;
-  }
-}
+import Util from "@/libs/Util";
+import {MenuItems, EmoteItems} from "@/libs/RoomToolbarMenuItems";
 
 type Button = {type: EventType, icon: string, tip: string, admin: boolean, color: string};
+type EmoteButton = {type: EventType, icon: string, emote: string, color: string};
 
 interface VueData {
   ui: {
@@ -107,7 +87,8 @@ interface VueData {
     showPicker: boolean;
     showMemberManager: boolean;
   },
-  buttons: Button[]
+  buttons: Button[],
+  emoteButtons: EmoteButton[]
 }
 
 export default Vue.extend({
@@ -128,7 +109,11 @@ export default Vue.extend({
   },
 
   created() {
-    this.buttons = this.isAdmin? MenuItems : MenuItems.filter(m => !m.admin);
+    if( this.isAdmin ) {
+      // show admin buttons too
+      this.buttons = MenuItems.slice(0);
+      this.emoteButtons = [];
+    }
   },
 
   methods: {
@@ -157,7 +142,7 @@ export default Vue.extend({
     },
 
     createLink(url) {
-      if( !isValidUrl(url) ) {
+      if( !Util.isValidUrl(url) ) {
         toaster.error("Invalid URL: " + url);
       }
       else {
@@ -166,7 +151,8 @@ export default Vue.extend({
     },
 
     createEmote(emoji) {
-      this.feed.add(EventType.emote, emoji.data);
+      console.log("createEmote", emoji);
+      this.feed.add(EventType.emote, emoji);
       this.ui.showPicker = false;
     },
 
@@ -225,9 +211,14 @@ export default Vue.extend({
       showPicker: false,
       showMemberManager: false
     },
-    buttons: []
+    buttons: MenuItems.filter(m => !m.admin), // exclude admin by default
+    emoteButtons: EmoteItems
   } as VueData)
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.roomToolbar .theme--light.v-card {
+  color: rgb(0,0,0);
+}
+</style>

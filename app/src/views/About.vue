@@ -76,9 +76,25 @@
           </p>
 
           <p>
+            The excellent MDN docs helped me figure out how to
+            <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event"
+            >
+              intercept paste events
+            </a>
+            . This allows calendar invite attendees to just be pasted directly
+            into the whitelist.
+          </p>
+
+          <p>
+            Cliply provided <a href="https://cliply.co/clip/rocket-icon/">some excellent
+            royalty free gifs</a> to fill our empty spaces.
+          </p>
+
+          <h3>
             Some really creative people deserve credit for providing ideas and
             bug workarounds as well:
-          </p>
+          </h3>
 
           <p>
             Rie on StackOverflow provided
@@ -140,22 +156,6 @@
             >
               This excellent blog post.
             </a>
-          </p>
-
-          <p>
-            The excellent MDN docs helped me figure out how to
-            <a
-              href="https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event"
-            >
-              intercept paste events
-            </a>
-            . This allows calendar invite attendees to just be pasted directly
-            into the whitelist.
-          </p>
-
-          <p>
-            Cliply provided us <a href="https://cliply.co/clip/rocket-icon/">some excellent
-            royalty free gifs</a> to fill our empty spaces.
           </p>
 
           <p>

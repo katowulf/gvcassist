@@ -3,6 +3,7 @@ import DocumentReference = firebase.firestore.DocumentReference;
 import CollectionReference = firebase.firestore.CollectionReference;
 import DocumentData = firebase.firestore.DocumentData;
 import Query = firebase.firestore.Query;
+import {findOrCreate} from "@/libs/Util";
 
 // todo: This should be a Vue mixin and possibly integrate with Vuex
 // todo: and/or use VueFire :D; didn't want to use the lib
@@ -111,6 +112,22 @@ class Database {
       return firebase.firestore.Timestamp.fromDate(timestamp);
     }
     return firebase.firestore.FieldValue.serverTimestamp();
+  }
+
+  async mapUnionAdd(parts: string[]|string, key: string, value: any) {
+    const data = {};
+    data[key] = firebase.firestore.FieldValue.arrayUnion(value);
+    return this.doc(parts).update(data);
+  }
+
+  trxn(handler: (txrn) => Promise<any>) {
+    return this.db.runTransaction(handler);
+  }
+
+  async mapUnionRemove(parts: string[]|string, key: string, value: any) {
+    const data = {};
+    data[key] = firebase.firestore.FieldValue.arrayRemove(value);
+    return this.doc(parts).update(data);
   }
 }
 

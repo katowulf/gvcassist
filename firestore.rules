@@ -65,7 +65,8 @@ service cloud.firestore {
 
             match /feed/{eventId} {
                 allow write: if feedIsWritable(roomId);
-                allow list: if request.query.limit <= 1000 && canSeeRoom(getRoom(roomId));
+                allow list: if request.query.limit <= 2000 && canSeeRoom(getRoom(roomId));
+                allow get: if canSeeRoom(getRoom(roomId));
             }
         }
     }

@@ -1,7 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-container id="room-container">
     <v-row justify="center">
-      <v-col cols="12" md="6">
+      <v-col cols="12" sm="8" md="6">
         <v-alert v-if="room.data.closed" color="warning">
           <h3>This room is closed.</h3>
         </v-alert>
@@ -15,7 +15,9 @@
         <!-- debug: we don't need two toolbars of course; just here to see the admin vs user views at once -->
         <RoomToolbar :room="room" :feed="feed" />
 
-        <FeedView :feed="feed" />
+        <FeedView :feed="feed" :isAdmin="true" :isClosed="room.data.closed" />
+
+        {{updates.lastUpdate}}
       </v-col>
     </v-row>
   </v-container>
@@ -56,7 +58,7 @@ export default Vue.extend({
     this.room = new Room(this.id);
     this.feed = new Feed(this.id);
     this.room.subscribe(() => this.serverUpdate('Room'));
-    // this.feed.subscribe(() => this.serverUpdate('Feed'));
+    this.feed.subscribe(() => this.serverUpdate('Feed'));
     Promise.all([this.room.loaded, this.feed.loaded]).then(
       () => (this.ui.isLoading = false)
     );
@@ -71,6 +73,7 @@ export default Vue.extend({
     serverUpdate(source: string) {
       if (source === "Room" && this.room)
         sharedScope.ui.setTitle(this.room.data.name);
+      this.$set(this.updates, 'lastUpdate', this.updates.lastUpdate+1);
     }
   },
 
