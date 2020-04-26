@@ -43,7 +43,10 @@ class ProfileCache {
     this.users = new Map();
   }
 
-  public async load(uids: string[], callback?: (UserProfile) => void): Promise<any> {
+  public async load(
+    uids: string[],
+    callback?: (UserProfile) => void
+  ): Promise<any> {
     return Promise.all(
       uids.map(uid => this.find(uid).then(p => callback && callback(p)))
     );
@@ -62,7 +65,11 @@ class ProfileCache {
       // console.log("trying", DB.doc(["publicProfiles", uid]).path); //debug
       const snap = await DB.doc(["publicProfiles", uid]).get();
       if (snap.exists) {
-        const profile = { $id: uid, ...snap.data(), color: getRandomColor() } as UserProfile;
+        const profile = {
+          $id: uid,
+          ...snap.data(),
+          color: getRandomColor()
+        } as UserProfile;
         this.users.set(uid, profile);
         // console.log("user fetched from db", uid, profile); //debug
         return profile;

@@ -6,9 +6,9 @@
 
       <v-card-text>
         <v-text-field
-            :label="inputLabel"
-            v-model="inputValue"
-            filled
+          :label="inputLabel"
+          v-model="inputValue"
+          filled
         ></v-text-field>
       </v-card-text>
 
@@ -17,8 +17,14 @@
           Cancel
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="primary" @click="$emit('input', false); $emit('confirm', inputValue)">
-          {{actionLabel}}
+        <v-btn
+          color="primary"
+          @click="
+            $emit('input', false);
+            $emit('confirm', inputValue);
+          "
+        >
+          {{ actionLabel }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -26,20 +32,22 @@
 </template>
 
 <script lang="ts">
-  import Vue from "vue";
+import Vue from "vue";
 
-  export default Vue.extend({
-    name: "InputDialogWidget",
-    props: {
-      value: {type: Boolean, required: true},
-      inputLabel: {type: String, required: true},
-      actionLabel: {type: String, required: true}
-    },
-    watch: {
-      value() { this.inputValue = ""; }
-    },
-    data: () => ({
-      inputValue: ""
-    })
-  });
+export default Vue.extend({
+  name: "InputDialogWidget",
+  props: {
+    value: { type: Boolean, required: true },
+    inputLabel: { type: String, required: true },
+    actionLabel: { type: String, required: true }
+  },
+  watch: {
+    value() {
+      this.inputValue = "";
+    }
+  },
+  data: () => ({
+    inputValue: ""
+  })
+});
 </script>

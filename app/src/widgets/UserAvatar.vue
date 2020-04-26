@@ -1,5 +1,5 @@
 <template>
-  <v-avatar :color="user? user.color : ''" :size="size" v-on:click="signOut()">
+  <v-avatar :color="user ? user.color : ''" :size="size" v-on:click="signOut()">
     <img
       v-if="user && user.photoURL"
       :src="user.photoURL"
@@ -20,7 +20,10 @@ import Profiles from "../libs/Profiles";
 export default Vue.extend({
   name: "UserAvatar",
 
-  props: { uid: {type: String, required: true}, size: {type: Number, default: 32} },
+  props: {
+    uid: { type: String, required: true },
+    size: { type: Number, default: 32 }
+  },
 
   // Loading the user object inside of created() ensures that it exists before the
   // page renders. Using computed and data broke when the user wasn't ready and didn't

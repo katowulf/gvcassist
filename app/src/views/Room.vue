@@ -17,7 +17,7 @@
 
         <FeedView :feed="feed" :isAdmin="true" :isClosed="room.data.closed" />
 
-        {{updates.lastUpdate}}
+        {{ updates.lastUpdate }}
       </v-col>
     </v-row>
   </v-container>
@@ -57,8 +57,8 @@ export default Vue.extend({
     this.id = this.$route.params.roomId;
     this.room = new Room(this.id);
     this.feed = new Feed(this.id);
-    this.room.subscribe(() => this.serverUpdate('Room'));
-    this.feed.subscribe(() => this.serverUpdate('Feed'));
+    this.room.subscribe(() => this.serverUpdate("Room"));
+    this.feed.subscribe(() => this.serverUpdate("Feed"));
     Promise.all([this.room.loaded, this.feed.loaded]).then(
       () => (this.ui.isLoading = false)
     );
@@ -73,7 +73,7 @@ export default Vue.extend({
     serverUpdate(source: string) {
       if (source === "Room" && this.room)
         sharedScope.ui.setTitle(this.room.data.name);
-      this.$set(this.updates, 'lastUpdate', this.updates.lastUpdate+1);
+      this.$set(this.updates, "lastUpdate", this.updates.lastUpdate + 1);
     }
   },
 

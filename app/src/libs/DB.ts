@@ -3,11 +3,12 @@ import DocumentReference = firebase.firestore.DocumentReference;
 import CollectionReference = firebase.firestore.CollectionReference;
 import DocumentData = firebase.firestore.DocumentData;
 import Query = firebase.firestore.Query;
-import {findOrCreate} from "@/libs/Util";
 
-// todo: This should be a Vue mixin and possibly integrate with Vuex
-// todo: and/or use VueFire :D; didn't want to use the lib
-// todo: for my first project since it bypasses learning the nuances.
+// This should be a Vue mixin and possibly integrate with Vuex
+// and/or use VueFire :D; didn't want to use the lib
+// for my first project since it bypasses learning the nuances.
+// And it's been a great learning experience to do this the hard way
+// but I wouldn't choose this for productivity.
 
 const BASE = "apps/gvcassistant";
 
@@ -22,7 +23,7 @@ class Path {
       .concat(parts)
       .map(p => p.split("/"))
       .flat();
-    console.log('Path', bits.join('/')); //debug
+    console.log("Path", bits.join("/")); //debug
     this.isDoc = bits.length % 2 === 0;
     const path = (this.isDoc ? bits : bits.slice(0, -1)).join("/");
     this.baseDoc = firebase.firestore().doc(path);
@@ -108,13 +109,13 @@ class Database {
   }
 
   timestamp(timestamp?: Date) {
-    if( timestamp ) {
+    if (timestamp) {
       return firebase.firestore.Timestamp.fromDate(timestamp);
     }
     return firebase.firestore.FieldValue.serverTimestamp();
   }
 
-  async mapUnionAdd(parts: string[]|string, key: string, value: any) {
+  async mapUnionAdd(parts: string[] | string, key: string, value: any) {
     const data = {};
     data[key] = firebase.firestore.FieldValue.arrayUnion(value);
     return this.doc(parts).update(data);
@@ -124,7 +125,7 @@ class Database {
     return this.db.runTransaction(handler);
   }
 
-  async mapUnionRemove(parts: string[]|string, key: string, value: any) {
+  async mapUnionRemove(parts: string[] | string, key: string, value: any) {
     const data = {};
     data[key] = firebase.firestore.FieldValue.arrayRemove(value);
     return this.doc(parts).update(data);

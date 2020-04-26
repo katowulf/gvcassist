@@ -9,15 +9,15 @@
         <p>{{ room.displayMembershipType() }}</p>
 
         <EmailList
-            v-model="room.data.whitelist"
-            @input="$emit('update')"
-            label="Whitelisted members"
+          v-model="room.data.whitelist"
+          @input="$emit('update')"
+          label="Whitelisted members"
         />
 
         <EmailList
-            v-model="room.data.blacklist"
-            @input="$emit('update')"
-            label="Blacklisted members"
+          v-model="room.data.blacklist"
+          @input="$emit('update')"
+          label="Blacklisted members"
         />
       </v-card-text>
 
@@ -35,15 +35,15 @@
 
 <script lang="ts">
 import Vue from "vue";
-import {Room} from "../libs/Room";
+import { Room } from "../libs/Room";
 import EmailList from "./EmailList.vue";
 
 export default Vue.extend({
   name: "MemberWidget",
-  components: {EmailList},
+  components: { EmailList },
   props: {
-    value: {type: Boolean, required: true},
-    room: {type: Room, required: true}
+    value: { type: Boolean, required: true },
+    room: { type: Room, required: true }
   }
 });
 </script>

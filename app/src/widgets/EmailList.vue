@@ -96,7 +96,9 @@ export default Vue.extend({
         this.chips.map(c => c.label)
       );
       added.forEach(label => this.chips.push(new Chip(label)));
-      const removedChips = this.chips.filter((c: Chip) => removed.includes(c.label));
+      const removedChips = this.chips.filter((c: Chip) =>
+        removed.includes(c.label)
+      );
       Util.arrayRemove(this.chips, ...removedChips);
     },
 

@@ -2,11 +2,11 @@
   <v-dialog v-model="value" @click:outside="$emit('input', false)">
     <v-card>
       <v-card-title>
-        {{title}}
+        {{ title }}
       </v-card-title>
 
       <v-card-text v-if="message">
-        <p>{{message}}</p>
+        <p>{{ message }}</p>
       </v-card-text>
 
       <v-divider></v-divider>
@@ -17,7 +17,7 @@
         </v-btn>
         <v-spacer></v-spacer>
         <v-btn color="error" @click="$emit('confirm')">
-          {{action}}
+          {{ action }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -25,15 +25,15 @@
 </template>
 
 <script lang="ts">
-  import Vue from "vue";
+import Vue from "vue";
 
-  export default Vue.extend({
-    name: "DeleteConfirmWidget",
-    props: {
-      value: {type: Boolean, required: true},
-      title: {type: String, required: true},
-      message: {type: String, required: false},
-      action: {type: String, required: true}
-    }
-  });
+export default Vue.extend({
+  name: "DeleteConfirmWidget",
+  props: {
+    value: { type: Boolean, required: true },
+    title: { type: String, required: true },
+    message: { type: String, required: false },
+    action: { type: String, required: true }
+  }
+});
 </script>

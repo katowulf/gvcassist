@@ -1,6 +1,11 @@
-
 const idleImages = [
-  'bulb.gif', 'hourglass.gif', 'mountain.gif', 'notepad.gif', 'rocket.gif', 'superhero.gif', 'wave.gif'
+  "bulb.gif",
+  "hourglass.gif",
+  "mountain.gif",
+  "notepad.gif",
+  "rocket.gif",
+  "superhero.gif",
+  "wave.gif"
 ];
 // const idleImages = [
 //   '../assets/bulb.gif', '../assets/hourglass.gif', '../assets/mountain.gif', '../assets/notepad.gif', '../assets/rocket.gif', '../assets/superhero.gif', '../assets/wave.gif'
@@ -25,7 +30,7 @@ const idleText = [
 ];
 
 function rand(list) {
-  return Math.floor(Math.random()*list.length);
+  return Math.floor(Math.random() * list.length);
 }
 
 export default {

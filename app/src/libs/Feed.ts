@@ -6,9 +6,8 @@ import QuerySnapshot = firebase.firestore.QuerySnapshot;
 import QueryDocumentSnapshot = firebase.firestore.QueryDocumentSnapshot;
 import DocumentData = firebase.firestore.DocumentData;
 import DocumentChange = firebase.firestore.DocumentChange;
-import Profiles, {UserProfile} from "@/libs/Profiles";
-import {arrayRemove} from "@/libs/Util";
-import {Room} from "@/libs/Room";
+import Profiles, { UserProfile } from "@/libs/Profiles";
+import { arrayRemove } from "@/libs/Util";
 
 export enum EventType {
   emote = "emote",
@@ -50,28 +49,29 @@ interface EventCardUi {
   readonly dark: boolean;
 }
 
-
 // A map keyed by the emoji and containing a set of uids that clicked it.
 export class ReactionMap {
   public readonly uids: Map<string, Set<string>> = new Map();
   public readonly profiles: Map<string, Set<UserProfile>> = new Map();
 
-  constructor(list?: {string: string[]}) {
-    if( list ) {
+  constructor(list?: { string: string[] }) {
+    if (list) {
       Object.keys(list).forEach(emoji => this.addEmoji(emoji, ...list[emoji]));
     }
   }
 
   addEmoji(emoji, ...uids: string[]) {
     // skip empty emojis (deleted on the server)
-    if( uids.length === 0 ) { return; }
+    if (uids.length === 0) {
+      return;
+    }
 
-    if( !this.uids.has(emoji) ) {
+    if (!this.uids.has(emoji)) {
       this.uids.set(emoji, new Set());
     }
     const list = this.uids.get(emoji);
     uids.forEach(u => list?.add(u));
-    if( !this.profiles.has(emoji) ) this.profiles.set(emoji, new Set());
+    if (!this.profiles.has(emoji)) this.profiles.set(emoji, new Set());
     Profiles.load(uids, p => this.setProfile(emoji, p));
   }
 
@@ -81,7 +81,7 @@ export class ReactionMap {
 
   toFirestore() {
     const reactionMap = {};
-    this.uids.forEach((uids, emoji) => reactionMap[emoji] = [...uids]);
+    this.uids.forEach((uids, emoji) => (reactionMap[emoji] = [...uids]));
     return reactionMap;
   }
 }
@@ -99,21 +99,28 @@ export class FeedEvent {
   public isNew = false;
   private listeners: FeedEventListener[] = [];
 
-  constructor(public readonly roomId: string, public readonly id: string, event: ServerData) {
+  constructor(
+    public readonly roomId: string,
+    public readonly id: string,
+    event: ServerData
+  ) {
     this.creator = event.creator;
     this.type = event.type;
     this.text = event.text || null;
     this.timestamp = event.timestamp;
     this.reactions = new ReactionMap(event.reactions);
-    this.showActionBar = [EventType.question, EventType.link, EventType.wait].includes(event.type);
+    this.showActionBar = [
+      EventType.question,
+      EventType.link,
+      EventType.wait
+    ].includes(event.type);
 
     const color = ColorMap.get(event.type) as string;
-    console.log('FeedEvent', color, !!color, event.timestamp); //debug
     this.ui = {
       color: color,
       icon: IconMap.get(event.type) as string,
       cssClass: null,
-      dark: !!color,
+      dark: !!color
     };
   }
 
@@ -124,28 +131,33 @@ export class FeedEvent {
   }
 
   toggleReaction(emoji, uid) {
-    if( this.reactions.uids.get(emoji)?.has(uid) ) {
+    if (this.reactions.uids.get(emoji)?.has(uid)) {
       this.removeReaction(emoji, uid).then(() => this.deleteEventIfEmpty());
-    }
-    else {
+    } else {
       this.addReaction(emoji, uid);
     }
   }
 
   addReaction(emoji: string, uid: string): Promise<any> {
-    if( this.reactions.uids.get(emoji)?.has(uid) ) return Promise.resolve();
-    return DB.mapUnionAdd(this.path(), `reactions.${emoji}`, uid)
-      .catch(e => toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e));
+    if (this.reactions.uids.get(emoji)?.has(uid)) return Promise.resolve();
+    return DB.mapUnionAdd(this.path(), `reactions.${emoji}`, uid).catch(e =>
+      toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
+    );
   }
 
   removeReaction(emoji: string, uid: string) {
-    if( !this.reactions.uids.get(emoji)?.has(uid) ) return Promise.resolve();
-    return DB.mapUnionRemove(this.path(), `reactions.${emoji}`, uid)
-      .catch(e => toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e));
+    if (!this.reactions.uids.get(emoji)?.has(uid)) return Promise.resolve();
+    return DB.mapUnionRemove(this.path(), `reactions.${emoji}`, uid).catch(e =>
+      toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
+    );
   }
 
-  setText(text: string) { this.text = text; }
-  setNew(b: boolean) { this.isNew = b; }
+  setText(text: string) {
+    this.text = text;
+  }
+  setNew(b: boolean) {
+    this.isNew = b;
+  }
 
   subscribe(handler: ChangeHandler) {
     this.listeners.push(handler);
@@ -163,17 +175,22 @@ export class FeedEvent {
     // If an Emote event has no reactions, it's essentially deleted. So delete it.
     // However, we need to deal with concurrents here, so we'll use a transaciton and do a lot of checking
     // to make sure nobody snuck in a reaction.
-    if( this.type === 'emote' && this.reactions.uids.size === 0 ) {
+    if (this.type === "emote" && this.reactions.uids.size === 0) {
       DB.trxn(trxn => {
         const doc = DB.doc(this.path());
         return trxn.get(doc).then(snap => {
-          const reactions = snap.exists? snap.data().reactions : {};
-          if( !snap.exists || Object.keys(reactions).find(emoji => reactions[emoji].length > 0) ) {
-            throw new Error('Not ready to be deleted.');
+          const reactions = snap.exists ? snap.data().reactions : {};
+          if (
+            !snap.exists ||
+            Object.keys(reactions).find(emoji => reactions[emoji].length > 0)
+          ) {
+            throw new Error("Not ready to be deleted.");
           }
           trxn.delete(doc);
         });
-      }).catch(() => { /*ignore*/ });
+      }).catch(() => {
+        /*ignore*/
+      });
     }
   }
 
@@ -183,7 +200,7 @@ export class FeedEvent {
 
   toFirestore(): object {
     return {
-      timestamp: this.isNew? DB.timestamp() : DB.timestamp(this.timestamp),
+      timestamp: this.isNew ? DB.timestamp() : DB.timestamp(this.timestamp),
       type: this.type,
       creator: this.creator,
       text: this.text,
@@ -193,19 +210,24 @@ export class FeedEvent {
 
   static create(roomId: string, type: EventType, creator: string) {
     const data = {
-      type: type, creator: creator, timestamp: new Date(), reactions: {}
+      type: type,
+      creator: creator,
+      timestamp: new Date(),
+      reactions: {}
     } as ServerData;
     const event = new FeedEvent(roomId, DB.id(), data);
     event.setNew(true);
     return event;
   }
 
-  static fromSnapshot(roomId: string, snap: QueryDocumentSnapshot<DocumentData>): FeedEvent {
-    console.log('fromSnapshot', snap.id, snap.data()); //debug
+  static fromSnapshot(
+    roomId: string,
+    snap: QueryDocumentSnapshot<DocumentData>
+  ): FeedEvent {
     const data = snap.data();
     const event = {
       ...data,
-      timestamp: data.timestamp? data.timestamp.toDate() : new Date()
+      timestamp: data.timestamp ? data.timestamp.toDate() : new Date()
     } as ServerData;
     return new FeedEvent(roomId, snap.id, event);
   }
@@ -216,7 +238,7 @@ interface ServerData {
   type: EventType;
   creator: string;
   text?: string;
-  reactions: {string: string[]};
+  reactions: { string: string[] };
 }
 
 class EventConverter {
@@ -251,9 +273,10 @@ export class Feed {
     }, burnedTheToast("Feed::constructor"));
 
     this.loaded = new Promise((resolve, reject) => {
-      query.get()
-          .then(ss => resolve(ss.docs.length > 0))
-          .catch(reject);
+      query
+        .get()
+        .then(ss => resolve(ss.docs.length > 0))
+        .catch(reject);
     });
   }
 
@@ -262,17 +285,20 @@ export class Feed {
   }
 
   add(type: EventType, text?: string) {
-    if( !sharedScope.user.isSignedIn ) {
+    if (!sharedScope.user.isSignedIn) {
       throw new Error("Must be authenticated");
     }
-    const event = FeedEvent.create(this.id, type, sharedScope.user.uid as string);
-    if( EventType.emote === type ) {
+    const event = FeedEvent.create(
+      this.id,
+      type,
+      sharedScope.user.uid as string
+    );
+    if (EventType.emote === type) {
       event.reactions.addEmoji(text as string, sharedScope.user.uid as string);
-    }
-    else if( text ) event.setText(text);
-    console.log('Feed.add', event.toFirestore()); //debug
+    } else if (text) event.setText(text);
     DB.collection(`rooms/${this.id}/feed`)
-      .add(event.toFirestore()).then(() => event.setNew(false));
+      .add(event.toFirestore())
+      .then(() => event.setNew(false));
   }
 
   subscribe(handler: ChangeHandler) {
@@ -289,15 +315,13 @@ export class Feed {
       if (change.type === "added") {
         this.events.unshift(change.doc.data());
         console.log("added: ", change.doc.id, change.doc.data());
-      }
-      else if (change.type === "modified") {
+      } else if (change.type === "modified") {
         const feedEvent = this.events.find(e => e.id === change.doc.id);
-        if( feedEvent ) {
+        if (feedEvent) {
           feedEvent.serverUpdate(change.doc.data());
         }
         console.log("modified: ", change.doc.id, change.doc.data());
-      }
-      else if (change.type === "removed") {
+      } else if (change.type === "removed") {
         const pos = this.events.findIndex(e => e.id === change.doc.id);
         this.events.splice(pos, 1);
         console.log("removed: ", change.doc.id, change.doc.data());

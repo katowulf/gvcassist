@@ -78,7 +78,7 @@
           <p>
             The excellent MDN docs helped me figure out how to
             <a
-                href="https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event"
+              href="https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event"
             >
               intercept paste events
             </a>
@@ -87,8 +87,11 @@
           </p>
 
           <p>
-            Cliply provided <a href="https://cliply.co/clip/rocket-icon/">some excellent
-            royalty free gifs</a> to fill our empty spaces.
+            Cliply provided
+            <a href="https://cliply.co/clip/rocket-icon/">
+              some excellent royalty free gifs
+            </a>
+            to fill our empty spaces.
           </p>
 
           <h3>

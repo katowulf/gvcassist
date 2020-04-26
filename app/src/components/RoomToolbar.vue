@@ -1,20 +1,31 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-toolbar elevation="2" class="roomToolbar">
-
     <!-- ☃☃☃☃☃☃☃ Menu buttons ☃☃☃☃☃☃☃ -->
-    <v-tooltip bottom v-for="(btn,index) in buttons" :key="index">
+    <v-tooltip bottom v-for="(btn, index) in buttons" :key="index">
       <template v-slot:activator="{ on }">
-        <v-btn v-on="on" :disabled="room.data.closed" :color="btn.color" @click="clicked(btn.type, $event)" icon>
-          <v-icon>{{btn.icon}}</v-icon>
+        <v-btn
+          v-on="on"
+          :disabled="room.data.closed"
+          :color="btn.color"
+          @click="clicked(btn.type, $event)"
+          icon
+        >
+          <v-icon>{{ btn.icon }}</v-icon>
         </v-btn>
       </template>
-      <span>{{btn.tip}}</span>
+      <span>{{ btn.tip }}</span>
     </v-tooltip>
 
     <!-- ☃☃☃☃☃☃☃ Quick emojis ☃☃☃☃☃☃☃ -->
-    <v-btn v-for="btn in emoteButtons" :key="btn.icon"
-           :disabled="room.data.closed" :color="btn.color" @click="clicked(btn.type, btn.emote)" icon>
-      <v-icon>{{btn.icon}}</v-icon>
+    <v-btn
+      v-for="btn in emoteButtons"
+      :key="btn.icon"
+      :disabled="room.data.closed"
+      :color="btn.color"
+      @click="clicked(btn.type, btn.emote)"
+      icon
+    >
+      <v-icon>{{ btn.icon }}</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
@@ -30,18 +41,14 @@
     </v-menu>
 
     <!-- ☃☃☃☃☃☃☃ ADMIN DROPDOWN LIST ☃☃☃☃☃☃☃ -->
-    <AdminDropdown
-        v-if="isAdmin"
-        :room="room"
-        @action="adminAction"
-    />
+    <AdminDropdown v-if="isAdmin" :room="room" @action="adminAction" />
 
     <MemberWidget
       v-model="ui.showMemberManager"
       :room="room"
       @input="ui.showMemberManager = $event"
       @update="saveMemberChanges()"
-      />
+    />
 
     <DeleteConfirmWidget
       v-model="ui.showDelete"
@@ -49,7 +56,7 @@
       message="Did you remember to export all your notes first?"
       action="Yes, Delete forever"
       @confirm="deleteRoom()"
-      />
+    />
 
     <InputDialogWidget
       v-model="ui.input.show"
@@ -57,14 +64,14 @@
       :inputLabel="ui.input.inputLabel"
       @input="ui.input.show = $event"
       @confirm="ui.input.confirm($event)"
-      />
+    />
   </v-toolbar>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 
-import {EventType, Feed} from "@/libs/Feed";
+import { EventType, Feed } from "@/libs/Feed";
 import { Room } from "@/libs/Room";
 import VEmojiPicker from "v-emoji-picker";
 import DB from "@/libs/DB";
@@ -74,21 +81,37 @@ import DeleteConfirmWidget from "@/widgets/DeleteConfirmWidget.vue";
 import InputDialogWidget from "@/widgets/InputDialogWidget.vue";
 import toaster from "@/libs/Toaster";
 import Util from "@/libs/Util";
-import {MenuItems, EmoteItems} from "@/libs/RoomToolbarMenuItems";
+import { MenuItems, EmoteItems } from "@/libs/RoomToolbarMenuItems";
 
-type Button = {type: EventType, icon: string, tip: string, admin: boolean, color: string};
-type EmoteButton = {type: EventType, icon: string, emote: string, color: string};
+type Button = {
+  type: EventType;
+  icon: string;
+  tip: string;
+  admin: boolean;
+  color: string;
+};
+type EmoteButton = {
+  type: EventType;
+  icon: string;
+  emote: string;
+  color: string;
+};
 
 interface VueData {
   ui: {
-    input: { show: boolean, actionLabel: string, inputLabel: string, confirm: () => void }
+    input: {
+      show: boolean;
+      actionLabel: string;
+      inputLabel: string;
+      confirm: () => void;
+    };
     showDelete: boolean;
     isLoading: boolean;
     showPicker: boolean;
     showMemberManager: boolean;
-  },
-  buttons: Button[],
-  emoteButtons: EmoteButton[]
+  };
+  buttons: Button[];
+  emoteButtons: EmoteButton[];
 }
 
 export default Vue.extend({
@@ -109,7 +132,7 @@ export default Vue.extend({
   },
 
   created() {
-    if( this.isAdmin ) {
+    if (this.isAdmin) {
       // show admin buttons too
       this.buttons = MenuItems.slice(0);
       this.emoteButtons = [];
@@ -118,11 +141,15 @@ export default Vue.extend({
 
   methods: {
     clicked(type: EventType, event: any) {
-      switch(type) {
+      switch (type) {
         case EventType.question:
-          return this.showInput("Post question", "What's your question?", q => this.createQuestion(q));
+          return this.showInput("Post question", "What's your question?", q =>
+            this.createQuestion(q)
+          );
         case EventType.link:
-          return this.showInput("Share link", "Enter a valid URL", u => this.createLink(u));
+          return this.showInput("Share link", "Enter a valid URL", u =>
+            this.createLink(u)
+          );
         case EventType.emote:
           return this.createEmote(event);
         // todo
@@ -138,14 +165,13 @@ export default Vue.extend({
     },
 
     createQuestion(q) {
-      if( q ) this.feed.add(EventType.question, q);
+      if (q) this.feed.add(EventType.question, q);
     },
 
     createLink(url) {
-      if( !Util.isValidUrl(url) ) {
+      if (!Util.isValidUrl(url)) {
         toaster.error("Invalid URL: " + url);
-      }
-      else {
+      } else {
         this.feed.add(EventType.link, url);
       }
     },
@@ -156,23 +182,30 @@ export default Vue.extend({
       this.ui.showPicker = false;
     },
 
-    showInput(actionLabel: string, inputLabel: string, handler: (event: any) => void) {
-      this.$set(this.ui.input, 'actionLabel', actionLabel);
-      this.$set(this.ui.input, 'inputLabel', inputLabel);
-      this.$set(this.ui.input, 'confirm', handler);
-      this.$set(this.ui.input, 'show', true);
+    showInput(
+      actionLabel: string,
+      inputLabel: string,
+      handler: (event: any) => void
+    ) {
+      this.$set(this.ui.input, "actionLabel", actionLabel);
+      this.$set(this.ui.input, "inputLabel", inputLabel);
+      this.$set(this.ui.input, "confirm", handler);
+      this.$set(this.ui.input, "show", true);
     },
 
     adminAction(event) {
-      console.log('adminaction', event);
-      switch(event) {
-        case 'close': return this.setClosed(true);
-        case 'notes': return this.exportNotes();
-        case 'open': return this.setClosed(false);
-        case 'delete':
+      console.log("adminaction", event);
+      switch (event) {
+        case "close":
+          return this.setClosed(true);
+        case "notes":
+          return this.exportNotes();
+        case "open":
+          return this.setClosed(false);
+        case "delete":
           this.ui.showDelete = true;
           return;
-        case 'members':
+        case "members":
           this.ui.showMemberManager = true;
           return;
         default:
@@ -203,22 +236,30 @@ export default Vue.extend({
     }
   },
 
-  data: () => ({
-    ui: {
-      input: { show: false, actionLabel: "-not set-", inputLabel: "-not set-", confirm: () => { /* */ } },
-      showDelete: false,
-      isLoading: true,
-      showPicker: false,
-      showMemberManager: false
-    },
-    buttons: MenuItems.filter(m => !m.admin), // exclude admin by default
-    emoteButtons: EmoteItems
-  } as VueData)
+  data: () =>
+    ({
+      ui: {
+        input: {
+          show: false,
+          actionLabel: "-not set-",
+          inputLabel: "-not set-",
+          confirm: () => {
+            /* */
+          }
+        },
+        showDelete: false,
+        isLoading: true,
+        showPicker: false,
+        showMemberManager: false
+      },
+      buttons: MenuItems.filter(m => !m.admin), // exclude admin by default
+      emoteButtons: EmoteItems
+    } as VueData)
 });
 </script>
 
 <style scoped>
 .roomToolbar .theme--light.v-card {
-  color: rgb(0,0,0);
+  color: rgb(0, 0, 0);
 }
 </style>
