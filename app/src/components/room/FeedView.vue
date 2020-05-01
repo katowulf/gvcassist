@@ -127,4 +127,6 @@ export default Vue.extend({
 .FeedView .EventCard .v-card__actions {
   padding: 2px 14px 4px;
 }
+
+
 </style>

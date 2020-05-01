@@ -7,7 +7,7 @@
       <span class="font-weight-light">{{ card.text }}</span>
     </v-card-text>
 
-    <EventWidgetActions
+    <CardActions
       :card="card"
       :isAdmin="isAdmin"
       :isClosed="isClosed"
@@ -19,7 +19,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
-import EventWidgetActions from "@/components/room/eventcard/CardActions.vue";
+import CardActions from "@/components/room/eventcard/CardActions.vue";
 
 export default Vue.extend({
   name: "EventWidgetQuestion",
@@ -28,6 +28,6 @@ export default Vue.extend({
     isAdmin: { type: Boolean, required: true },
     isClosed: { type: Boolean, required: true }
   },
-  components: { EventWidgetActions }
+  components: { CardActions }
 });
 </script>

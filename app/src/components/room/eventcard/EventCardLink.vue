@@ -1,5 +1,5 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
-  <v-card elevation="1" :color="card.ui.color" dark class="EventCard">
+  <v-card elevation="1" :color="card.ui.color" dark>
     <v-card-title>
       <v-btn
         text
@@ -17,7 +17,7 @@
       <CopyWidget v-model="card.text" />
     </v-card-title>
 
-    <EventWidgetActions
+    <CardActions
       :card="card"
       :isAdmin="isAdmin"
       :isClosed="isClosed"
@@ -29,7 +29,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
-import EventWidgetActions from "@/components/room/eventcard/CardActions.vue";
+import CardActions from "@/components/room/eventcard/CardActions.vue";
 import CopyWidget from "@/components/uiwidget/CopyWidget.vue";
 
 export default Vue.extend({
@@ -39,6 +39,6 @@ export default Vue.extend({
     isAdmin: { type: Boolean, required: true },
     isClosed: { type: Boolean, required: true }
   },
-  components: { EventWidgetActions, CopyWidget }
+  components: { CardActions, CopyWidget }
 });
 </script>

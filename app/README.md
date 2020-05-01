@@ -24,6 +24,18 @@ For debugging, try opening the js console and entering `enableDebugging(true)` f
 npm run lint
 ```
 
+### Run test units
+To run test units once from npm:
+```
+npm run test
+```
+
+Run test units from your IDE:
+```
+# Start the emulator for continuous testing
+npm run test:emu
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
@@ -42,16 +54,18 @@ security on rooms
     ✓ restrict to domain
     ✓ restrict to email list
     ✓ add to whitelist
-    add to blacklist
+    ✓ add to blacklist
+      cannot be in both whitelist and blacklist
 global reactions
     just like reacting on a card; makes a new card
     all entries within 15s delay are put on same card
 all cards
     admin removable
     admin pinnable
-    reactions
+    ✓ reactions
 moderator toolbar / widgets
     close meeting
+        ✓ closing meeting makes it readonly
         copy/paste list of AIs and links shared
         option to email them
         kicks off survey for everyone else
@@ -59,6 +73,11 @@ moderator toolbar / widgets
         modal until closed
         close option
         noise when expires or all ack
+    create a todo list
+        has a title
+        anyone can add todos
+        assignable as AIs
+        emailed after closing meeting
     conduct a poll
         textarea, each line is a question
         allow user write-ins
@@ -68,10 +87,10 @@ moderator toolbar / widgets
         unpin, mark resolved, answer, collapse
         can also add a question
 user toolbar/widgets
-    question: collapsible, answerable, resolvable
-    add a link
-    react to meeting
-    mark me afk (modal until back)
+    ✓ question: collapsible, answerable, resolvable
+    ✓ add a link
+    ✓ react to meeting
+    ✓ mark me afk (modal until back)
     add an AI
         can be assigned (unassigned go to moderator)
         can be marked completed

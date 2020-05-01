@@ -9,6 +9,15 @@
     <v-spacer></v-spacer>
 
     <ReactionChips :card="card" @toggle="toggleReaction" />
+
+    <v-menu v-model="showPicker" :close-on-content-click="false" v-if="card.type !== 'emote'">
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" :disabled="isClosed" x-small>
+          <v-icon>mdi-emoticon-outline</v-icon>
+        </v-btn>
+      </template>
+      <VEmojiPicker @select="addReaction($event.data)" />
+    </v-menu>
   </v-card-actions>
 </template>
 
@@ -19,16 +28,17 @@ import sharedScope from "@/libs/SharedScope";
 import UserAvatar from "@/components/uiwidget/UserAvatar.vue";
 import Datestamp from "@/components/uiwidget/Datestamp.vue";
 import ReactionChips from "@/components/room/eventcard/ReactionChips.vue";
+import VEmojiPicker from "v-emoji-picker";
 
 export default Vue.extend({
-  name: "EventWidgetActions",
+  name: "CardActions",
   props: {
     card: { type: FeedEvent, required: true },
     showAvatar: { type: Boolean, required: true },
     isClosed: { type: Boolean, required: true }
   },
 
-  components: { UserAvatar, Datestamp, ReactionChips },
+  components: { UserAvatar, Datestamp, ReactionChips, VEmojiPicker },
 
   created() {
     // this.card.subscribe(() => this.update());
@@ -38,8 +48,15 @@ export default Vue.extend({
   methods: {
     toggleReaction(emoji) {
       if (!this.isClosed) {
-        this.card.toggleReaction(emoji, this.sharedScope.user.uid);
+        this.card.toggleReaction(emoji, this.sharedScope.user.uid as string);
       }
+    },
+
+    addReaction(emoji) {
+      if( !this.isClosed ) {
+        this.card.addReaction(emoji, this.sharedScope.user.uid as string);
+      }
+      this.showPicker = false;
     }
 
     // update() {
@@ -49,7 +66,10 @@ export default Vue.extend({
     // }
   },
 
-  data: () => ({ sharedScope: sharedScope })
+  data: () => ({
+    sharedScope: sharedScope,
+    showPicker: false
+  })
 });
 </script>
 

@@ -53,6 +53,12 @@
     "description": "whitelist 2", "domain": null, "owners": ["notkato"], "retentionLength": 90,
     "whitelist": ["kato@foo.com"]
   },
+  "apps/gvcassistant/rooms/blacklist1": {
+    "access": "link", "closed": true, "created": [-2, "days"],
+    "description": "closed link", "domain": null, "owners": ["katowulf"], "retentionLength": 90,
+    "whitelist": ["kato@foo.com", "katoclone@foo.com"],
+    "blacklist": ["notkato@bar.com"]
+  },
   "apps/gvcassistant/rooms/closed1": {
     "access": "link", "closed": true, "created": [-2, "days"],
     "description": "closed link", "domain": null, "owners": ["katowulf"], "retentionLength": 90,
@@ -72,5 +78,32 @@
     "access": "whitelist", "closed": false, "created": [-2, "days"],
     "description": "private room with no access", "domain": null, "owners": ["nobody"], "retentionLength": 90,
     "whitelist": []
+  },
+  "apps/gvcassistant/rooms/private/feed/event1": {
+    "creator": "nobody", "text": "\uD83D\uDE0D", "timestamp": [-1, "days"], "type": "emote"
+  },
+  "apps/gvcassistant/rooms/private/feed/event2": {
+    "creator": "nobody", "text": "How do questions work?", "timestamp": [-2, "hours"], "type": "question"
+  },
+  "apps/gvcassistant/rooms/private/feed/event3": {
+    "creator": "nobody", "text": "https://google.com", "timestamp": [-1, "hours"], "type": "link"
+  },
+  "apps/gvcassistant/rooms/link1/feed/event1": {
+    "creator": "katowulf", "text": "\uD83D\uDE0D", "timestamp": [-1, "days"], "type": "emote"
+  },
+  "apps/gvcassistant/rooms/link1/feed/event2": {
+    "creator": "katoclone", "text": "How do questions work?", "timestamp": [-2, "hours"], "type": "question"
+  },
+  "apps/gvcassistant/rooms/link1/feed/event3": {
+    "creator": "notkato", "text": "https://google.com", "timestamp": [-1, "hours"], "type": "link"
+  },
+  "apps/gvcassistant/rooms/whitelist2/feed/event1": {
+    "creator": "katowulf", "text": "\uD83D\uDE0D", "timestamp": [-1, "days"], "type": "emote"
+  },
+  "apps/gvcassistant/rooms/whitelist2/feed/event2": {
+    "creator": "notkato", "text": "How do questions work?", "timestamp": [-2, "hours"], "type": "question"
+  },
+  "apps/gvcassistant/rooms/whitelist2/feed/event3": {
+    "creator": "notkato", "text": "https://google.com", "timestamp": [-1, "hours"], "type": "link"
   }
 }

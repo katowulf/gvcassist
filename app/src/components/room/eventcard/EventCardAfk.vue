@@ -1,7 +1,7 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
   <v-card shaped dense :color="isClosed ? '' : card.ui.color" dark>
     <v-card-text>AFK: {{ card.text }}</v-card-text>
-    <EventWidgetActions
+    <CardActions
       :card="card"
       :isAdmin="isAdmin"
       :isClosed="isClosed"
@@ -13,7 +13,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
-import EventWidgetActions from "@/components/room/eventcard/CardActions.vue";
+import CardActions from "@/components/room/eventcard/CardActions.vue";
 
 export default Vue.extend({
   name: "EventWidgetAfk",
@@ -22,6 +22,6 @@ export default Vue.extend({
     isAdmin: { type: Boolean, required: true },
     isClosed: { type: Boolean, required: true }
   },
-  components: { EventWidgetActions }
+  components: { CardActions }
 });
 </script>

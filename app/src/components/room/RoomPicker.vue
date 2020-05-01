@@ -97,7 +97,7 @@ export default Vue.extend({
     this.syncList(
       "recentRooms",
       DB.collection("rooms")
-        .where("whitelist", "array-contains", this.shared.user.data.email)
+        .where("whitelist", "array-contains", this.shared.user.email)
         .where("closed", "==", false)
         .orderBy("created")
         .limitToLast(20)

@@ -119,7 +119,7 @@ export class FeedEvent {
     this.ui = {
       color: color,
       icon: IconMap.get(event.type) as string,
-      cssClass: null,
+      cssClass: `EventCard ${event.type}`,
       dark: !!color
     };
   }

@@ -11,6 +11,8 @@
         @click="toggleReaction(emoji)"
         :dark="card.ui.dark"
         outlined
+        :x-small="card.type !== 'emote'"
+        :large="card.type === 'emote'"
     >
       {{ emoji }}
       {{ reactionCounts.get(emoji) > 1 ? reactionCounts.get(emoji) : "" }}
@@ -71,3 +73,9 @@
       } as VueData)
   });
 </script>
+
+<style scoped>
+  .v-chip { border-style: none; background: none; margin: 0 2px; }
+  .v-chip.v-size--x-small { padding: 7px 4px 5px 7px; }
+  .v-chip.v-chip--active { border-style: solid; }
+</style>

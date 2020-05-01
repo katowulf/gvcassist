@@ -24,7 +24,17 @@ const config = {
   }
 };
 
+/**
+ * If you enabled Google Analytics for your Firebase project, set this to true and it will
+ * collect anonymous usage stats on your app. If you disabled Analytics, then set this to false.
+ */
+export const isAnalyticsEnabled = true;
+
+/**
+ * This will default to 'development' until you deploy to Hosting, at which time it becomes 'production'
+ */
 export const devMode = process.env.NODE_ENV;
+
 export const firebaseConfig =
   devMode === "production" ? config.production : config.staging;
 

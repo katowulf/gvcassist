@@ -10,6 +10,7 @@ export interface SharedAuthScope {
   isSignedIn: boolean;
   uid: string | null;
   token: string | null;
+  email: string | null;
   emailDomain: string | null;
 
   // This is the raw User object returned by onAuthStateChanged.
@@ -49,6 +50,7 @@ class AuthHelper {
       data: null,
       isNewUser: false,
       initialized: false,
+      email: null,
       emailDomain: null,
       token: null,
       readyState: this.readyState
@@ -61,6 +63,7 @@ class AuthHelper {
           uid: null,
           data: null,
           isNewUser: false,
+          email: null,
           emailDomain: null,
           token: null
         });
@@ -69,8 +72,8 @@ class AuthHelper {
         Object.assign(this.scope, {
           isSignedIn: true,
           uid: user.uid,
-          data: user,
           token: null,
+          email: user.email,
           emailDomain: AuthHelper.getEmailDomain(user),
           // we can only detect new users by looking at the sign in results object
           // that data isn't available here, so preserve it when updating auth state
