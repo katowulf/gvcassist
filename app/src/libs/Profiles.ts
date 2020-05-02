@@ -63,7 +63,7 @@ class ProfileCache {
         throw new Error("Must be signed in to fetch user profiles");
       }
       // console.log("trying", DB.doc(["publicProfiles", uid]).path); //debug
-      const snap = await DB.doc(["publicProfiles", uid]).get();
+      const snap = await DB.profile(uid).get();
       if (snap.exists) {
         const profile = {
           $id: uid,

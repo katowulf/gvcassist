@@ -8,6 +8,8 @@ import DocumentData = firebase.firestore.DocumentData;
 import DocumentChange = firebase.firestore.DocumentChange;
 import Profiles, { UserProfile } from "@/libs/Profiles";
 import { arrayRemove } from "@/libs/Util";
+import Query = firebase.firestore.Query;
+import moment = require("moment");
 
 export enum EventType {
   emote = "emote",
@@ -140,14 +142,14 @@ export class FeedEvent {
 
   addReaction(emoji: string, uid: string): Promise<any> {
     if (this.reactions.uids.get(emoji)?.has(uid)) return Promise.resolve();
-    return DB.mapUnionAdd(this.path(), `reactions.${emoji}`, uid).catch(e =>
+    return DB.util.mapUnionAdd(this.getDoc(), `reactions.${emoji}`, uid).catch(e =>
       toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
     );
   }
 
   removeReaction(emoji: string, uid: string) {
     if (!this.reactions.uids.get(emoji)?.has(uid)) return Promise.resolve();
-    return DB.mapUnionRemove(this.path(), `reactions.${emoji}`, uid).catch(e =>
+    return DB.util.mapUnionRemove(this.getDoc(), `reactions.${emoji}`, uid).catch(e =>
       toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
     );
   }
@@ -171,13 +173,17 @@ export class FeedEvent {
     this.listeners.forEach(fn => fn(this));
   }
 
+  private getDoc() {
+    return DB.event(this.roomId, this.id);
+  }
+
   private deleteEventIfEmpty() {
     // If an Emote event has no reactions, it's essentially deleted. So delete it.
     // However, we need to deal with concurrents here, so we'll use a transaciton and do a lot of checking
     // to make sure nobody snuck in a reaction.
     if (this.type === "emote" && this.reactions.uids.size === 0) {
-      DB.trxn(trxn => {
-        const doc = DB.doc(this.path());
+      DB.util.trxn(trxn => {
+        const doc = this.getDoc();
         return trxn.get(doc).then(snap => {
           const reactions = snap.exists ? snap.data().reactions : {};
           if (
@@ -194,13 +200,9 @@ export class FeedEvent {
     }
   }
 
-  private path(): string {
-    return `rooms/${this.roomId}/feed/${this.id}`;
-  }
-
   toFirestore(): object {
     return {
-      timestamp: this.isNew ? DB.timestamp() : DB.timestamp(this.timestamp),
+      timestamp: DB.util.timestamp(this.isNew? undefined : this.timestamp),
       type: this.type,
       creator: this.creator,
       text: this.text,
@@ -215,7 +217,7 @@ export class FeedEvent {
       timestamp: new Date(),
       reactions: {}
     } as ServerData;
-    const event = new FeedEvent(roomId, DB.id(), data);
+    const event = new FeedEvent(roomId, DB.util.id(), data);
     event.setNew(true);
     return event;
   }
@@ -263,7 +265,7 @@ export class Feed {
   constructor(private id: string) {
     const conv = new EventConverter(id);
 
-    const query = DB.collection(`rooms/${this.id}/feed`)
+    const query = DB.feed(this.id)
       .orderBy("timestamp")
       .limitToLast(2000)
       .withConverter(conv);
@@ -296,7 +298,7 @@ export class Feed {
     if (EventType.emote === type) {
       event.reactions.addEmoji(text as string, sharedScope.user.uid as string);
     } else if (text) event.setText(text);
-    DB.collection(`rooms/${this.id}/feed`)
+    DB.feed(this.id)
       .add(event.toFirestore())
       .then(() => event.setNew(false));
   }

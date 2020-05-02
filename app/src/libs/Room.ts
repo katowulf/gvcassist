@@ -40,7 +40,7 @@ export class Room {
   public readonly loaded: Promise<boolean>;
   constructor(public readonly id: string) {
     this.data = defaultData();
-    const doc = DB.doc(["rooms", this.id]);
+    const doc = DB.room(this.id);
     this.sub = doc.onSnapshot(
       snap => this.serverUpdated(snap),
       burnedTheToast("Room::constructor")

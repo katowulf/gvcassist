@@ -78,7 +78,7 @@ import Vue from "vue";
 import RoomCreateForm from "@/components/room/RoomCreateForm.vue";
 import sharedScope from "@/libs/SharedScope";
 import { burnedTheToast } from "@/libs/Toaster";
-import { DB } from "@/libs/DB";
+import DB from "@/libs/DB";
 import RoomLink from "@/components/room/RoomLink.vue";
 
 export default Vue.extend({
@@ -87,7 +87,7 @@ export default Vue.extend({
   created() {
     this.syncList(
       "myRooms",
-      DB.collection("rooms")
+      DB.rooms()
         .where("owners", "array-contains", this.shared.user.uid)
         .where("closed", "==", false)
         .orderBy("created")
@@ -96,7 +96,7 @@ export default Vue.extend({
 
     this.syncList(
       "recentRooms",
-      DB.collection("rooms")
+      DB.rooms()
         .where("whitelist", "array-contains", this.shared.user.email)
         .where("closed", "==", false)
         .orderBy("created")
@@ -105,7 +105,7 @@ export default Vue.extend({
 
     this.syncList(
       "orgRooms",
-      DB.collection("rooms")
+      DB.rooms()
         .where("access", "==", "domain")
         .where("domain", "==", this.shared.user.emailDomain)
         .where("closed", "==", false)

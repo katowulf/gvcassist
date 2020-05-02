@@ -141,11 +141,11 @@ export default Vue.extend({
         blacklist: [],
         retentionLength: 90,
         closed: false,
-        created: DB.timestamp()
+        created: DB.util.timestamp()
       };
       console.log("createRoom", data);
 
-      DB.add(["rooms"], data)
+      DB.rooms().add(data)
         .then(() => toaster.success("Room created"))
         .catch(burnedTheToast("RoomCreateForm::createRoom"));
     },

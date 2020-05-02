@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <v-toolbar elevation="2" class="roomToolbar">
+  <v-toolbar elevation=2 class="roomToolbar">
     <!-- ☃☃☃☃☃☃☃ Menu buttons ☃☃☃☃☃☃☃ -->
     <v-tooltip bottom v-for="(btn, index) in buttons" :key="index">
       <template v-slot:activator="{ on }">
@@ -48,7 +48,6 @@
 
     <!-- ☃☃☃☃☃☃☃ DROPDOWN LIST ☃☃☃☃☃☃☃ -->
     <RoomToolbarDropdown
-
          :isAdmin="isAdmin"
          :room="room"
          :collapsibleButtons="collapsibleButtons"
@@ -133,19 +132,19 @@ export default Vue.extend({
     clicked(type: EventType, event: any) {
       switch (type) {
         case EventType.question:
-          return this.showInput("Post question", "What's your question?", q =>
-            this.createQuestion(q)
-          );
+          return this.showInput("Post question", "What's your question?", q => {
+            if (q) this.feed.add(EventType.question, q)
+          });
         case EventType.link:
           return this.showInput("Share link", "Enter a valid URL", u =>
             this.createLink(u)
           );
         case EventType.emote:
           return this.createEmote(event);
-        // todo
-        // todo
-        // todo
-        // todo
+        case EventType.todo:
+          return this.showInput("Create a todo list", "Name of todo list", title => {
+            if( title ) this.feed.add(EventType.todo, title);
+          });
         // case EventType.poll:
         // case EventType.wait:
         // case EventType.afk:
@@ -154,11 +153,8 @@ export default Vue.extend({
       }
     },
 
-    createQuestion(q) {
-      if (q) this.feed.add(EventType.question, q);
-    },
-
     createLink(url) {
+      // todo this could be in the form validation and provide more immediate feedback
       if (!Util.isValidUrl(url)) {
         toaster.error("Invalid URL: " + url);
       } else {
@@ -213,12 +209,12 @@ export default Vue.extend({
 
     setClosed(b: boolean) {
       console.log("setClosed", b);
-      DB.doc(["rooms", this.room.id]).update({ closed: b });
+      DB.room(this.room.id).update({ closed: b });
     },
 
     saveMemberChanges() {
       console.log("save member changes");
-      DB.doc(["rooms", this.room.id]).update({
+      DB.room(this.room.id).update({
         whitelist: this.room.data.whitelist,
         blacklist: this.room.data.blacklist
       });
@@ -229,7 +225,7 @@ export default Vue.extend({
     },
 
     deleteRoom() {
-      DB.doc(["rooms", this.room.id]).delete();
+      DB.room(this.room.id).delete();
       this.$router.push({ path: "/" });
     }
   },
