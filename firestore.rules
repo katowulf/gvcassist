@@ -47,6 +47,10 @@ service cloud.firestore {
            return roomIsOpen(room) && canSeeRoom(room);
         }
 
+        function isEventType(roomId, eventId, type) {
+        	return get(makePath(/rooms/$(roomId)/feed/$(eventId))).data.type == type;
+        }
+
         match /publicProfiles/{uid} {
             allow get: if request.auth.uid != null;
         }
@@ -67,6 +71,12 @@ service cloud.firestore {
                 allow write: if feedIsWritable(roomId);
                 allow list: if request.query.limit <= 2000 && canSeeRoom(getRoom(roomId));
                 allow get: if canSeeRoom(getRoom(roomId));
+
+                match /todos/{todoId} {
+                    allow write: if isEventType(roomId, eventId, 'todo') && feedIsWritable(roomId);
+                    allow list: if request.query.limit <= 1000 && canSeeRoom(getRoom(roomId));
+                    allow get: if canSeeRoom(getRoom(roomId));
+                }
             }
         }
     }

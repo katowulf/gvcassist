@@ -8,7 +8,7 @@ export interface ButtonProps {
   type: EventType;
   icon: string;
   tip: string;
-  emote: string|null;
+  emote: string | null;
   admin: boolean;
   collapse: boolean;
   color: string;
@@ -86,7 +86,7 @@ export const MenuItems = [
     collapse: false,
     color: getColor(EventType.afk),
     menuOnly: true
-  },
+  }
 ] as ButtonProps[];
 
 export const EmoteItems = [
@@ -137,7 +137,6 @@ export const EmoteItems = [
     collapse: true,
     menuOnly: false
   }
-
 ] as ButtonProps[];
 
 export default MenuItems;

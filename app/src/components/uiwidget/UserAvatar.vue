@@ -1,5 +1,10 @@
 <template>
-  <v-avatar :color="user ? user.color : ''" :size="size" v-on:click="signOut()">
+  <v-avatar
+    :color="user ? user.color : 'grey'"
+    :size="size"
+    :icon="!user"
+    v-on:click="$emit('click', user)"
+  >
     <img
       v-if="user && user.photoURL"
       :src="user.photoURL"
@@ -8,13 +13,12 @@
     <span v-if="user && !user.photoURL" class="white--text headline">
       {{ user.initials || "?" }}
     </span>
+    <v-icon dark v-if="!user">mdi-account-circle</v-icon>
   </v-avatar>
 </template>
 
 <script language="ts">
 import Vue from "vue";
-import Toaster from "@/libs/Toaster";
-import { Auth } from "@/libs/Auth";
 import Profiles from "@/libs/Profiles";
 
 export default Vue.extend({
@@ -27,16 +31,12 @@ export default Vue.extend({
 
   // Loading the user object inside of created() ensures that it exists before the
   // page renders. Using computed and data broke when the user wasn't ready and didn't
-  // correct after it did load. It's probably reasonable to do this with route guards too,
-  // but this isn't a route. It's a drop in component. So this felt more elegant.
+  // correct after it did load; even if using async/await patterns oddly. It's probably
+  // reasonable to do this with route guards too, but this isn't a route. It's a drop
+  // in component.
   async created() {
     this.user = await Profiles.find(this.uid);
-  },
-
-  methods: {
-    signOut() {
-      Auth.signOut().then(() => Toaster.info("You have been signed out."));
-    }
+    this.$set(this.user, "$id", this.user.$id);
   },
 
   data: () => ({

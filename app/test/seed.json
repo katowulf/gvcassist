@@ -104,6 +104,15 @@
     "creator": "notkato", "text": "How do questions work?", "timestamp": [-2, "hours"], "type": "question"
   },
   "apps/gvcassistant/rooms/whitelist2/feed/event3": {
-    "creator": "notkato", "text": "https://google.com", "timestamp": [-1, "hours"], "type": "link"
+    "creator": "notkato", "text": "This is a todo list", "timestamp": [-1, "hours"], "type": "todo"
+  },
+  "apps/gvcassistant/rooms/whitelist2/feed/event3/todos/todo1": {
+    "created": [-2, "hours"], "creator": "notkato", "text": "Todo 1", "completed": true, "id": "todo1"
+  },
+  "apps/gvcassistant/rooms/whitelist2/feed/event3/todos/todo2": {
+    "created": [-1, "hours"], "creator": "notkato", "text": "Todo 2", "completed": false, "id": "todo2"
+  },
+  "apps/gvcassistant/rooms/whitelist2/feed/event3/todos/todo3": {
+    "created": [-1, "minutes"], "creator": "katowulf", "text": "Todo 3", "completed": false, "id": "todo3"
   }
 }

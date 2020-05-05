@@ -1,6 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-container fluid id="room-container">
-    <v-row justify="center">
+    <v-row>
+      <v-col cols="12">
         <v-alert v-if="room.data.closed" color="warning">
           <h3>This room is closed.</h3>
         </v-alert>
@@ -11,10 +12,8 @@
 
         <RoomToolbar :room="room" :feed="feed" :isAdmin="true" />
 
-        <!-- debug: we don't need two toolbars of course; just here to see the admin vs user views at once -->
-        <RoomToolbar :room="room" :feed="feed" />
-
         <FeedView :feed="feed" :isAdmin="true" :isClosed="room.data.closed" />
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -30,14 +29,14 @@ import FeedView from "@/components/room/FeedView.vue";
 
 interface VueData {
   id: string;
-  room?: Room;
-  feed?: Feed;
+  room: Room;
+  feed: Feed;
   ui: {
     isLoading: boolean;
     showPicker: boolean;
     showMemberManager: boolean;
   };
-  updates: { lastUpdate: number };
+  updates: number;
 }
 
 export default Vue.extend({
@@ -49,10 +48,6 @@ export default Vue.extend({
   },
 
   created() {
-    console.log("room!", this.$route.params.roomId);
-    this.id = this.$route.params.roomId;
-    this.room = new Room(this.id);
-    this.feed = new Feed(this.id);
     this.room.subscribe(() => this.serverUpdate("Room"));
     this.feed.subscribe(() => this.serverUpdate("Feed"));
     Promise.all([this.room.loaded, this.feed.loaded]).then(
@@ -69,22 +64,26 @@ export default Vue.extend({
     serverUpdate(source: string) {
       if (source === "Room" && this.room)
         sharedScope.ui.setTitle(this.room.data.name);
-      this.$set(this.updates, "lastUpdate", this.updates.lastUpdate + 1);
+      // trigger change detection
+      this.$set(this, "updates", this.updates + 1);
     }
   },
 
-  data: () =>
-    ({
-      id: "",
-      room: undefined,
-      feed: undefined,
+  data() {
+    const id = this.$route.params.roomId;
+    console.log('data()', id);
+    return {
+      id: id,
+      room: new Room(id),
+      feed: new Feed(id),
       ui: {
         isLoading: true,
         showPicker: false,
         showMemberManager: false
       },
-      updates: { lastUpdate: 0 }
-    } as VueData)
+      updates: 0
+    } as VueData;
+  }
 });
 </script>
 

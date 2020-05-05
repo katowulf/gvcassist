@@ -5,7 +5,7 @@
 
     <h2>Authenticated user</h2>
     <pre>
-      {{sharedScope.user}}
+      {{ sharedScope.user }}
     </pre>
 
     <h2>misc</h2>

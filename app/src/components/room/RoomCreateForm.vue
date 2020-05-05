@@ -145,7 +145,8 @@ export default Vue.extend({
       };
       console.log("createRoom", data);
 
-      DB.rooms().add(data)
+      DB.rooms()
+        .add(data)
         .then(() => toaster.success("Room created"))
         .catch(burnedTheToast("RoomCreateForm::createRoom"));
     },

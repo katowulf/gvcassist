@@ -8,7 +8,6 @@ import DocumentData = firebase.firestore.DocumentData;
 import DocumentChange = firebase.firestore.DocumentChange;
 import Profiles, { UserProfile } from "@/libs/Profiles";
 import { arrayRemove } from "@/libs/Util";
-import Query = firebase.firestore.Query;
 import moment = require("moment");
 
 export enum EventType {
@@ -99,6 +98,7 @@ export class FeedEvent {
   public ui: EventCardUi;
   public timestamp: Date;
   public isNew = false;
+  public pinned = false;
   private listeners: FeedEventListener[] = [];
 
   constructor(
@@ -110,6 +110,7 @@ export class FeedEvent {
     this.type = event.type;
     this.text = event.text || null;
     this.timestamp = event.timestamp;
+    this.pinned = event.pinned;
     this.reactions = new ReactionMap(event.reactions);
     this.showActionBar = [
       EventType.question,
@@ -142,27 +143,37 @@ export class FeedEvent {
 
   addReaction(emoji: string, uid: string): Promise<any> {
     if (this.reactions.uids.get(emoji)?.has(uid)) return Promise.resolve();
-    return DB.util.mapUnionAdd(this.getDoc(), `reactions.${emoji}`, uid).catch(e =>
-      toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
-    );
+    return DB.util
+      .mapUnionAdd(this.getDoc(), `reactions.${emoji}`, uid)
+      .catch(e =>
+        toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
+      );
   }
 
   removeReaction(emoji: string, uid: string) {
     if (!this.reactions.uids.get(emoji)?.has(uid)) return Promise.resolve();
-    return DB.util.mapUnionRemove(this.getDoc(), `reactions.${emoji}`, uid).catch(e =>
-      toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
-    );
+    return DB.util
+      .mapUnionRemove(this.getDoc(), `reactions.${emoji}`, uid)
+      .catch(e =>
+        toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
+      );
   }
 
   setText(text: string) {
     this.text = text;
   }
+
+  setPinned(isPinned: boolean) {
+    return DB.event(this.roomId, this.id).update({pinned: isPinned});
+  }
+
   setNew(b: boolean) {
     this.isNew = b;
   }
 
-  subscribe(handler: ChangeHandler) {
+  subscribe(handler: ChangeHandler): () => void {
     this.listeners.push(handler);
+    return () => this.unsubscribe(handler);
   }
 
   unsubscribe(handler: ChangeHandler) {
@@ -182,27 +193,29 @@ export class FeedEvent {
     // However, we need to deal with concurrents here, so we'll use a transaciton and do a lot of checking
     // to make sure nobody snuck in a reaction.
     if (this.type === "emote" && this.reactions.uids.size === 0) {
-      DB.util.trxn(trxn => {
-        const doc = this.getDoc();
-        return trxn.get(doc).then(snap => {
-          const reactions = snap.exists ? snap.data().reactions : {};
-          if (
-            !snap.exists ||
-            Object.keys(reactions).find(emoji => reactions[emoji].length > 0)
-          ) {
-            throw new Error("Not ready to be deleted.");
-          }
-          trxn.delete(doc);
+      DB.util
+        .trxn(trxn => {
+          const doc = this.getDoc();
+          return trxn.get(doc).then(snap => {
+            const reactions = snap.exists ? snap.data().reactions : {};
+            if (
+              !snap.exists ||
+              Object.keys(reactions).find(emoji => reactions[emoji].length > 0)
+            ) {
+              throw new Error("Not ready to be deleted.");
+            }
+            trxn.delete(doc);
+          });
+        })
+        .catch(() => {
+          /*ignore*/
         });
-      }).catch(() => {
-        /*ignore*/
-      });
     }
   }
 
   toFirestore(): object {
     return {
-      timestamp: DB.util.timestamp(this.isNew? undefined : this.timestamp),
+      timestamp: DB.util.timestamp(this.isNew ? undefined : this.timestamp),
       type: this.type,
       creator: this.creator,
       text: this.text,
@@ -215,6 +228,7 @@ export class FeedEvent {
       type: type,
       creator: creator,
       timestamp: new Date(),
+      pinned: false,
       reactions: {}
     } as ServerData;
     const event = new FeedEvent(roomId, DB.util.id(), data);
@@ -238,6 +252,7 @@ export class FeedEvent {
 interface ServerData {
   timestamp: Date;
   type: EventType;
+  pinned: boolean;
   creator: string;
   text?: string;
   reactions: { string: string[] };
@@ -286,6 +301,19 @@ export class Feed {
     return this.events;
   }
 
+  addReaction(emoji: string) {
+    const event = this.events.length > 0 ? this.events[0] : null;
+    if (
+      event &&
+      event.type === EventType.emote &&
+      moment().diff(event.timestamp, "seconds") < 30
+    ) {
+      event.addReaction(emoji, sharedScope.user.uid as string);
+    } else {
+      this.add(EventType.emote, emoji);
+    }
+  }
+
   add(type: EventType, text?: string) {
     if (!sharedScope.user.isSignedIn) {
       throw new Error("Must be authenticated");
@@ -313,20 +341,20 @@ export class Feed {
   private serverUpdated(snap: QuerySnapshot<FeedEvent>) {
     console.log("Feed updated", this.id, snap.docs.length);
     snap.docChanges().forEach((change: DocumentChange<FeedEvent>) => {
-      console.log("change", change.type, change.doc.id);
+      // console.log("change", change.type, change.doc.id);
       if (change.type === "added") {
         this.events.unshift(change.doc.data());
-        console.log("added: ", change.doc.id, change.doc.data());
+        console.log("added: ", change.doc.id/*, change.doc.data()*/);
       } else if (change.type === "modified") {
         const feedEvent = this.events.find(e => e.id === change.doc.id);
         if (feedEvent) {
           feedEvent.serverUpdate(change.doc.data());
         }
-        console.log("modified: ", change.doc.id, change.doc.data());
+        console.log("modified: ", change.doc.id/*, change.doc.data()*/);
       } else if (change.type === "removed") {
         const pos = this.events.findIndex(e => e.id === change.doc.id);
         this.events.splice(pos, 1);
-        console.log("removed: ", change.doc.id, change.doc.data());
+        console.log("removed: ", change.doc.id/*, change.doc.data()*/);
       }
     });
     this.notify();

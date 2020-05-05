@@ -156,7 +156,7 @@ class Feed {
 
   @test
   async "can query feeds if I am whitelisted"() {
-    const db = authedApp({uid: "katowulf", "email": "kato@foo.com"});
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
     const query = db.collection("apps/gvcassistant/rooms/whitelist2/feed")
     .orderBy('timestamp').limitToLast(2000);
     await firebase.assertSucceeds(query.get());
@@ -193,5 +193,23 @@ class Feed {
     .orderBy('timestamp').limitToLast(2000);
     await firebase.assertFails(query.get());
   }
+}
 
+@suite
+class Todo {
+  @test
+  async "Can write todos if event type is todo"() {
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
+    const doc = db.doc("apps/gvcassistant/rooms/whitelist2/feed/event3/todos/NEWTODO");
+    const data = {
+      created: firebase.firestore.Timestamp.fromDate(new Date()),
+      id: 'todo2',
+      text: "Add a todo",
+      completed: false,
+      creator: "katowulf"
+    };
+    await firebase.assertSucceeds(doc.set(data));
+  }
+
+  // todo tests for Todo queries and security
 }

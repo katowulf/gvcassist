@@ -3,11 +3,6 @@
     <!-- ☃☃☃☃☃☃☃ Some fun idle content for empty rooms ☃☃☃☃☃☃☃ -->
     <IdleWidget v-if="events.length === 0" />
 
-    <!-- ☃☃☃☃☃☃☃ The reactions panel! ☃☃☃☃☃☃☃ -->
-    <!-- TODO -->
-    <!-- TODO -->
-    <!-- TODO -->
-
     <!-- ☃☃☃☃☃☃☃ The feed! ☃☃☃☃☃☃☃ -->
     <div v-for="event in events" :key="event.id" :class="event.ui.cssClass">
       <EventWidgetAdmin
@@ -127,6 +122,4 @@ export default Vue.extend({
 .FeedView .EventCard .v-card__actions {
   padding: 2px 14px 4px;
 }
-
-
 </style>

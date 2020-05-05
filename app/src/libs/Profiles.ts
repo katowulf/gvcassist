@@ -59,6 +59,8 @@ class ProfileCache {
     }
 
     try {
+      await Auth.readyState;
+
       if (!Auth.getSharedScope().isSignedIn) {
         throw new Error("Must be signed in to fetch user profiles");
       }
@@ -74,7 +76,7 @@ class ProfileCache {
         // console.log("user fetched from db", uid, profile); //debug
         return profile;
       } else {
-        console.log(`profile ${uid} did not exist in db`); //debug
+        console.warn(`profile ${uid} did not exist in db`); //debug
       }
     } catch (e) {
       toaster.handleError(`Profiles::find(${uid})`, e);

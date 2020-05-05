@@ -10,7 +10,11 @@
 
     <ReactionChips :card="card" @toggle="toggleReaction" />
 
-    <v-menu v-model="showPicker" :close-on-content-click="false" v-if="card.type !== 'emote'">
+    <v-menu
+      v-model="showPicker"
+      :close-on-content-click="false"
+      v-if="card.type !== 'emote'"
+    >
       <template v-slot:activator="{ on }">
         <v-btn icon v-on="on" :disabled="isClosed" x-small>
           <v-icon>mdi-emoticon-outline</v-icon>
@@ -41,8 +45,11 @@ export default Vue.extend({
   components: { UserAvatar, Datestamp, ReactionChips, VEmojiPicker },
 
   created() {
-    // this.card.subscribe(() => this.update());
-    // this.update();
+    this.sub = this.card.subscribe(() => this.update());
+  },
+
+  beforeDestroy() {
+    this.sub();
   },
 
   methods: {
@@ -53,22 +60,25 @@ export default Vue.extend({
     },
 
     addReaction(emoji) {
-      if( !this.isClosed ) {
+      if (!this.isClosed) {
         this.card.addReaction(emoji, this.sharedScope.user.uid as string);
       }
       this.showPicker = false;
-    }
+    },
 
-    // update() {
-    //   console.log("update occurred"); //debug
-    //   // trigger change detection
-    //   this.$set(this.card, "reactions", this.card.reactions);
-    // }
+    update() {
+      // trigger change detection
+      this.$set(this, "counter", this.counter + 1);
+    }
   },
 
   data: () => ({
     sharedScope: sharedScope,
-    showPicker: false
+    showPicker: false,
+    counter: 0,
+    sub: () => {
+      /* noop */
+    }
   })
 });
 </script>

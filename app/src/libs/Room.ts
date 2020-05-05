@@ -1,5 +1,6 @@
 import DB from "@/libs/DB";
 import { burnedTheToast } from "@/libs/Toaster";
+import DocumentData = firebase.firestore.DocumentData;
 
 export enum AccessType {
   link = "link",
@@ -55,7 +56,7 @@ export class Room {
     };
   }
 
-  private serverUpdated(snap: any) {
+  private serverUpdated(snap: DocumentData) {
     // todo import Firestore types
     console.log("Room updated", this.id); //debug
     this.data = Object.assign(defaultData(), snap.data()) as RoomProps;

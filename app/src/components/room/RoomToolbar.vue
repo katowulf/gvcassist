@@ -1,15 +1,15 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <v-toolbar elevation=2 class="roomToolbar">
+  <v-toolbar elevation="2" class="roomToolbar">
     <!-- ☃☃☃☃☃☃☃ Menu buttons ☃☃☃☃☃☃☃ -->
     <v-tooltip bottom v-for="(btn, index) in buttons" :key="index">
       <template v-slot:activator="{ on }">
         <v-btn
-            v-on="on"
-            :disabled="room.data.closed"
-            :color="btn.color"
-            @click="clicked(btn.type, $event)"
-            :class="buildCollapseCss(btn.collapse)"
-            icon
+          v-on="on"
+          :disabled="room.data.closed"
+          :color="btn.color"
+          @click="clicked(btn.type, $event)"
+          :class="buildCollapseCss(btn.collapse)"
+          icon
         >
           <v-icon>{{ btn.icon }}</v-icon>
         </v-btn>
@@ -31,7 +31,7 @@
       @click="clicked(btn.type, btn.emote)"
       icon
     >
-      {{btn.emote}}
+      {{ btn.emote }}
     </v-btn>
 
     <v-spacer></v-spacer>
@@ -48,10 +48,11 @@
 
     <!-- ☃☃☃☃☃☃☃ DROPDOWN LIST ☃☃☃☃☃☃☃ -->
     <RoomToolbarDropdown
-         :isAdmin="isAdmin"
-         :room="room"
-         :collapsibleButtons="collapsibleButtons"
-         @action="toolbarAction" />
+      :isAdmin="isAdmin"
+      :room="room"
+      :collapsibleButtons="collapsibleButtons"
+      @action="toolbarAction"
+    />
 
     <MemberWidget
       v-model="ui.showMemberManager"
@@ -90,7 +91,11 @@ import DeleteConfirmWidget from "@/components/uiwidget/DeleteConfirmWidget.vue";
 import InputDialogWidget from "@/components/uiwidget/InputDialogWidget.vue";
 import toaster from "@/libs/Toaster";
 import Util from "@/libs/Util";
-import { MenuItems, EmoteItems, ButtonProps } from "@/libs/RoomToolbarMenuItems";
+import {
+  MenuItems,
+  EmoteItems,
+  ButtonProps
+} from "@/libs/RoomToolbarMenuItems";
 import RoomToolbarDropdown from "@/components/room/RoomToolbarDropdown.vue";
 
 interface VueData {
@@ -133,7 +138,7 @@ export default Vue.extend({
       switch (type) {
         case EventType.question:
           return this.showInput("Post question", "What's your question?", q => {
-            if (q) this.feed.add(EventType.question, q)
+            if (q) this.feed.add(EventType.question, q);
           });
         case EventType.link:
           return this.showInput("Share link", "Enter a valid URL", u =>
@@ -142,9 +147,13 @@ export default Vue.extend({
         case EventType.emote:
           return this.createEmote(event);
         case EventType.todo:
-          return this.showInput("Create a todo list", "Name of todo list", title => {
-            if( title ) this.feed.add(EventType.todo, title);
-          });
+          return this.showInput(
+            "Create a todo list",
+            "Name of todo list",
+            title => {
+              this.feed.add(EventType.todo, title || null);
+            }
+          );
         // case EventType.poll:
         // case EventType.wait:
         // case EventType.afk:
@@ -164,7 +173,7 @@ export default Vue.extend({
 
     createEmote(emoji) {
       console.log("createEmote", emoji);
-      this.feed.add(EventType.emote, emoji);
+      this.feed.addReaction(emoji);
       this.ui.showPicker = false;
     },
 
@@ -180,7 +189,6 @@ export default Vue.extend({
     },
 
     toolbarAction(event) {
-      console.log("adminaction", event); //debug
       switch (event.type) {
         case "close":
           return this.setClosed(true);
@@ -199,12 +207,16 @@ export default Vue.extend({
       }
     },
 
-    buildCollapseCss(collapsible: boolean, isDropdown = false, additionalCss = "") {
+    buildCollapseCss(
+      collapsible: boolean,
+      isDropdown = false,
+      additionalCss = ""
+    ) {
       let s = "";
-      if( collapsible ) {
+      if (collapsible) {
         s = isDropdown ? "hidden-sm-and-up" : "hidden-xs-only";
       }
-      return s && additionalCss? s + " " + additionalCss : s || additionalCss;
+      return s && additionalCss ? s + " " + additionalCss : s || additionalCss;
     },
 
     setClosed(b: boolean) {
@@ -231,24 +243,26 @@ export default Vue.extend({
   },
 
   data() {
-    const allButtons = this.isAdmin? MenuItems : MenuItems.filter(b => !b.admin);
+    const allButtons = this.isAdmin
+      ? MenuItems
+      : MenuItems.filter(b => !b.admin);
     const buttons = allButtons.filter(b => !b.menuOnly);
-    const emoteButtons = this.isAdmin? [] : EmoteItems;
+    const emoteButtons = this.isAdmin ? [] : EmoteItems;
     const collapsibleButtons = allButtons.filter(b => b.collapse || b.menuOnly);
     return {
       ui: {
         input: {
           show: false,
-            actionLabel: "-not set-",
-            inputLabel: "-not set-",
-            confirm: () => {
+          actionLabel: "-not set-",
+          inputLabel: "-not set-",
+          confirm: () => {
             /* */
           }
         },
         showDelete: false,
-          isLoading: true,
-          showPicker: false,
-          showMemberManager: false
+        isLoading: true,
+        showPicker: false,
+        showMemberManager: false
       },
       buttons: buttons, // exclude admin by default
       emoteButtons: emoteButtons,
@@ -265,6 +279,6 @@ export default Vue.extend({
 
 .roomToolbar button.emoji {
   font-size: 18px;
-  color: rgb(0,0,0);
+  color: rgb(0, 0, 0);
 }
 </style>

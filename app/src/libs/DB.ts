@@ -19,11 +19,16 @@ const DBPaths = {
   rooms: () => `${BASE}/rooms`,
   room: (roomId: string) => DBPaths.rooms() + `/${roomId}`,
   feed: (roomId: string) => DBPaths.room(roomId) + `/feed`,
-  event: (roomId: string, eventId: string) => DBPaths.feed(roomId) + `/${eventId}`,
-  todos: (roomId: string, eventId: string) => DBPaths.event(roomId, eventId) + `/todos`,
-  todo: (roomId: string, eventId: string, todoId: string) => DBPaths.todos(roomId, eventId) + `/${todoId}`,
-  polls: (roomId: string, eventId: string) => DBPaths.event(roomId, eventId) + `/polls`,
-  poll: (roomId: string, eventId: string, pollId: string) => DBPaths.polls(roomId, eventId) + `/${pollId}`
+  event: (roomId: string, eventId: string) =>
+    DBPaths.feed(roomId) + `/${eventId}`,
+  todos: (roomId: string, eventId: string) =>
+    DBPaths.event(roomId, eventId) + `/todos`,
+  todo: (roomId: string, eventId: string, todoId: string) =>
+    DBPaths.todos(roomId, eventId) + `/${todoId}`,
+  polls: (roomId: string, eventId: string) =>
+    DBPaths.event(roomId, eventId) + `/polls`,
+  poll: (roomId: string, eventId: string, pollId: string) =>
+    DBPaths.polls(roomId, eventId) + `/${pollId}`
 };
 
 class Database {
@@ -77,11 +82,16 @@ export default {
   rooms: () => DB.collection(DBPaths.rooms()),
   room: (roomId: string) => DB.doc(DBPaths.room(roomId)),
   feed: (roomId: string) => DB.collection(DBPaths.feed(roomId)),
-  event: (roomId: string, eventId: string) => DB.doc(DBPaths.event(roomId, eventId)),
-  todos: (roomId: string, eventId: string) => DB.collection(DBPaths.todos(roomId, eventId)),
-  todo: (roomId: string, eventId: string, todoId: string) => DB.doc(DBPaths.todo(roomId, eventId, todoId)),
-  polls: (roomId: string, eventId: string) => DB.collection(DBPaths.polls(roomId, eventId)),
-  poll: (roomId: string, eventId: string, pollId: string) => DB.doc(DBPaths.poll(roomId, eventId, pollId)),
+  event: (roomId: string, eventId: string) =>
+    DB.doc(DBPaths.event(roomId, eventId)),
+  todos: (roomId: string, eventId: string) =>
+    DB.collection(DBPaths.todos(roomId, eventId)),
+  todo: (roomId: string, eventId: string, todoId: string) =>
+    DB.doc(DBPaths.todo(roomId, eventId, todoId)),
+  polls: (roomId: string, eventId: string) =>
+    DB.collection(DBPaths.polls(roomId, eventId)),
+  poll: (roomId: string, eventId: string, pollId: string) =>
+    DB.doc(DBPaths.poll(roomId, eventId, pollId)),
   path: DBPaths,
   util: DB
 };
