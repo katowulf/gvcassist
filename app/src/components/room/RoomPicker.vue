@@ -139,7 +139,7 @@ export default Vue.extend({
     syncList(listName, query) {
       this.subs.push(
         query.onSnapshot(snap => {
-          console.log("syncList", listName, snap.docs.length); //debug
+          // console.log("syncList", listName, snap.docs.length); //debug
           this[listName] = snap.docs.map(ds => ({ $id: ds.id, ...ds.data() }));
         }, burnedTheToast(`RoomPicker::syncList(${listName})`))
       );

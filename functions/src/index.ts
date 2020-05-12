@@ -1,9 +1,8 @@
 import * as functions from 'firebase-functions';
 import admin = require('firebase-admin');
-import Firestore = admin.firestore.Firestore;
 import DocumentSnapshot = admin.firestore.DocumentSnapshot;
-import Query = admin.firestore.Query;
 import {EventContext} from "firebase-functions";
+const tools = require("firebase-tools");
 
 admin.initializeApp();
 const db = admin.firestore().doc('apps/gvcassistant');
@@ -46,51 +45,20 @@ exports.markProfileDeleted = functions.auth.user().onDelete((user) => {
   return Promise.all([p1, p2]);
 });
 
-exports.roomDeleted = functions.firestore.document('apps/gvcassistant/rooms/{roomId}')
-  .onDelete((doc: DocumentSnapshot, context: EventContext) => {
+exports.roomDeleted = functions.runWith({timeoutSeconds: 540, memory: '2GB'})
+  .firestore.document('apps/gvcassistant/rooms/{roomId}')
+  .onDelete(async (doc: DocumentSnapshot, context: EventContext) => {
     const roomId = context.params.roomId;
     const path = `app/gvcassistant/rooms/${roomId}/feed`;
-    console.log(path);
-    return deleteCollection(admin.firestore(), path, 100)
+    console.log("Room deleted; purging subcollections", path);
+    await deleteCollection(path, functions.config().fb.token)
   });
 
-function deleteCollection(db: Firestore, collectionPath: string, batchSize: number) {
-  let collectionRef = db.collection(collectionPath);
-  let query = collectionRef.orderBy('__name__').limit(batchSize);
-
-  return new Promise((resolve, reject) => {
-    deleteQueryBatch(db, query, resolve, reject);
+async function deleteCollection(collectionPath: string, cliToken: string) {
+  tools.firestore.delete(collectionPath, {
+    project: process.env.GCLOUD_PROJECT,
+    recursive: true,
+    yes: true,
+    token: cliToken
   });
-}
-
-function deleteQueryBatch(db: Firestore, query: Query, resolve: () => void, reject: () => void) {
-  query.get()
-  .then((snapshot) => {
-    // When there are no documents left, we are done
-    if (snapshot.size === 0) {
-      return 0;
-    }
-
-    // Delete documents in a batch
-    let batch = db.batch();
-    snapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-
-    return batch.commit().then(() => {
-      return snapshot.size;
-    });
-  }).then((numDeleted) => {
-    if (numDeleted === 0) {
-      resolve();
-      return;
-    }
-
-    // Recurse on the next process tick, to avoid
-    // exploding the stack.
-    process.nextTick(() => {
-      deleteQueryBatch(db, query, resolve, reject);
-    });
-  })
-  .catch(reject);
 }

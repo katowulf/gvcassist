@@ -10,9 +10,9 @@
           <v-card-title>Loading...</v-card-title>
         </v-card>
 
-        <RoomToolbar :room="room" :feed="feed" :isAdmin="true" />
+        <RoomToolbar :room="room" :feed="feed" :isAdmin="isAdmin" />
 
-        <FeedView :feed="feed" :isAdmin="true" :isClosed="room.data.closed" />
+        <FeedView :feed="feed" :isAdmin="isAdmin" :isClosed="room.data.closed" />
       </v-col>
     </v-row>
   </v-container>
@@ -31,6 +31,7 @@ interface VueData {
   id: string;
   room: Room;
   feed: Feed;
+  isAdmin: boolean;
   ui: {
     isLoading: boolean;
     showPicker: boolean;
@@ -51,8 +52,9 @@ export default Vue.extend({
     this.room.subscribe(() => this.serverUpdate("Room"));
     this.feed.subscribe(() => this.serverUpdate("Feed"));
     Promise.all([this.room.loaded, this.feed.loaded]).then(
-      () => (this.ui.isLoading = false)
-    );
+      () => {
+        this.ui.isLoading = false
+      });
   },
 
   beforeDestroy() {
@@ -62,20 +64,22 @@ export default Vue.extend({
 
   methods: {
     serverUpdate(source: string) {
-      if (source === "Room" && this.room)
+      if (source === "Room" && this.room) {
         sharedScope.ui.setTitle(this.room.data.name);
-      // trigger change detection
+        this.isAdmin = this.room.data.owners.includes(sharedScope.user.uid as string);
+      }
+      // trigger change detection, set admin flag
       this.$set(this, "updates", this.updates + 1);
     }
   },
 
   data() {
     const id = this.$route.params.roomId;
-    console.log('data()', id);
     return {
       id: id,
       room: new Room(id),
       feed: new Feed(id),
+      isAdmin: false,
       ui: {
         isLoading: true,
         showPicker: false,

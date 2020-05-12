@@ -149,7 +149,9 @@ export class Toaster {
   ) {
     this.messages.push(message);
     message.setParent(this);
-    Toaster.setDuration(message, overrideDurationInSeconds);
+    if( message.type !== 'error' ) {
+      Toaster.setDuration(message, overrideDurationInSeconds);
+    }
     return message;
   }
 

@@ -20,17 +20,15 @@
 <script>
 import Vue from "vue";
 import Auth from "@/libs/Auth";
-import SharedScope from "@/libs/SharedScope";
+import sharedScope from "@/libs/SharedScope";
 import toaster from "@/libs/Toaster";
 
 export default Vue.extend({
+  name: "SignInForm",
+
   props: {
     source: String
   },
-
-  data: () => ({
-    sharedScope: SharedScope
-  }),
 
   methods: {
     signIn() {
@@ -42,9 +40,9 @@ export default Vue.extend({
             "] ",
             result.user.displayName
           );
-          if (SharedScope.ui.redirect) {
-            const redirect = SharedScope.ui.redirect;
-            SharedScope.ui.redirect = null;
+          if (sharedScope.ui.redirect) {
+            const redirect = sharedScope.ui.redirect;
+            sharedScope.ui.redirect = null;
             this.$router.push(redirect);
           }
         })

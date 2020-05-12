@@ -238,7 +238,7 @@ export default Vue.extend({
 
     deleteRoom() {
       DB.room(this.room.id).delete();
-      this.$router.push({ path: "/" });
+      this.$router.push({ name: "Home" });
     }
   },
 
@@ -264,7 +264,7 @@ export default Vue.extend({
         showPicker: false,
         showMemberManager: false
       },
-      buttons: buttons, // exclude admin by default
+      buttons: buttons,
       emoteButtons: emoteButtons,
       collapsibleButtons: collapsibleButtons
     } as VueData;

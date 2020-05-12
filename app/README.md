@@ -65,10 +65,14 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Deployment
 
-When deploying to staging servers, use `--mode development`; production servers use `--mode production`.
+When deploying to staging servers, use `npm run build`; production servers use `npm run build:prod`.
 
 ```
-npm run build --mode <development|production>
+# Prep for staging server (in development mode)
+npm run build
+
+# Prep for production server (in production mode)
+npm run build:prod
 ```
 
 ## Todo list
@@ -81,11 +85,12 @@ security on rooms
     ✓ add to whitelist
     ✓ add to blacklist
       cannot be in both whitelist and blacklist
+      can only create domain rooms for my email domain
 types of events
     ✓ add a link
     ✓ add a question
     ✓ add a reaction (globally or on another event)
-    add a todo
+    ✓ add a todo
     add a poll
     mark myself afk
     wait for audience

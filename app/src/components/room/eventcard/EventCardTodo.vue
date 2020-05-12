@@ -104,6 +104,7 @@ export default Vue.extend({
       event.preventDefault();
       if (this.todoInput) {
         this.todoList.create(this.todoInput, sharedScope.user.uid as string);
+        this.todoInput = "";
       }
     },
     toggleTodo(todoId: string) {

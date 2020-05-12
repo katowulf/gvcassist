@@ -12,12 +12,18 @@ const idleText = [
   "Click things! Do stuff!",
   "Nothing to see here... Yet.",
   "I'm speechless, for now.",
-  "Please don't stare so much.",
+  "Look at all this floor space.",
   "Got emojis? Put some here!",
   "It's not empty, it's... Spartan.",
   "If this is a party, you're unfashionably early.",
-  "If you join an empty meeting, is it still a meeting?",
-  "Quick! Practice twiddling your thumbs."
+  "Is it a meeting if you're the only one here?",
+  "Quick! Practice twiddling your thumbs.",
+  "Like sands through the hourglass, so are the hours of our meetings.",
+  "Whatever happens next, I’m glad we met.",
+  "“Because meetings involve people, things can and will go wrong. Provide first aid " +
+      "when necessary. ― Emily M. Axelrod",
+  "If computers get too powerful, we can organize them into committees. " +
+      "That'll do them in. ― Author Unknown"
 ];
 
 function rand(list) {
