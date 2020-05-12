@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="value" @click:outside="$emit('input', false)">
+  <v-dialog v-model="value" :persistent="persistent" @click:outside="$emit('input', false)">
     <v-card>
       <v-card-title>
         {{ title }}
@@ -12,11 +12,11 @@
       <v-divider></v-divider>
 
       <v-card-actions>
-        <v-btn outlined @click="$emit('input', false)">
+        <v-btn v-if="showCancel" outlined @click="$emit('input', false)">
           Cancel
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="error" @click="$emit('confirm')">
+        <v-btn :color="buttonColor" @click="$emit('confirm')">
           {{ action }}
         </v-btn>
       </v-card-actions>
@@ -28,12 +28,15 @@
 import Vue from "vue";
 
 export default Vue.extend({
-  name: "DeleteConfirmWidget",
+  name: "ConfirmDialogWidget",
   props: {
     value: { type: Boolean, required: true },
     title: { type: String, required: true },
     message: { type: String, required: false },
-    action: { type: String, required: true }
+    action: { type: String, required: true },
+    buttonColor: { type: String, default: "error" },
+    showCancel: { type: Boolean, default: true },
+    persistent: { type: Boolean, default: false }
   }
 });
 </script>

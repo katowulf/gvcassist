@@ -61,19 +61,22 @@
       @update="saveMemberChanges()"
     />
 
-    <DeleteConfirmWidget
-      v-model="ui.showDelete"
-      title="Really delete this room?"
-      message="Did you remember to export all your notes first?"
-      action="Yes, Delete forever"
-      @confirm="deleteRoom()"
+    <ConfirmDialogWidget
+      v-model="ui.confirm.show"
+      :title="ui.confirm.title"
+      :message="ui.confirm.message"
+      :action="ui.confirm.action"
+      @input="ui.confirm.show = !!$event"
+      @confirm="ui.confirm.handler($event)"
+      :showCancel="ui.confirm.showCancel"
+      :persistent="ui.confirm.persistent"
     />
 
     <InputDialogWidget
       v-model="ui.input.show"
       :actionLabel="ui.input.actionLabel"
       :inputLabel="ui.input.inputLabel"
-      @input="ui.input.show = $event"
+      @input="ui.input.show = !!$event"
       @confirm="ui.input.confirm($event)"
     />
   </v-toolbar>
@@ -82,12 +85,12 @@
 <script lang="ts">
 import Vue from "vue";
 
-import { EventType, Feed } from "@/libs/Feed";
+import {EventType, Feed, FeedEvent} from "@/libs/Feed";
 import { Room } from "@/libs/Room";
 import VEmojiPicker from "v-emoji-picker";
 import DB from "@/libs/DB";
 import MemberWidget from "@/components/room/MemberWidget.vue";
-import DeleteConfirmWidget from "@/components/uiwidget/DeleteConfirmWidget.vue";
+import ConfirmDialogWidget from "@/components/uiwidget/ConfirmDialogWidget.vue";
 import InputDialogWidget from "@/components/uiwidget/InputDialogWidget.vue";
 import toaster from "@/libs/Toaster";
 import Util from "@/libs/Util";
@@ -106,7 +109,16 @@ interface VueData {
       inputLabel: string;
       confirm: () => void;
     };
-    showDelete: boolean;
+    confirm: {
+      show: boolean,
+      title: string,
+      message: string,
+      action: string,
+      confirm: () => void,
+      color: string,
+      showCancel: boolean,
+      persistent: boolean
+    };
     isLoading: boolean;
     showPicker: boolean;
     showMemberManager: boolean;
@@ -128,9 +140,13 @@ export default Vue.extend({
   components: {
     VEmojiPicker,
     MemberWidget,
-    DeleteConfirmWidget,
+    ConfirmDialogWidget,
     InputDialogWidget,
     RoomToolbarDropdown
+  },
+
+  created() {
+    console.log('created'); //debug
   },
 
   methods: {
@@ -156,7 +172,8 @@ export default Vue.extend({
           );
         // case EventType.poll:
         // case EventType.wait:
-        // case EventType.afk:
+        case EventType.afk:
+          return this.createAfk();
         default:
           console.log("I don't know how to process this yet", type, event);
       }
@@ -182,10 +199,12 @@ export default Vue.extend({
       inputLabel: string,
       handler: (event: any) => void
     ) {
-      this.$set(this.ui.input, "actionLabel", actionLabel);
-      this.$set(this.ui.input, "inputLabel", inputLabel);
-      this.$set(this.ui.input, "confirm", handler);
-      this.$set(this.ui.input, "show", true);
+      this.$set(this.ui, 'input', {
+        actionLabel: actionLabel,
+        inputLabel: inputLabel,
+        confirm: handler,
+        show: true
+      });
     },
 
     toolbarAction(event) {
@@ -197,14 +216,45 @@ export default Vue.extend({
         case "open":
           return this.setClosed(false);
         case "delete":
-          this.ui.showDelete = true;
-          return;
+          return this.showDeleteDialog();
         case "members":
           this.ui.showMemberManager = true;
           return;
         default:
           this.clicked(event.type, event.data);
       }
+    },
+
+    showDeleteDialog() {
+      this.$set(this.ui, 'confirm', {
+        show: true,
+        title: "Really delete this room?",
+        message: "Did you remember to export all your notes first?",
+        action: "Yes, Delete forever",
+        handler: () => this.deleteRoom(),
+        color: "error",
+        showCancel: true,
+        persistent: false
+      });
+    },
+
+    createAfk() {
+      this.feed.add(EventType.afk, 'away').then((event: FeedEvent) => {
+        return this.$set(this.ui, 'confirm', {
+          show: true,
+          title: "You are currently away",
+          message: "",
+          action: "Mark me back!",
+          handler: () => {
+            event.setText('returned');
+            event.save();
+            this.$set(this.ui.confirm, 'show', false);
+          },
+          color: "primary",
+          showCancel: false,
+          persistent: true
+        });
+      });
     },
 
     buildCollapseCss(
@@ -243,6 +293,7 @@ export default Vue.extend({
   },
 
   data() {
+    console.log('data'); //debug
     const allButtons = this.isAdmin
       ? MenuItems
       : MenuItems.filter(b => !b.admin);
@@ -255,11 +306,21 @@ export default Vue.extend({
           show: false,
           actionLabel: "-not set-",
           inputLabel: "-not set-",
+          color: "error",
           confirm: () => {
             /* */
           }
         },
-        showDelete: false,
+        confirm: {
+          show: false,
+          title: "",
+          message: "",
+          action: "",
+          confirm: () => { /* */ },
+          color: "",
+          showCancel: true,
+          persistent: false
+        },
         isLoading: true,
         showPicker: false,
         showMemberManager: false

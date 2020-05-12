@@ -184,6 +184,12 @@ export class FeedEvent {
     this.listeners.forEach(fn => fn(this));
   }
 
+  save(): Promise<FeedEvent> {
+    return DB.event(this.roomId, this.id).set(this.toFirestore(), {merge: true})
+      .then(() => this.notify())
+      .then(() => this);
+  }
+
   private getDoc() {
     return DB.event(this.roomId, this.id);
   }
@@ -314,7 +320,7 @@ export class Feed {
     }
   }
 
-  add(type: EventType, text?: string) {
+  add(type: EventType, text?: string): Promise<FeedEvent> {
     if (!sharedScope.user.isSignedIn) {
       throw new Error("Must be authenticated");
     }
@@ -326,9 +332,7 @@ export class Feed {
     if (EventType.emote === type) {
       event.reactions.addEmoji(text as string, sharedScope.user.uid as string);
     } else if (text) event.setText(text);
-    DB.feed(this.id)
-      .add(event.toFirestore())
-      .then(() => event.setNew(false));
+    return event.save();
   }
 
   subscribe(handler: ChangeHandler) {
