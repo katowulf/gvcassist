@@ -134,7 +134,7 @@ export default Vue.extend({
   props: {
     room: { type: Room, required: true },
     feed: { type: Feed, required: true },
-    isAdmin: { type: Boolean, default: false }
+    isAdmin: { type: Boolean, required: true }
   },
 
   components: {
@@ -170,7 +170,8 @@ export default Vue.extend({
               this.feed.add(EventType.todo, title || null);
             }
           );
-        // case EventType.poll:
+        case EventType.poll:
+          return this.createPoll(); //todo
         // case EventType.wait:
         case EventType.afk:
           return this.createAfk();
@@ -238,6 +239,10 @@ export default Vue.extend({
       });
     },
 
+    createPoll() {
+      this.feed.add(EventType.poll, "Poll");
+    },
+
     createAfk() {
       this.feed.add(EventType.afk, 'away').then((event: FeedEvent) => {
         return this.$set(this.ui, 'confirm', {
@@ -293,13 +298,13 @@ export default Vue.extend({
   },
 
   data() {
-    console.log('data'); //debug
     const allButtons = this.isAdmin
       ? MenuItems
       : MenuItems.filter(b => !b.admin);
     const buttons = allButtons.filter(b => !b.menuOnly);
     const emoteButtons = this.isAdmin ? [] : EmoteItems;
     const collapsibleButtons = allButtons.filter(b => b.collapse || b.menuOnly);
+    console.log('data', this.isAdmin, allButtons); //debug
     return {
       ui: {
         input: {

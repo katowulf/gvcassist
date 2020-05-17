@@ -1,7 +1,7 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
   <v-card shaped dense :color="isAway? 'grey' : 'white'" :dark="isAway">
     <v-card-text>
-      <v-icon left>{{isAway? 'mdi-sleep' : 'mdi-sleep-off'}}</v-icon> <span>{{ message }}</span></v-card-text>
+      <v-icon left>{{isAway? 'mdi-pause-circle' : 'mdi-play-circle-outline'}}</v-icon> <span>{{ message }}</span></v-card-text>
     <CardActions
       :card="card"
       :isAdmin="isAdmin"
@@ -35,7 +35,7 @@ export default Vue.extend({
         .then((profile: UserProfile|null) => {
           this.isAway = this.card.text === 'away';
           let message = profile?.displayName || "<unknown user>";
-          message += this.isAway? " stepped away..." : " has returned";
+          message += this.isAway? " stepped away..." : " was away but returned.";
           this.$set(this, 'message', message);
         });
     }

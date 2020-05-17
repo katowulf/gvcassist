@@ -22,6 +22,27 @@
       </template>
       <VEmojiPicker @select="addReaction($event.data)" />
     </v-menu>
+
+    <v-menu offset-y>
+      <template v-slot:activator="{ on }">
+        <v-btn v-on="on" icon><v-icon>mdi-dots-vertical</v-icon></v-btn>
+      </template>
+
+      <v-list>
+        <v-list-item
+            @click="deleteEvent()"
+            color="error"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-trash-can</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Delete this event</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+      </v-list>
+    </v-menu>
   </v-card-actions>
 </template>
 
@@ -39,7 +60,8 @@ export default Vue.extend({
   props: {
     card: { type: FeedEvent, required: true },
     showAvatar: { type: Boolean, required: true },
-    isClosed: { type: Boolean, required: true }
+    isClosed: { type: Boolean, required: true },
+    isAdmin: { type: Boolean, required: true }
   },
 
   components: { UserAvatar, Datestamp, ReactionChips, VEmojiPicker },
@@ -64,6 +86,10 @@ export default Vue.extend({
         this.card.addReaction(emoji, this.sharedScope.user.uid as string);
       }
       this.showPicker = false;
+    },
+
+    deleteEvent() {
+      this.card.delete();
     },
 
     update() {

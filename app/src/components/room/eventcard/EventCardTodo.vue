@@ -49,12 +49,15 @@
             </v-list-item-avatar>
             -->
           </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-form @submit="addTodo">
+                <v-text-field v-model="todoInput" label="Add a todo"></v-text-field>
+              </v-form>
+            </v-list-item-content>
+          </v-list-item>
         </v-list-group>
       </v-list>
-
-      <v-form @submit="addTodo">
-        <v-text-field v-model="todoInput" label="Add a todo"></v-text-field>
-      </v-form>
     </v-card-text>
     <CardActions
       :card="card"

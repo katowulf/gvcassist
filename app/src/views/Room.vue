@@ -10,9 +10,9 @@
           <v-card-title>Loading...</v-card-title>
         </v-card>
 
-        <RoomToolbar :room="room" :feed="feed" :isAdmin="isAdmin" />
+        <RoomToolbar v-if="!ui.isLoading" :room="room" :feed="feed" :isAdmin="isAdmin" />
 
-        <FeedView :feed="feed" :isAdmin="isAdmin" :isClosed="room.data.closed" />
+        <FeedView v-if="!ui.isLoading" :feed="feed" :isAdmin="isAdmin" :isClosed="room.data.closed" />
       </v-col>
     </v-row>
   </v-container>
@@ -66,10 +66,11 @@ export default Vue.extend({
     serverUpdate(source: string) {
       if (source === "Room" && this.room) {
         sharedScope.ui.setTitle(this.room.data.name);
-        this.isAdmin = this.room.data.owners.includes(sharedScope.user.uid as string);
+        this.$set(this, 'isAdmin', this.room.data.owners.includes(sharedScope.user.uid as string));
       }
       // trigger change detection, set admin flag
       this.$set(this, "updates", this.updates + 1);
+      console.log('serverUpdate', source, this.isAdmin); //debug
     }
   },
 

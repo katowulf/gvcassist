@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="value" :persistent="persistent" @click:outside="$emit('input', false)">
+  <v-dialog v-model="value" :persistent="isPersistent" @click:outside="isPersistent || $emit('input', false)">
     <v-card>
       <v-card-title>
         {{ title }}
@@ -29,6 +29,20 @@ import Vue from "vue";
 
 export default Vue.extend({
   name: "ConfirmDialogWidget",
+
+  // props: { persistent: { type: Boolean, default: false } },
+
+  // created() { console.log('confirmdialog', this.persistent); }, //debug
+
+  computed: {
+    // For some reason, updates to the persistent property in the parent
+    // aren't getting transferred into this child component. So if the
+    // dialog is opened with persistent == false and then reopened with
+    // persistent == true, the persistent flag stays false. But a computed
+    // property seems to solve it.
+    isPersistent() { return this.persistent }
+  },
+
   props: {
     value: { type: Boolean, required: true },
     title: { type: String, required: true },

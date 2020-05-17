@@ -190,6 +190,10 @@ export class FeedEvent {
       .then(() => this);
   }
 
+  delete() {
+    DB.event(this.roomId, this.id).delete();
+  }
+
   private getDoc() {
     return DB.event(this.roomId, this.id);
   }
