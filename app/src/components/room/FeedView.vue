@@ -102,7 +102,7 @@ export default Vue.extend({
 </script>
 
 <style>
-.FeedView .v-card {
+.FeedView .event-card {
   margin-bottom: 5px;
 }
 
@@ -114,12 +114,12 @@ export default Vue.extend({
   min-height: 24px;
 }
 
-.FeedView .EventCard .v-card__title,
-.FeedView .EventCard .v-card__text {
+.FeedView .event-card .v-card__title,
+.FeedView .event-card .v-card__text {
   padding: 8px 14px 2px;
 }
 
-.FeedView .EventCard .v-card__actions {
+.FeedView .event-card .v-card__actions {
   padding: 2px 14px 4px;
 }
 </style>

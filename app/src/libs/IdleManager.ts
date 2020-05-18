@@ -21,9 +21,9 @@ const idleText = [
   "Like sands through the hourglass, so are the hours of our meetings.",
   "Whatever happens next, I’m glad we met.",
   "“Because meetings involve people, things can and will go wrong. Provide first aid " +
-      "when necessary. ― Emily M. Axelrod",
+    "when necessary. ― Emily M. Axelrod",
   "If computers get too powerful, we can organize them into committees. " +
-      "That'll do them in. ― Author Unknown"
+    "That'll do them in. ― Author Unknown"
 ];
 
 function rand(list) {

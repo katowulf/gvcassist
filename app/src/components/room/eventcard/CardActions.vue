@@ -23,16 +23,13 @@
       <VEmojiPicker @select="addReaction($event.data)" />
     </v-menu>
 
-    <v-menu offset-y>
+    <v-menu offset-y v-if="isAdmin || card.creator === uid">
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" icon><v-icon>mdi-dots-vertical</v-icon></v-btn>
       </template>
 
       <v-list>
-        <v-list-item
-            @click="deleteEvent()"
-            color="error"
-        >
+        <v-list-item @click="deleteEvent()" color="error">
           <v-list-item-icon>
             <v-icon>mdi-trash-can</v-icon>
           </v-list-item-icon>
@@ -40,7 +37,6 @@
             <v-list-item-title>Delete this event</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-
       </v-list>
     </v-menu>
   </v-card-actions>
@@ -77,13 +73,13 @@ export default Vue.extend({
   methods: {
     toggleReaction(emoji) {
       if (!this.isClosed) {
-        this.card.toggleReaction(emoji, this.sharedScope.user.uid as string);
+        this.card.toggleReaction(emoji, this.uid as string);
       }
     },
 
     addReaction(emoji) {
       if (!this.isClosed) {
-        this.card.addReaction(emoji, this.sharedScope.user.uid as string);
+        this.card.addReaction(emoji, this.uid as string);
       }
       this.showPicker = false;
     },
@@ -99,7 +95,7 @@ export default Vue.extend({
   },
 
   data: () => ({
-    sharedScope: sharedScope,
+    uid: sharedScope.user.uid as string,
     showPicker: false,
     counter: 0,
     sub: () => {

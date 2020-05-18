@@ -61,6 +61,13 @@
       @update="saveMemberChanges()"
     />
 
+    <PollDialogWidget
+      v-model="ui.poll.show"
+      :room="room"
+      @input="ui.poll.show = $event"
+      @confirm="createPoll($event)"
+    />
+
     <ConfirmDialogWidget
       v-model="ui.confirm.show"
       :title="ui.confirm.title"
@@ -85,7 +92,7 @@
 <script lang="ts">
 import Vue from "vue";
 
-import {EventType, Feed, FeedEvent} from "@/libs/Feed";
+import { EventType, Feed, FeedEvent } from "@/libs/Feed";
 import { Room } from "@/libs/Room";
 import VEmojiPicker from "v-emoji-picker";
 import DB from "@/libs/DB";
@@ -100,6 +107,7 @@ import {
   ButtonProps
 } from "@/libs/RoomToolbarMenuItems";
 import RoomToolbarDropdown from "@/components/room/RoomToolbarDropdown.vue";
+import PollDialogWidget from "@/components/room/PollDialogWidget.vue";
 
 interface VueData {
   ui: {
@@ -110,14 +118,17 @@ interface VueData {
       confirm: () => void;
     };
     confirm: {
-      show: boolean,
-      title: string,
-      message: string,
-      action: string,
-      confirm: () => void,
-      color: string,
-      showCancel: boolean,
-      persistent: boolean
+      show: boolean;
+      title: string;
+      message: string;
+      action: string;
+      confirm: () => void;
+      color: string;
+      showCancel: boolean;
+      persistent: boolean;
+    };
+    poll: {
+      show: boolean;
     };
     isLoading: boolean;
     showPicker: boolean;
@@ -142,11 +153,12 @@ export default Vue.extend({
     MemberWidget,
     ConfirmDialogWidget,
     InputDialogWidget,
-    RoomToolbarDropdown
+    RoomToolbarDropdown,
+    PollDialogWidget
   },
 
   created() {
-    console.log('created'); //debug
+    console.log("created"); //debug
   },
 
   methods: {
@@ -171,7 +183,7 @@ export default Vue.extend({
             }
           );
         case EventType.poll:
-          return this.createPoll(); //todo
+          return this.showPollDialog();
         // case EventType.wait:
         case EventType.afk:
           return this.createAfk();
@@ -200,7 +212,7 @@ export default Vue.extend({
       inputLabel: string,
       handler: (event: any) => void
     ) {
-      this.$set(this.ui, 'input', {
+      this.$set(this.ui, "input", {
         actionLabel: actionLabel,
         inputLabel: inputLabel,
         confirm: handler,
@@ -227,7 +239,7 @@ export default Vue.extend({
     },
 
     showDeleteDialog() {
-      this.$set(this.ui, 'confirm', {
+      this.$set(this.ui, "confirm", {
         show: true,
         title: "Really delete this room?",
         message: "Did you remember to export all your notes first?",
@@ -239,21 +251,31 @@ export default Vue.extend({
       });
     },
 
-    createPoll() {
-      this.feed.add(EventType.poll, "Poll");
+    showPollDialog() {
+      this.$set(this.ui.poll, "show", true);
+    },
+
+    createPoll(event) {
+      console.log("createPoll", event);
+      this.feed.addPoll(
+        event.title,
+        event.votesPerMember,
+        event.allowWriteIns,
+        event.choiceLabels
+      );
     },
 
     createAfk() {
-      this.feed.add(EventType.afk, 'away').then((event: FeedEvent) => {
-        return this.$set(this.ui, 'confirm', {
+      this.feed.add(EventType.afk, "away").then((event: FeedEvent) => {
+        return this.$set(this.ui, "confirm", {
           show: true,
           title: "You are currently away",
           message: "",
           action: "Mark me back!",
           handler: () => {
-            event.setText('returned');
+            event.setText("returned");
             event.save();
-            this.$set(this.ui.confirm, 'show', false);
+            this.$set(this.ui.confirm, "show", false);
           },
           color: "primary",
           showCancel: false,
@@ -304,7 +326,7 @@ export default Vue.extend({
     const buttons = allButtons.filter(b => !b.menuOnly);
     const emoteButtons = this.isAdmin ? [] : EmoteItems;
     const collapsibleButtons = allButtons.filter(b => b.collapse || b.menuOnly);
-    console.log('data', this.isAdmin, allButtons); //debug
+    console.log("data", this.isAdmin, allButtons); //debug
     return {
       ui: {
         input: {
@@ -321,10 +343,15 @@ export default Vue.extend({
           title: "",
           message: "",
           action: "",
-          confirm: () => { /* */ },
+          confirm: () => {
+            /* */
+          },
           color: "",
           showCancel: true,
           persistent: false
+        },
+        poll: {
+          show: false
         },
         isLoading: true,
         showPicker: false,

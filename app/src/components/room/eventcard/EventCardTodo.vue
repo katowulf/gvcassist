@@ -52,7 +52,10 @@
           <v-list-item>
             <v-list-item-content>
               <v-form @submit="addTodo">
-                <v-text-field v-model="todoInput" label="Add a todo"></v-text-field>
+                <v-text-field
+                  v-model="todoInput"
+                  label="Add a todo"
+                ></v-text-field>
               </v-form>
             </v-list-item-content>
           </v-list-item>

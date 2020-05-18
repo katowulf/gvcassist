@@ -213,3 +213,22 @@ class Todo {
 
   // todo tests for Todo queries and security
 }
+
+@suite
+class Poll {
+  // todo tests for polls and choices
+
+  @test
+  async "Can vote until I reach max allowed"() {
+    const db = authedApp({uid: "katowulf", email: "kato@foo.com"});
+    const doc = db.doc("apps/gvcassistant/rooms/whitelist2/feed/event4/polls/poll/votes/katowulf");
+    const data1 = {votes: firebase.firestore.FieldValue.arrayUnion("choice1")};
+    await firebase.assertSucceeds(doc.set(data1, {merge: true}));
+
+    const data2 = {votes: firebase.firestore.FieldValue.arrayUnion("choice2")};
+    await firebase.assertSucceeds(doc.set(data2, {merge: true}));
+
+    const data3 = {votes: firebase.firestore.FieldValue.arrayUnion("choice3")};
+    await firebase.assertFails(doc.set(data3, {merge: true}));
+  }
+}

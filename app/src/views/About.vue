@@ -3,11 +3,7 @@
     <v-container>
       <v-row justify="center">
         <v-col md="6" lg="5">
-          <v-img
-            :src="require('../assets/logo.jpg')"
-            contain
-            height="200"
-          />
+          <v-img :src="require('../assets/logo.jpg')" contain height="200" />
         </v-col>
       </v-row>
 
@@ -161,8 +157,21 @@
           </p>
 
           <p>
-            To Rie, Oskar, Nicolas, shefali163, and many others behind the
-            scenes, thanks for letting me stand on your shoulders! ♥
+            Ricky came up with a solution for
+            <code>Property 'validate' does not exist on type 'Element'.</code>
+            when working with form validation in Vue in
+            <a
+              href="https://stackoverflow.com/questions/52109471/typescript-in-vue-property-validate-does-not-exist-on-type-vue-element"
+            >
+              this Stack Overflow post
+            </a>
+            .
+          </p>
+
+          <p>
+            To Rie, Oskar, Nicolas, shefali163, Mitchell, Bijou, Ricky, and many
+            others behind the scenes, thanks for letting me stand on your
+            shoulders! ♥
           </p>
         </v-col>
       </v-row>

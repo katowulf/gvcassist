@@ -1,6 +1,7 @@
 import firebase from "@/libs/firebase-init";
 import DocumentReference = firebase.firestore.DocumentReference;
 import CollectionReference = firebase.firestore.CollectionReference;
+import WriteBatch = firebase.firestore.WriteBatch;
 
 // This should be a Vue mixin and possibly integrate with Vuex
 // and/or use VueFire :D; didn't want to use the lib
@@ -25,10 +26,13 @@ const DBPaths = {
     DBPaths.event(roomId, eventId) + `/todos`,
   todo: (roomId: string, eventId: string, todoId: string) =>
     DBPaths.todos(roomId, eventId) + `/${todoId}`,
-  polls: (roomId: string, eventId: string) =>
-    DBPaths.event(roomId, eventId) + `/polls`,
-  poll: (roomId: string, eventId: string, pollId: string) =>
-    DBPaths.polls(roomId, eventId) + `/${pollId}`
+  // there is only one poll per event
+  poll: (roomId: string, eventId: string) =>
+    DBPaths.event(roomId, eventId) + `/polls/poll`,
+  choices: (roomId: string, eventId: string) =>
+    DBPaths.poll(roomId, eventId) + `/choices`,
+  votes: (roomId: string, eventId: string, uid: string) =>
+    DBPaths.poll(roomId, eventId) + `/votes/${uid}`
 };
 
 class Database {
@@ -60,17 +64,27 @@ class Database {
   async mapUnionAdd(doc: DocumentReference, key: string, value: any) {
     const data = {};
     data[key] = firebase.firestore.FieldValue.arrayUnion(value);
-    return doc.update(data);
+    return doc.set(data, {merge: true});
   }
 
-  trxn(handler: (txrn) => Promise<any>) {
-    return this.db.runTransaction(handler);
+  async mapUnionUpdate(doc: DocumentReference, key: string, value: any) {
+    const data = {};
+    data[key] = firebase.firestore.FieldValue.arrayUnion(value);
+    return doc.update(data);
   }
 
   async mapUnionRemove(doc: DocumentReference, key: string, value: any) {
     const data = {};
     data[key] = firebase.firestore.FieldValue.arrayRemove(value);
     return doc.update(data);
+  }
+
+  trxn(handler: (txrn) => Promise<any>): Promise<any> {
+    return this.db.runTransaction(handler);
+  }
+
+  batch(): WriteBatch {
+    return this.db.batch();
   }
 }
 
@@ -88,10 +102,12 @@ export default {
     DB.collection(DBPaths.todos(roomId, eventId)),
   todo: (roomId: string, eventId: string, todoId: string) =>
     DB.doc(DBPaths.todo(roomId, eventId, todoId)),
-  polls: (roomId: string, eventId: string) =>
-    DB.collection(DBPaths.polls(roomId, eventId)),
-  poll: (roomId: string, eventId: string, pollId: string) =>
-    DB.doc(DBPaths.poll(roomId, eventId, pollId)),
+  poll: (roomId: string, eventId: string) =>
+    DB.doc(DBPaths.poll(roomId, eventId)),
+  choices: (roomId: string, eventId: string) =>
+    DB.collection(DBPaths.choices(roomId, eventId)),
+  votes: (roomId: string, eventId: string, uid: string) =>
+    DB.doc(DBPaths.votes(roomId, eventId, uid)),
   path: DBPaths,
   util: DB
 };

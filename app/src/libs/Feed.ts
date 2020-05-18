@@ -122,7 +122,7 @@ export class FeedEvent {
     this.ui = {
       color: color,
       icon: IconMap.get(event.type) as string,
-      cssClass: `EventCard ${event.type}`,
+      cssClass: `event-card event-card-${event.type}`,
       dark: !!color
     };
   }
@@ -144,7 +144,7 @@ export class FeedEvent {
   addReaction(emoji: string, uid: string): Promise<any> {
     if (this.reactions.uids.get(emoji)?.has(uid)) return Promise.resolve();
     return DB.util
-      .mapUnionAdd(this.getDoc(), `reactions.${emoji}`, uid)
+      .mapUnionUpdate(this.getDoc(), `reactions.${emoji}`, uid)
       .catch(e =>
         toaster.handleError(`FeedEvent::addReaction(${emoji}, ${uid})`, e)
       );
@@ -164,7 +164,7 @@ export class FeedEvent {
   }
 
   setPinned(isPinned: boolean) {
-    return DB.event(this.roomId, this.id).update({pinned: isPinned});
+    return DB.event(this.roomId, this.id).update({ pinned: isPinned });
   }
 
   setNew(b: boolean) {
@@ -185,7 +185,8 @@ export class FeedEvent {
   }
 
   save(): Promise<FeedEvent> {
-    return DB.event(this.roomId, this.id).set(this.toFirestore(), {merge: true})
+    return DB.event(this.roomId, this.id)
+      .set(this.toFirestore(), { merge: true })
       .then(() => this.notify())
       .then(() => this);
   }
@@ -233,7 +234,7 @@ export class FeedEvent {
     };
   }
 
-  static create(roomId: string, type: EventType, creator: string) {
+  static create(roomId: string, type: EventType, creator: string): FeedEvent {
     const data = {
       type: type,
       creator: creator,
@@ -339,6 +340,47 @@ export class Feed {
     return event.save();
   }
 
+  addPoll(
+    title: string,
+    votesPerMember: number,
+    allowWriteIns: boolean,
+    choiceLabels: string[] = []
+  ): Promise<any> {
+    const event = FeedEvent.create(
+      this.id,
+      EventType.poll,
+      sharedScope.user.uid as string
+    );
+    event.setText(title);
+
+    return DB.poll(this.id, event.id)
+      .set({
+        title: title,
+        votesPerMember: votesPerMember,
+        allowWriteIns: allowWriteIns,
+        closed: false
+      })
+      .then(() => event.save())
+      .then(() => {
+        if (choiceLabels.length) {
+          const collectionRef = DB.choices(this.id, event.id);
+          const batch = DB.util.batch();
+          choiceLabels.forEach(choiceLabel => {
+            const data = {
+              title: choiceLabel,
+              creator: sharedScope.user.uid,
+              created: DB.util.timestamp(),
+              votes: []
+            };
+            batch.set(collectionRef.doc(), data);
+          });
+          return batch.commit();
+        }
+      })
+      .then(() => event)
+      .catch(burnedTheToast("Feed::addPoll"));
+  }
+
   subscribe(handler: ChangeHandler) {
     this.listeners.push(handler);
     return () => {
@@ -352,17 +394,17 @@ export class Feed {
       // console.log("change", change.type, change.doc.id);
       if (change.type === "added") {
         this.events.unshift(change.doc.data());
-        console.log("added: ", change.doc.id/*, change.doc.data()*/);
+        console.log("added: ", change.doc.id /*, change.doc.data()*/);
       } else if (change.type === "modified") {
         const feedEvent = this.events.find(e => e.id === change.doc.id);
         if (feedEvent) {
           feedEvent.serverUpdate(change.doc.data());
         }
-        console.log("modified: ", change.doc.id/*, change.doc.data()*/);
+        console.log("modified: ", change.doc.id /*, change.doc.data()*/);
       } else if (change.type === "removed") {
         const pos = this.events.findIndex(e => e.id === change.doc.id);
         this.events.splice(pos, 1);
-        console.log("removed: ", change.doc.id/*, change.doc.data()*/);
+        console.log("removed: ", change.doc.id /*, change.doc.data()*/);
       }
     });
     this.notify();

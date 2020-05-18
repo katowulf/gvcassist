@@ -33,7 +33,7 @@ export class ToasterMessage {
       props
     );
     Object.freeze(this.props);
-    console.log("ToasterMessage", this.type, this.message, this.props);
+    //console.log("ToasterMessage", this.type, this.message, this.props);
   }
 
   setAction(action: Function) {
@@ -149,7 +149,7 @@ export class Toaster {
   ) {
     this.messages.push(message);
     message.setParent(this);
-    if( message.type !== 'error' ) {
+    if (message.type !== "error") {
       Toaster.setDuration(message, overrideDurationInSeconds);
     }
     return message;

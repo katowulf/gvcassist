@@ -1,11 +1,13 @@
-<template xmlns:v-clipboard="http://www.w3.org/1999/xhtml"
-          xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template
+  xmlns:v-clipboard="http://www.w3.org/1999/xhtml"
+  xmlns:v-slot="http://www.w3.org/1999/XSL/Transform"
+>
   <v-card
-      shaped
-      dense
-      :loading="poll.isLoading ? 'warning' : false"
-      :color="card.ui.color"
-      dark
+    shaped
+    dense
+    :loading="isLoading ? 'warning' : false"
+    :color="card.ui.color"
+    dark
   >
     <v-card-text>
       <v-list :color="card.ui.color">
@@ -13,38 +15,47 @@
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title class="title font-weight-light">
-                {{ card.text }} ({{ poll.totalVotes }} vote{{
-                poll.totalVotes === 1 ? "" : "s"
+                {{ poll.title }} ({{ totalVotes }} vote{{
+                  totalVotes === 1 ? "" : "s"
                 }})
               </v-list-item-title>
             </v-list-item-content>
           </template>
 
-          <v-list-item v-for="choice in poll.choices" :key="choice.id">
-            <v-list-item-icon @click="vote(choice)">
-              <v-icon :color="true? 'lime' : 'white'">
-                {{
-                true
-                ? "mdi-check-circle"
-                : "mdi-check-circle-outline"
-                }}
+          <v-list-item>
+            <v-list-item-title :class="noVotesLeft? 'success' : 'yellow--text'">
+              I have placed {{myVotes.length}} of {{poll.votesPerMember}} votes.
+            </v-list-item-title>
+          </v-list-item>
+
+          <v-list-item v-for="choice in choices" :key="choice.id">
+            <v-list-item-icon @click="isClosed || poll.closed || toggleVote(choice)">
+              <v-icon :color="hasMyVote(choice.id)? 'green darken-4' : (noVotesLeft? 'cyan lighten-3' : 'white')">
+                {{ hasMyVote(choice.id)? "mdi-check-circle" : "mdi-check-circle-outline" }}
               </v-icon>
             </v-list-item-icon>
 
-            <v-list-item-content>
-              <v-list-item-title>{{choice.text}} ({{choice.votes}})</v-list-item-title>
+            <v-list-item-content style="position:relative">
+              <div class="poll-background primary" :style="'width:' + choice.percent + '%; z-index:100'"></div>
+              <v-list-item-title style="z-index:200">
+                {{ choice.title }} ({{choice.percent}}%, {{ choice.voteCount }} votes)
+              </v-list-item-title>
             </v-list-item-content>
 
             <!--<v-list-item-action>-->
-              <!--<v-btn icon @click="deleteChoice(choice.id)">-->
-                <!--<v-icon color="green lighten-3">mdi-delete</v-icon>-->
-              <!--</v-btn>-->
+            <!--<v-btn icon @click="deleteChoice(choice.id)">-->
+            <!--<v-icon color="green lighten-3">mdi-delete</v-icon>-->
+            <!--</v-btn>-->
             <!--</v-list-item-action>-->
           </v-list-item>
           <v-list-item>
             <v-list-item-content>
-              <v-form v-if="poll.allowAdd" @submit="addChoice">
-                <v-text-field v-model="choiceInput" label="Add a choice"></v-text-field>
+              <v-form v-if="isAdmin || poll.allowWriteIns" @submit="addChoice">
+                <v-text-field
+                  :disabled="isClosed"
+                  v-model="choiceInput"
+                  label="Add a choice"
+                ></v-text-field>
               </v-form>
             </v-list-item-content>
           </v-list-item>
@@ -52,10 +63,10 @@
       </v-list>
     </v-card-text>
     <CardActions
-        :card="card"
-        :isAdmin="isAdmin"
-        :isClosed="isClosed"
-        :showAvatar="false"
+      :card="card"
+      :isAdmin="isAdmin"
+      :isClosed="isClosed"
+      :showAvatar="false"
     />
   </v-card>
 </template>
@@ -64,6 +75,26 @@
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
 import CardActions from "@/components/room/eventcard/CardActions.vue";
+import DB from "@/libs/DB";
+import firebase from "@/libs/firebase-init";
+import DocumentData = firebase.firestore.DocumentData;
+import DocumentSnapshot = firebase.firestore.DocumentSnapshot;
+import SharedScope from "@/libs/SharedScope";
+import QuerySnapshot = firebase.firestore.QuerySnapshot;
+import QueryDocumentSnapshot = firebase.firestore.QueryDocumentSnapshot;
+
+type Subscription = () => void;
+interface Choice {
+  id: string;
+  title: string;
+  votes: string[];
+  voteCount: number;
+  percent: number;
+}
+
+function getPercent(total: number, entry: number) {
+  return total === 0? 0 : Math.round((entry / total) * 1000) / 10;
+}
 
 export default Vue.extend({
   name: "EventWidgetPoll",
@@ -73,42 +104,123 @@ export default Vue.extend({
     isClosed: { type: Boolean, required: true }
   },
   components: { CardActions },
+
+  created() {
+    this.subs.push(
+      ...[
+        DB.poll(this.card.roomId, this.card.id).onSnapshot(snap =>
+          this.syncPoll(snap)
+        ),
+        DB.choices(this.card.roomId, this.card.id).onSnapshot(snap =>
+          this.syncChoices(snap)
+        ),
+        DB.votes(this.card.roomId, this.card.id, this.uid).onSnapshot(snap =>
+          this.syncVotes(snap)
+        )
+      ]
+    );
+  },
+
+  beforeDestroy() {
+    this.subs.forEach(fn => fn());
+  },
+
   methods: {
-    vote(choice) {
-      choice.votes += 1;
-      this.poll.totalVotes += 1;
-      this.poll.totalPercent = 0;
-      this.poll.choices.forEach(c => {
-        c.percent = Math.round((c.votes / this.poll.totalVotes)*1000)/10;
-        this.poll.totalPercent += c.percent;
-      });
+    hasMyVote(choiceId: string) {
+      return this.myVotes.includes(choiceId);
+    },
+
+    syncPoll(change: DocumentSnapshot<DocumentData>) {
+      this.$set(this, "poll", change.data());
+      this.$set(this, "isLoading", false);
+      this.updateVotesLeft();
+    },
+
+    syncChoices(change: QuerySnapshot<DocumentData>) {
+      this.totalVotes = change.docs.reduce(
+        (acc, curr) => acc + curr.data().votes.length,
+        0
+      );
+      const choices = change.docs.map(
+        (docSnap: QueryDocumentSnapshot<DocumentData>) => {
+          const data = docSnap.data();
+          console.log(docSnap.id, data, this.totalVotes);
+          return {
+            id: docSnap.id,
+            ...data,
+            voteCount: data.votes.length,
+            percent: getPercent(this.totalVotes, data.votes.length)
+          };
+        }
+      );
+      this.$set(this, "choices", choices);
+    },
+
+    syncVotes(change: DocumentSnapshot<DocumentData>) {
+      this.$set(this, "myVotes", change.data()?.votes || []);
+      this.updateVotesLeft();
+    },
+
+    updateVotesLeft() {
+      this.$set(this, "noVotesLeft", this.myVotes.length >= this.poll.votesPerMember);
+    },
+
+    toggleVote(choice) {
+      if( this.hasMyVote(choice.id) ) {
+        DB.util.mapUnionRemove(
+          DB.votes(this.card.roomId, this.card.id, this.uid),
+          "votes",
+          choice.id
+        )
+      }
+      else {
+        DB.util.mapUnionAdd(
+          DB.votes(this.card.roomId, this.card.id, this.uid),
+          "votes",
+          choice.id
+        );
+      }
     },
 
     addChoice(event) {
       event.preventDefault();
-      if( this.choiceInput ) {
-        const num = this.poll.choices.length;
-        this.poll.choices.push({
-          id: `c${num}`, text: this.choiceInput, votes: 0, percent: 0
+      if (this.choiceInput) {
+        DB.choices(this.card.roomId, this.card.id).add({
+          title: this.choiceInput,
+          votes: [],
+          creator: this.uid,
+          created: DB.util.timestamp()
         });
-        this.choiceInput = "";
       }
-      return false;
     }
   },
+
   data: () => ({
     choiceInput: "",
+    isLoading: true,
+    subs: [] as Subscription[],
+    uid: SharedScope.user.uid as string,
     poll: {
-      totalVotes: 10,
-      totalPercent: 100,
-      allowAdd: true,
-      choices: [
-        {id: 'c1', text: 'choice 1', votes: 7, percent: 70},
-        {id: 'c2', text: 'choice 2', votes: 1, percent: 10},
-        {id: 'c3', text: 'choice 3', votes: 2, percent: 20},
-        {id: 'c4', text: 'choice 4', votes: 0, percent: 0}
-      ]
-    }
+      title: "Loading...",
+      allowWriteIns: false,
+      votesPerMember: 1,
+      closed: false
+    },
+    totalVotes: 0,
+    choices: [] as Choice[],
+    myVotes: [] as string[],
+    noVotesLeft: true
   })
 });
 </script>
+
+<style scoped>
+  div.poll-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    opacity: .25;
+    min-width: 2px;
+  }
+</style>

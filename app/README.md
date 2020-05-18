@@ -65,17 +65,17 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Deployment
 
-When deploying to staging servers, use `npm run build`; production servers use `npm run build:prod`.
+When deploying to staging servers, use `npm run build:dev`; production servers use `npm run build:prod`.
 
 ```
 # Prep for staging server (in development mode)
-npm run build
+npm run build:dev
 
 # Prep for production server (in production mode)
 npm run build:prod
 ```
 
-## Todo list
+## Roadmap
 
 ```
 security on rooms
@@ -89,17 +89,22 @@ security on rooms
 types of events
     ✓ add a link
     ✓ add a question
+        answer a question
     ✓ add a reaction (globally or on another event)
     ✓ add a todo
-    add a poll
-    mark myself afk
+        ✓ mark completed
+        assign todos
+    ✓ add a poll
+        lock voting
+        show who voted for what
+    ✓ mark myself afk
     wait for audience
 feed features
-    removable
+    ✓ removable
     pinnable
     ✓ add reactions
 export meetings
-    auto email todos on close
+    auto email notes on close
     export as markdown or formatted text (polls, questions, links, and todos)
 end of meeting survey
     auto-send to all participants

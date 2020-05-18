@@ -1,7 +1,11 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
-  <v-card shaped dense :color="isAway? 'grey' : 'white'" :dark="isAway">
+  <v-card shaped dense :color="isAway ? 'grey' : 'white'" :dark="isAway">
     <v-card-text>
-      <v-icon left>{{isAway? 'mdi-pause-circle' : 'mdi-play-circle-outline'}}</v-icon> <span>{{ message }}</span></v-card-text>
+      <v-icon left>
+        {{ isAway ? "mdi-pause-circle" : "mdi-play-circle-outline" }}
+      </v-icon>
+      <span>{{ message }}</span>
+    </v-card-text>
     <CardActions
       :card="card"
       :isAdmin="isAdmin"
@@ -15,7 +19,7 @@
 import Vue from "vue";
 import { FeedEvent } from "@/libs/Feed";
 import CardActions from "@/components/room/eventcard/CardActions.vue";
-import Profiles, {UserProfile} from "@/libs/Profiles";
+import Profiles, { UserProfile } from "@/libs/Profiles";
 
 export default Vue.extend({
   name: "EventWidgetAfk",
@@ -31,19 +35,20 @@ export default Vue.extend({
   components: { CardActions },
   methods: {
     update() {
-      Profiles.find(this.card.creator)
-        .then((profile: UserProfile|null) => {
-          this.isAway = this.card.text === 'away';
-          let message = profile?.displayName || "<unknown user>";
-          message += this.isAway? " stepped away..." : " was away but returned.";
-          this.$set(this, 'message', message);
-        });
+      Profiles.find(this.card.creator).then((profile: UserProfile | null) => {
+        this.isAway = this.card.text === "away";
+        let message = profile?.displayName || "<unknown user>";
+        message += this.isAway ? " stepped away..." : " was away but returned.";
+        this.$set(this, "message", message);
+      });
     }
   },
   data: () => ({
     isAway: true,
     message: "Loading...",
-    sub: () => { /* do nothing */ }
+    sub: () => {
+      /* do nothing */
+    }
   })
 });
 </script>

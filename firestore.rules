@@ -42,13 +42,44 @@ service cloud.firestore {
            return get(makePath(/rooms/$(roomId)));
         }
 
-        function feedIsWritable(roomId) {
-           let room = getRoom(roomId);
+        function getPoll(roomId, eventId, pollId) {
+            return get(makePath(/rooms/$(roomId)/feed/$(eventId)/polls/$(pollId)));
+        }
+
+        function feedIsWritable(room) {
            return roomIsOpen(room) && canSeeRoom(room);
         }
 
         function isEventType(roomId, eventId, type) {
         	return get(makePath(/rooms/$(roomId)/feed/$(eventId))).data.type == type;
+        }
+
+        function canCreatePoll(roomId, eventId) {
+            let room = getRoom(roomId);
+            // We need to create the poll before creating the room event so we don't show a broken
+            // poll in the card (and don't have to do a bunch of client-side work to verify it's
+            // all synced before showing).
+            //
+            // To allow this, we don't verify event type before allowing the poll metadata
+            // to get created. This is okay since it's only shown for type poll.
+            //
+            // Exploiting this by trying to prepopulate the poll metadata would require
+            // about 64 million years or so, and requires one to guess the correct room and
+            // event id that will eventually become a poll in order to get a successful collision.
+            //
+            //return isEventType(roomId, eventId, 'poll') && feedIsWritable(room) && isDocOwner(room);
+            return feedIsWritable(room) && isDocOwner(room);
+        }
+
+        function canVote(roomId, eventId, pollId, voteData) {
+            let numVotes = 'votes' in voteData? voteData.votes.size() : 0;
+            let allowedVotes = getPoll(roomId, eventId, pollId).data.votesPerMember;
+            return isEventType(roomId, eventId, 'poll') && feedIsWritable(getRoom(roomId)) && allowedVotes >= numVotes;
+        }
+
+        function canAddPollChoices(roomId, eventId, pollId) {
+            let room = getRoom(roomId);
+            return isEventType(roomId, eventId, 'poll') && feedIsWritable(room) && (isDocOwner(room) || getPoll(roomId, eventId, pollId).data.allowWriteIns == true);
         }
 
         match /publicProfiles/{uid} {
@@ -68,14 +99,33 @@ service cloud.firestore {
             allow delete: if isDocOwner(resource);
 
             match /feed/{eventId} {
-                allow write: if feedIsWritable(roomId);
+                allow write: if feedIsWritable(getRoom(roomId));
                 allow list: if request.query.limit <= 2000 && canSeeRoom(getRoom(roomId));
                 allow get: if canSeeRoom(getRoom(roomId));
 
                 match /todos/{todoId} {
-                    allow write: if isEventType(roomId, eventId, 'todo') && feedIsWritable(roomId);
+                    allow write: if isEventType(roomId, eventId, 'todo') && feedIsWritable(getRoom(roomId));
                     allow list: if request.query.limit <= 1000 && canSeeRoom(getRoom(roomId));
                     allow get: if canSeeRoom(getRoom(roomId));
+                }
+
+                match /polls/{pollId} {
+                    allow write: if canCreatePoll(roomId, eventId);
+                    allow list: if false;
+                    allow get: if canSeeRoom(getRoom(roomId));
+
+                    match /votes/{userId} {
+                        allow write: if request.auth.uid == userId && canVote(roomId, eventId, pollId, request.resource.data);
+                        allow read: if canSeeRoom(getRoom(roomId));
+                        allow list: if isDocOwner(getRoom(roomId));
+                    }
+
+                    match /choices/{choiceId} {
+                        allow create: if canAddPollChoices(roomId, eventId, pollId);
+                        allow delete: if canAddPollChoices(roomId, eventId, pollId);
+                        allow read: if canSeeRoom(getRoom(roomId));
+                        allow list: if canSeeRoom(getRoom(roomId));
+                    }
                 }
             }
         }
