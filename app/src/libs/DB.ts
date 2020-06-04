@@ -64,7 +64,7 @@ class Database {
   async mapUnionAdd(doc: DocumentReference, key: string, value: any) {
     const data = {};
     data[key] = firebase.firestore.FieldValue.arrayUnion(value);
-    return doc.set(data, {merge: true});
+    return doc.set(data, { merge: true });
   }
 
   async mapUnionUpdate(doc: DocumentReference, key: string, value: any) {

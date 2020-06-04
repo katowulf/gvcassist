@@ -1,5 +1,5 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
-  <v-card class="FeedEvent" shaped dense :color="card.ui.color" dark>
+  <v-card class="FeedEvent" dense :color="card.ui.color" dark>
     <v-card-text>
       <v-icon left small>
         {{ card.ui.icon }}

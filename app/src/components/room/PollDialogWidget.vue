@@ -99,18 +99,15 @@ export default Vue.extend({
       this.$emit("input", false);
 
       // Tell the toolbar to create the poll
-      this.$emit(
-        "confirm",
-        {
-          title: this.poll.title,
-          allowWriteIns: this.poll.allowWriteIns,
-          votesPerMember: this.poll.votesPerMember,
-          choiceLabels: this.poll.choiceLabels
-            .split("\n")
-            .map(s => s.trim())
-            .filter(s => !!s)
-        } as CommitEvent
-      );
+      this.$emit("confirm", {
+        title: this.poll.title,
+        allowWriteIns: this.poll.allowWriteIns,
+        votesPerMember: this.poll.votesPerMember,
+        choiceLabels: this.poll.choiceLabels
+          .split("\n")
+          .map(s => s.trim())
+          .filter(s => !!s)
+      } as CommitEvent);
 
       // Reset the form for next usage
       Object.assign(this.poll, {

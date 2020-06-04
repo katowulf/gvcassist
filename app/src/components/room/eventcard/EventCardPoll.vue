@@ -3,7 +3,6 @@
   xmlns:v-slot="http://www.w3.org/1999/XSL/Transform"
 >
   <v-card
-    shaped
     dense
     :loading="isLoading ? 'warning' : false"
     :color="card.ui.color"
@@ -23,22 +22,43 @@
           </template>
 
           <v-list-item>
-            <v-list-item-title :class="noVotesLeft? 'success' : 'yellow--text'">
-              I have placed {{myVotes.length}} of {{poll.votesPerMember}} votes.
+            <v-list-item-title
+              :class="noVotesLeft ? 'success' : 'yellow--text'"
+            >
+              I have placed {{ myVotes.length }} of
+              {{ poll.votesPerMember }} votes.
             </v-list-item-title>
           </v-list-item>
 
           <v-list-item v-for="choice in choices" :key="choice.id">
-            <v-list-item-icon @click="isClosed || poll.closed || toggleVote(choice)">
-              <v-icon :color="hasMyVote(choice.id)? 'green darken-4' : (noVotesLeft? 'cyan lighten-3' : 'white')">
-                {{ hasMyVote(choice.id)? "mdi-check-circle" : "mdi-check-circle-outline" }}
+            <v-list-item-icon
+              @click="isClosed || poll.closed || toggleVote(choice)"
+            >
+              <v-icon
+                :color="
+                  hasMyVote(choice.id)
+                    ? 'green darken-4'
+                    : noVotesLeft
+                    ? 'cyan lighten-3'
+                    : 'white'
+                "
+              >
+                {{
+                  hasMyVote(choice.id)
+                    ? "mdi-check-circle"
+                    : "mdi-check-circle-outline"
+                }}
               </v-icon>
             </v-list-item-icon>
 
             <v-list-item-content style="position:relative">
-              <div class="poll-background primary" :style="'width:' + choice.percent + '%; z-index:100'"></div>
+              <div
+                class="poll-background primary"
+                :style="'width:' + choice.percent + '%; z-index:100'"
+              ></div>
               <v-list-item-title style="z-index:200">
-                {{ choice.title }} ({{choice.percent}}%, {{ choice.voteCount }} votes)
+                {{ choice.title }} ({{ choice.percent }}%,
+                {{ choice.voteCount }} votes)
               </v-list-item-title>
             </v-list-item-content>
 
@@ -93,7 +113,7 @@ interface Choice {
 }
 
 function getPercent(total: number, entry: number) {
-  return total === 0? 0 : Math.round((entry / total) * 1000) / 10;
+  return total === 0 ? 0 : Math.round((entry / total) * 1000) / 10;
 }
 
 export default Vue.extend({
@@ -162,18 +182,21 @@ export default Vue.extend({
     },
 
     updateVotesLeft() {
-      this.$set(this, "noVotesLeft", this.myVotes.length >= this.poll.votesPerMember);
+      this.$set(
+        this,
+        "noVotesLeft",
+        this.myVotes.length >= this.poll.votesPerMember
+      );
     },
 
     toggleVote(choice) {
-      if( this.hasMyVote(choice.id) ) {
+      if (this.hasMyVote(choice.id)) {
         DB.util.mapUnionRemove(
           DB.votes(this.card.roomId, this.card.id, this.uid),
           "votes",
           choice.id
-        )
-      }
-      else {
+        );
+      } else {
         DB.util.mapUnionAdd(
           DB.votes(this.card.roomId, this.card.id, this.uid),
           "votes",
@@ -215,12 +238,12 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-  div.poll-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    opacity: .25;
-    min-width: 2px;
-  }
+div.poll-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  opacity: 0.25;
+  min-width: 2px;
+}
 </style>

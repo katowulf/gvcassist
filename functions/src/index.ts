@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import admin = require('firebase-admin');
 import DocumentSnapshot = admin.firestore.DocumentSnapshot;
+// import QuerySnapshot = admin.firestore.QuerySnapshot;
 import {Change, EventContext} from "firebase-functions";
 const tools = require("firebase-tools");
 
@@ -97,7 +98,10 @@ exports.roomDeleted = functions.runWith({timeoutSeconds: 540, memory: '2GB'})
 .onDelete(async (doc: DocumentSnapshot, context: EventContext) => {
   const roomId = context.params.roomId;
   const path = `app/gvcassistant/rooms/${roomId}/feed`;
-  await deleteCollection(path, functions.config().fb.token);
+  await Promise.all([
+    deleteCollection(path, functions.config().fb.token),
+    tools.firestore.delete(`apps/gvcassistant/retentionMap/${roomId}`)
+  ]);
 });
 
 // Decided this wasn't needed. They will get purged when the room expires anyway.
@@ -114,6 +118,19 @@ exports.eventDeleted = functions.runWith({timeoutSeconds: 540, memory: '2GB'})
     ]);
   });
 **/
+
+// Prod only since we can't test this without a billing account.
+// exports.monitorRetention = functions.pubsub.schedule('every 4 hours').onRun(context => {
+//   admin.firestore().collection("apps/gvcassistant/retentionMap").where("expires", "<", new Date())
+//     .get().then((snap: QuerySnapshot) => {
+//       console.log("Purging", snap.docs.length, "expired rooms");
+//       const batch = admin.firestore().batch();
+//       snap.forEach(doc => {
+//         batch.delete(doc.ref);
+//       });
+//       return batch.commit();
+//     });
+// });
 
 async function deleteCollection(collectionPath: string, cliToken: string) {
   console.log("Deleting collection recursively:", collectionPath);

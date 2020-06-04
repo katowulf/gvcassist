@@ -15,6 +15,7 @@
         }}
         name={{ $vuetify.breakpoint.name }}; uid: {{ sharedScope.user.uid }},
         projectId: {{ sharedScope.projectId }}, debug: {{ sharedScope.debug }};
+        room: {{ sharedScope.room }}
       </p>
     </v-footer>
   </v-app>

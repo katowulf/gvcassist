@@ -1,5 +1,5 @@
 <template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
-  <v-card shaped dense :color="isAway ? 'grey' : 'white'" :dark="isAway">
+  <v-card dense :color="isAway ? 'grey' : 'white'" :dark="isAway">
     <v-card-text>
       <v-icon left>
         {{ isAway ? "mdi-pause-circle" : "mdi-play-circle-outline" }}

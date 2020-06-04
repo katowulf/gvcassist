@@ -2,7 +2,13 @@ import Vue from "vue";
 import { Auth, SharedAuthScope } from "@/libs/Auth";
 import fbconf from "@/firebase-config.ts";
 import { toaster, Toaster } from "@/libs/Toaster";
+import {Room} from "@/libs/Room";
 
+/**
+ * A debugging helper. This can be called from
+ * the JS console as window.GvcAssistantDebugger
+ * to test things.
+ */
 class GvcAssistantDebugger {
   public isEnabled = false;
 
@@ -25,9 +31,16 @@ class GvcAssistantDebugger {
   }
 }
 
+/**
+ * A simple shared scope mechanism. It's a replacement for a good set of
+ * cached services and is a bit hacky. But it helps us learn some Vue by
+ * learning how state and sharing works. Vuex would be a more standardized
+ * solution for this sort of thing.
+ */
 interface SharedScope {
   user: SharedAuthScope;
   debug: GvcAssistantDebugger;
+  room: null | {id: string, isAdmin: boolean, data: any};
   projectId: string;
   ui: {
     setTitle: (newTitle: string) => void;
@@ -45,7 +58,7 @@ declare global {
 window.GvcAssistantDebugger = new GvcAssistantDebugger(toaster);
 
 // Do some vue magic to trigger change detection by making our ui props
-// Into a Vue and then calling Vue.set(). This will prevent the title
+// Into a Vue and then calling a Vue method. This will prevent the title
 // from not updating after we load things from the database.
 // This is a hack and likely better to use Vuex for this kind of stuff.
 // In fact, this whole sharedScope should likely be a Vuex instance.
@@ -65,7 +78,8 @@ const sharedScope = {
   user: Auth.getSharedScope(),
   ui: ui,
   projectId: fbconf.projectId,
-  debug: window.GvcAssistantDebugger
+  debug: window.GvcAssistantDebugger,
+  room: null
 };
 
 export default sharedScope as SharedScope;
