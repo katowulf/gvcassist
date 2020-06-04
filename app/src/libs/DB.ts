@@ -34,7 +34,7 @@ const DBPaths = {
   votes: (roomId: string, eventId: string, uid: string) =>
     DBPaths.poll(roomId, eventId) + `/votes/${uid}`,
   wait: (roomId: string, eventId: string) =>
-    DBPaths.event(roomId, eventId) + '/meta/wait'
+    DBPaths.event(roomId, eventId) + "/meta/wait"
 };
 
 class Database {

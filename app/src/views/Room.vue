@@ -84,7 +84,7 @@ export default Vue.extend({
       // trigger change detection, set admin flag
       this.$set(this, "updates", this.updates + 1);
       console.log("serverUpdate", source, this.isAdmin); //debug
-      sharedScope.room = Object.assign({isAdmin: this.isAdmin, ...this.room});
+      sharedScope.room = Object.assign({ isAdmin: this.isAdmin, ...this.room });
     }
   },
 

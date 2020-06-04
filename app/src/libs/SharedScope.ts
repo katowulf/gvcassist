@@ -2,7 +2,6 @@ import Vue from "vue";
 import { Auth, SharedAuthScope } from "@/libs/Auth";
 import fbconf from "@/firebase-config.ts";
 import { toaster, Toaster } from "@/libs/Toaster";
-import {Room} from "@/libs/Room";
 
 /**
  * A debugging helper. This can be called from
@@ -40,7 +39,7 @@ class GvcAssistantDebugger {
 interface SharedScope {
   user: SharedAuthScope;
   debug: GvcAssistantDebugger;
-  room: null | {id: string, isAdmin: boolean, data: any};
+  room: null | { id: string; isAdmin: boolean; data: any };
   projectId: string;
   ui: {
     setTitle: (newTitle: string) => void;

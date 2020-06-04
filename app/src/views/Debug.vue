@@ -1,7 +1,10 @@
 <template>
   <v-container>
     <h2>Debug Bar</h2>
-    <v-switch v-model="sharedScope.debug.isEnabled" :label="toggleMessage"></v-switch>
+    <v-switch
+      v-model="sharedScope.debug.isEnabled"
+      :label="toggleMessage"
+    ></v-switch>
 
     <h2>Firebase Config</h2>
     <pre>{{ firebaseConfig }}</pre>
@@ -28,13 +31,19 @@ export default {
   name: "Debug",
 
   computed: {
-    toggleMessage() { return "Show the debug bar? (" + (sharedScope.debug.isEnabled? "On" : "Off") + ")" }
+    toggleMessage() {
+      return (
+        "Show the debug bar? (" +
+        (sharedScope.debug.isEnabled ? "On" : "Off") +
+        ")"
+      );
+    }
   },
 
   data: () => ({
     devMode: devMode,
     firebaseConfig: firebaseConfig,
-    sharedScope: sharedScope,
+    sharedScope: sharedScope
   })
 };
 </script>

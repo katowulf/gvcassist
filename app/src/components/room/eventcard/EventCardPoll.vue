@@ -131,9 +131,9 @@ export default Vue.extend({
         DB.poll(this.card.roomId, this.card.id).onSnapshot(snap =>
           this.syncPoll(snap)
         ),
-        DB.choices(this.card.roomId, this.card.id).orderBy('created').onSnapshot(snap =>
-          this.syncChoices(snap)
-        ),
+        DB.choices(this.card.roomId, this.card.id)
+          .orderBy("created")
+          .onSnapshot(snap => this.syncChoices(snap)),
         DB.votes(this.card.roomId, this.card.id, this.uid).onSnapshot(snap =>
           this.syncVotes(snap)
         )
@@ -173,7 +173,7 @@ export default Vue.extend({
           };
         }
       );
-      console.log('new choices', choices);
+      console.log("new choices", choices);
       this.$set(this, "choices", choices);
     },
 
@@ -192,16 +192,16 @@ export default Vue.extend({
 
     toggleVote(choice) {
       if (this.hasMyVote(choice.id)) {
-        console.log('removing my vote', choice.id); //debug
+        console.log("removing my vote", choice.id); //debug
         DB.util.mapUnionRemove(
           DB.votes(this.card.roomId, this.card.id, this.uid),
           "votes",
           choice.id
         );
       } else if (this.noVotesLeft) {
-        console.log('I have no votes left. Ignoring vote.');
+        console.log("I have no votes left. Ignoring vote.");
       } else {
-        console.log('adding my vote', choice.id); //debug
+        console.log("adding my vote", choice.id); //debug
         DB.util.mapUnionAdd(
           DB.votes(this.card.roomId, this.card.id, this.uid),
           "votes",
