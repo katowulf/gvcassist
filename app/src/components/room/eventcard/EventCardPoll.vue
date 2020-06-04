@@ -215,6 +215,7 @@ export default Vue.extend({
           creator: this.uid,
           created: DB.util.timestamp()
         });
+        this.choiceInput = "";
       }
     }
   },
