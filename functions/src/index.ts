@@ -61,15 +61,20 @@ exports.markProfileDeleted = functions.auth.user().onDelete((user) => {
 // at a time, given that batch() only handles <= 100 modifications. That's not an issue
 // with the current setup, but could be if we added some sort of batching on the client
 // side.
+exports.userVoteCreated = functions.firestore
+  .document('apps/gvcassistant/rooms/{roomId}/feed/{eventId}/polls/{pollId}/votes/{userId}')
+  .onCreate(async (snap: DocumentSnapshot, context: EventContext) => {
+    const addedVotes = snap.data()?.votes || [];
+
+    await updateVotes(
+      context.params.roomId, context.params.eventId,
+      context.params.pollId, context.params.userId,
+      addedVotes, []);
+  });
+
 exports.userVoteModified = functions.firestore
   .document('apps/gvcassistant/rooms/{roomId}/feed/{eventId}/polls/{pollId}/votes/{userId}')
   .onUpdate(async (change: Change<DocumentSnapshot>, context: EventContext) => {
-    const roomId = context.params.roomId;
-    const eventId = context.params.eventId;
-    const pollId = context.params.pollId;
-    const uid = context.params.userId;
-    const choicePath = `apps/gvcassistant/rooms/${roomId}/feed/${eventId}/polls/${pollId}/choices/`;
-
     const newVotes = change.after.data()?.votes || [];
     const oldVotes = change.before.data()?.votes || [];
     const unchanged = new Set(newVotes.filter((s:string) => oldVotes.includes(s)));
@@ -77,20 +82,10 @@ exports.userVoteModified = functions.firestore
     const added = newVotes.filter((choiceId:string) => !unchanged.has(choiceId));
     const removed = oldVotes.filter((choiceId:string) => !unchanged.has(choiceId));
 
-    const batch = admin.firestore().batch();
-    added.forEach((choiceId:string) => {
-      const doc = admin.firestore().doc(choicePath + choiceId);
-      batch.update(doc, {votes: admin.firestore.FieldValue.arrayUnion(uid)});
-      console.log(`Added vote from uid ${uid} to choice rooms/${roomId}/events/${eventId}/polls/${pollId}/choices/${choiceId}`);
-    });
-
-    removed.forEach((choiceId:string) => {
-      const doc = admin.firestore().doc(choicePath + choiceId);
-      batch.update(doc, {votes: admin.firestore.FieldValue.arrayRemove(uid)});
-      console.log(`Removed vote from uid ${uid} to choice rooms/${roomId}/events/${eventId}/polls/${pollId}/choices/${choiceId}`);
-    });
-
-    await batch.commit();
+    await updateVotes(
+      context.params.roomId, context.params.eventId,
+      context.params.pollId, context.params.userId,
+      added, removed);
   });
 
 exports.roomDeleted = functions.runWith({timeoutSeconds: 540, memory: '2GB'})
@@ -140,4 +135,22 @@ async function deleteCollection(collectionPath: string, cliToken: string) {
     yes: true,
     token: cliToken
   });
+}
+
+async function updateVotes(roomId: string, eventId: string, pollId: string, uid: string, added: string[], removed: []) {
+  const choicePath = `apps/gvcassistant/rooms/${roomId}/feed/${eventId}/polls/${pollId}/choices/`;
+  const batch = admin.firestore().batch();
+  added.forEach((choiceId:string) => {
+    const doc = admin.firestore().doc(choicePath + choiceId);
+    batch.update(doc, {votes: admin.firestore.FieldValue.arrayUnion(uid)});
+    console.log(`Added vote from uid ${uid} to choice ${choicePath}${choiceId}`);
+  });
+
+  removed.forEach((choiceId:string) => {
+    const doc = admin.firestore().doc(choicePath + choiceId);
+    batch.update(doc, {votes: admin.firestore.FieldValue.arrayRemove(uid)});
+    console.log(`Removed vote from uid ${uid} to choice ${choicePath}${choiceId}`);
+  });
+
+  await batch.commit();
 }

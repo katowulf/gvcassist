@@ -119,7 +119,8 @@ export default Vue.extend({
       Object.assign(this.poll, {
         title: "",
         votesPerMember: 1,
-        allowWriteIns: true
+        allowWriteIns: true,
+        choiceLabels: ""
       });
     }
   },

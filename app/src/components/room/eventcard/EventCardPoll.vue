@@ -192,12 +192,14 @@ export default Vue.extend({
 
     toggleVote(choice) {
       if (this.hasMyVote(choice.id)) {
+        console.log('removing my vote', choice.id); //debug
         DB.util.mapUnionRemove(
           DB.votes(this.card.roomId, this.card.id, this.uid),
           "votes",
           choice.id
         );
       } else {
+        console.log('adding my vote', choice.id); //debug
         DB.util.mapUnionAdd(
           DB.votes(this.card.roomId, this.card.id, this.uid),
           "votes",
