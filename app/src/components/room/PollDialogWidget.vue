@@ -102,6 +102,12 @@ export default Vue.extend({
       this.$emit("confirm", {
         title: this.poll.title,
         allowWriteIns: this.poll.allowWriteIns,
+        // this.poll.votesPerMember should be a number here; we specified that it has to be
+        // and even declared an interface (CommitEvent) declaring it is. But the input still
+        // gives us a string, and calling parseInt() on it here results in a linting error because
+        // it insists that CommitEvent.votesPerMember is a string. Why? Something to do with
+        // the input for $emit I imagine, but I couldn't solve it. So just be aware that it  is
+        // not the nice number one might expect.
         votesPerMember: this.poll.votesPerMember,
         choiceLabels: this.poll.choiceLabels
           .split("\n")

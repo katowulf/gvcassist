@@ -259,7 +259,12 @@ export default Vue.extend({
       console.log("createPoll", event);
       this.feed.addPoll(
         event.title,
-        event.votesPerMember,
+        // Why is event.votesPerMember a string?
+        // Because it's coming from an input field and for whatever reason,
+        // it can't be passed into $emit(...) as a number. Typescript barfs
+        // when doing so. So we check it here, which is a hack, coupling,
+        // and not happy.
+        parseInt(event.votesPerMember),
         event.allowWriteIns,
         event.choiceLabels
       );

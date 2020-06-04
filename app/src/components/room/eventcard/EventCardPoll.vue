@@ -131,7 +131,7 @@ export default Vue.extend({
         DB.poll(this.card.roomId, this.card.id).onSnapshot(snap =>
           this.syncPoll(snap)
         ),
-        DB.choices(this.card.roomId, this.card.id).onSnapshot(snap =>
+        DB.choices(this.card.roomId, this.card.id).orderBy('created').onSnapshot(snap =>
           this.syncChoices(snap)
         ),
         DB.votes(this.card.roomId, this.card.id, this.uid).onSnapshot(snap =>
@@ -173,6 +173,7 @@ export default Vue.extend({
           };
         }
       );
+      console.log('new choices', choices);
       this.$set(this, "choices", choices);
     },
 
