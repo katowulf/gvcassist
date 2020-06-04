@@ -42,8 +42,8 @@ service cloud.firestore {
            return get(makePath(/rooms/$(roomId)));
         }
 
-        function getPoll(roomId, eventId, pollId) {
-            return get(makePath(/rooms/$(roomId)/feed/$(eventId)/polls/$(pollId)));
+        function getPoll(roomId, eventId) {
+            return get(makePath(/rooms/$(roomId)/feed/$(eventId)/meta/poll));
         }
 
         function feedIsWritable(room) {
@@ -71,15 +71,15 @@ service cloud.firestore {
             return feedIsWritable(room) && isDocOwner(room);
         }
 
-        function canVote(roomId, eventId, pollId, voteData) {
+        function canVote(roomId, eventId, voteData) {
             let numVotes = 'votes' in voteData? voteData.votes.size() : 0;
-            let allowedVotes = getPoll(roomId, eventId, pollId).data.votesPerMember;
+            let allowedVotes = getPoll(roomId, eventId).data.votesPerMember;
             return isEventType(roomId, eventId, 'poll') && feedIsWritable(getRoom(roomId)) && allowedVotes >= numVotes;
         }
 
-        function canAddPollChoices(roomId, eventId, pollId) {
+        function canAddPollChoices(roomId, eventId) {
             let room = getRoom(roomId);
-            return isEventType(roomId, eventId, 'poll') && feedIsWritable(room) && (isDocOwner(room) || getPoll(roomId, eventId, pollId).data.allowWriteIns == true);
+            return isEventType(roomId, eventId, 'poll') && feedIsWritable(room) && (isDocOwner(room) || getPoll(roomId, eventId).data.allowWriteIns == true);
         }
 
         match /publicProfiles/{uid} {
@@ -109,20 +109,25 @@ service cloud.firestore {
                     allow get: if canSeeRoom(getRoom(roomId));
                 }
 
-                match /polls/{pollId} {
+                match /meta/wait {
+                    allow write: if canSeeRoom(getRoom(roomId)) && isEventType(roomId, eventId, "wait");
+                    allow get: if canSeeRoom(getRoom(roomId));
+                }
+
+                match /meta/poll {
                     allow write: if canCreatePoll(roomId, eventId);
                     allow list: if false;
                     allow get: if canSeeRoom(getRoom(roomId));
 
                     match /votes/{userId} {
-                        allow write: if request.auth.uid == userId && canVote(roomId, eventId, pollId, request.resource.data);
+                        allow write: if request.auth.uid == userId && canVote(roomId, eventId, request.resource.data);
                         allow read: if canSeeRoom(getRoom(roomId));
                         allow list: if isDocOwner(getRoom(roomId));
                     }
 
                     match /choices/{choiceId} {
-                        allow create: if canAddPollChoices(roomId, eventId, pollId);
-                        allow delete: if canAddPollChoices(roomId, eventId, pollId);
+                        allow create: if canAddPollChoices(roomId, eventId);
+                        allow delete: if canAddPollChoices(roomId, eventId);
                         allow read: if canSeeRoom(getRoom(roomId));
                         allow list: if canSeeRoom(getRoom(roomId));
                     }

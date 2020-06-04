@@ -28,11 +28,13 @@ const DBPaths = {
     DBPaths.todos(roomId, eventId) + `/${todoId}`,
   // there is only one poll per event
   poll: (roomId: string, eventId: string) =>
-    DBPaths.event(roomId, eventId) + `/polls/poll`,
+    DBPaths.event(roomId, eventId) + `/meta/poll`,
   choices: (roomId: string, eventId: string) =>
     DBPaths.poll(roomId, eventId) + `/choices`,
   votes: (roomId: string, eventId: string, uid: string) =>
-    DBPaths.poll(roomId, eventId) + `/votes/${uid}`
+    DBPaths.poll(roomId, eventId) + `/votes/${uid}`,
+  wait: (roomId: string, eventId: string) =>
+    DBPaths.event(roomId, eventId) + '/meta/wait'
 };
 
 class Database {
@@ -108,6 +110,8 @@ export default {
     DB.collection(DBPaths.choices(roomId, eventId)),
   votes: (roomId: string, eventId: string, uid: string) =>
     DB.doc(DBPaths.votes(roomId, eventId, uid)),
+  wait: (roomId: string, eventId: string) =>
+    DB.doc(DBPaths.wait(roomId, eventId)),
   path: DBPaths,
   util: DB
 };

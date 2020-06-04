@@ -62,18 +62,17 @@ exports.markProfileDeleted = functions.auth.user().onDelete((user) => {
 // with the current setup, but could be if we added some sort of batching on the client
 // side.
 exports.userVoteCreated = functions.firestore
-  .document('apps/gvcassistant/rooms/{roomId}/feed/{eventId}/polls/{pollId}/votes/{userId}')
+  .document('apps/gvcassistant/rooms/{roomId}/feed/{eventId}/meta/poll/votes/{userId}')
   .onCreate(async (snap: DocumentSnapshot, context: EventContext) => {
     const addedVotes = snap.data()?.votes || [];
 
     await updateVotes(
-      context.params.roomId, context.params.eventId,
-      context.params.pollId, context.params.userId,
+      context.params.roomId, context.params.eventId, context.params.userId,
       addedVotes, []);
   });
 
 exports.userVoteModified = functions.firestore
-  .document('apps/gvcassistant/rooms/{roomId}/feed/{eventId}/polls/{pollId}/votes/{userId}')
+  .document('apps/gvcassistant/rooms/{roomId}/feed/{eventId}/meta/poll/votes/{userId}')
   .onUpdate(async (change: Change<DocumentSnapshot>, context: EventContext) => {
     const newVotes = change.after.data()?.votes || [];
     const oldVotes = change.before.data()?.votes || [];
@@ -83,8 +82,7 @@ exports.userVoteModified = functions.firestore
     const removed = oldVotes.filter((choiceId:string) => !unchanged.has(choiceId));
 
     await updateVotes(
-      context.params.roomId, context.params.eventId,
-      context.params.pollId, context.params.userId,
+      context.params.roomId, context.params.eventId, context.params.userId,
       added, removed);
   });
 
@@ -137,8 +135,8 @@ async function deleteCollection(collectionPath: string, cliToken: string) {
   });
 }
 
-async function updateVotes(roomId: string, eventId: string, pollId: string, uid: string, added: string[], removed: []) {
-  const choicePath = `apps/gvcassistant/rooms/${roomId}/feed/${eventId}/polls/${pollId}/choices/`;
+async function updateVotes(roomId: string, eventId: string, uid: string, added: string[], removed: []) {
+  const choicePath = `apps/gvcassistant/rooms/${roomId}/feed/${eventId}/meta/poll/choices/`;
   const batch = admin.firestore().batch();
   added.forEach((choiceId:string) => {
     const doc = admin.firestore().doc(choicePath + choiceId);
