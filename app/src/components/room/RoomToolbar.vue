@@ -184,7 +184,8 @@ export default Vue.extend({
           );
         case EventType.poll:
           return this.showPollDialog();
-        // case EventType.wait:
+        case EventType.wait:
+          return this.createWaitEvent();
         case EventType.afk:
           return this.createAfk();
         default:
@@ -287,6 +288,10 @@ export default Vue.extend({
           persistent: true
         });
       });
+    },
+
+    createWaitEvent() {
+      this.feed.add(EventType.wait);
     },
 
     buildCollapseCss(

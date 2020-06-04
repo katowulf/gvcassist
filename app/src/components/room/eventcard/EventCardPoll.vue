@@ -198,6 +198,8 @@ export default Vue.extend({
           "votes",
           choice.id
         );
+      } else if (this.noVotesLeft) {
+        console.log('I have no votes left. Ignoring vote.');
       } else {
         console.log('adding my vote', choice.id); //debug
         DB.util.mapUnionAdd(

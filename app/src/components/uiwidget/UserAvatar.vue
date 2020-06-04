@@ -9,6 +9,7 @@
       v-if="user && user.photoURL"
       :src="user.photoURL"
       :alt="user.displayName"
+      :title="user.displayName"
     />
     <span v-if="user && !user.photoURL" class="white--text headline">
       {{ user.initials || "?" }}
@@ -35,8 +36,8 @@ export default Vue.extend({
   // reasonable to do this with route guards too, but this isn't a route. It's a drop
   // in component.
   async created() {
-    this.user = await Profiles.find(this.uid);
-    this.$set(this.user, "$id", this.user.$id);
+    const user = await Profiles.find(this.uid);
+    this.$set(this, "user", user);
   },
 
   data: () => ({
